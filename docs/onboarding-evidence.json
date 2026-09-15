@@ -1,0 +1,324 @@
+{
+  "schema": "hol-hearth.onboarding-validation.v1",
+  "checked_on": "2026-09-15",
+  "scope": "Real local Linux VMs; clean candidate clones; empty HOL source and runtime directories; distribution packages; no copied warm images or OPAM switches.",
+  "evidence_boundary": "Authoring runtime and nonce-bound warm proof checks, not independent final theorem publication evidence.",
+  "hosts": [
+    {
+      "host": "ubuntu",
+      "os": "Ubuntu 26.04 LTS",
+      "architecture": "aarch64",
+      "hearth_code_revision": "fb575fc7503446d5ef87636ce0f5b77a77d573db",
+      "hol_revision": "2a1cea8f1cb7f3885a60d947ba06eabac6ec1d32",
+      "tools": {
+        "ocaml": "5.4.0",
+        "camlp5": "Camlp5 version 8.04.00 (ocaml 5.4.0)",
+        "criu": "Version: 4.2"
+      },
+      "fresh_setup": {
+        "status": "passed",
+        "profile_reused": false,
+        "public_proof_check": "passed",
+        "receipt_sha256": "2e61fd1ddad6200957497d159a36e549b01ee9d03fb127f31e98d456d532ba90",
+        "no_local_opam_switch": true
+      },
+      "profile": {
+        "profile_basis_id": "hol.light.default.v3",
+        "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+        "pool_start_seconds": 151.035,
+        "dump_seconds": 0.178,
+        "restore_seconds": 0.138,
+        "eval_seconds": 0.187,
+        "image_bytes": 275321339,
+        "loaded_strict_sha256": "ad368f150e4a680bd2f1fd09ce9cf8d9fd28ecf5c659f68d9e80a52dd1b83518",
+        "ocaml_runtime_strict_sha256": "2cbfb31a7c0ee1b2e769237c5b7be918aeffec56b024414c8b55162aed907da0",
+        "image_inventory_sha256": "a06040ed9a6b87064590512ef43a8673d6f55c0ed3da236295f26c5ea7edd806"
+      },
+      "demos": {
+        "repaired.ml": {
+          "source_sha256": "958a06ef8dfa14e2691aa0e9762cc9022119ea2df5b0a8937bbd7d78c15317e0",
+          "receipt_sha256": "4e1d9ea91160e9a5061b8062ebfb937a9433d14af0c728d873704db477f2bf89",
+          "status": "succeeded",
+          "source_completed": true,
+          "eval_seconds": 0.155,
+          "bindings": [
+            {
+              "name": "HEARTH_SQUARE_REPAIRED",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        },
+        "failure.ml": {
+          "source_sha256": "85d89dae49791847b9bfb4076f9692e010942b6b8d4f18283cdf7c460220e703",
+          "receipt_sha256": "b5264ebbfb4d8b0deb95b42bca87da76f2b5a07bcd26e76b4e8b5de4c1d0a5bc",
+          "status": "failed",
+          "source_completed": false,
+          "eval_seconds": 0.099,
+          "bindings": [
+            {
+              "name": "HEARTH_FALSE_SQUARE",
+              "status": "missing",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        },
+        "balance.ml": {
+          "source_sha256": "0eadb0a14399ac8b608d47d054cfc48596af81d8c1916e68d301ee3fed312f3f",
+          "receipt_sha256": "9ba315b0ab90b08e84a9e7cea18deb81b678b4b8477dff5b2313d0fb195cf383",
+          "status": "succeeded",
+          "source_completed": true,
+          "eval_seconds": 0.102,
+          "bindings": [
+            {
+              "name": "HEARTH_TRANSFER_CONSERVES",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            },
+            {
+              "name": "HEARTH_TRANSFER_NONNEGATIVE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        },
+        "cat-map.ml": {
+          "source_sha256": "e286fd9f132b446e195e8632df4af888b962da782547e0aefefbf82c831255d3",
+          "receipt_sha256": "70d83ea571946d6f4d15968c4f61283ee5177bc45278ee94fced40397d012b4e",
+          "status": "succeeded",
+          "source_completed": true,
+          "eval_seconds": 0.101,
+          "bindings": [
+            {
+              "name": "HEARTH_CAT_INVARIANT",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            },
+            {
+              "name": "HEARTH_CAT_INVERSE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        }
+      },
+      "live_loop": {
+        "status": "passed",
+        "cases": [
+          "false proof",
+          "syntax error",
+          "repair",
+          "relative filename with spaces",
+          "Ctrl-C exit 130"
+        ],
+        "log_sha256": "52d03c3cfaf0b1e072153fd193df381129e569f2376890c217d4080dd4647adb"
+      },
+      "doctor": {
+        "status": "healthy",
+        "workers": 2,
+        "active": 0
+      },
+      "repeat_setup": {
+        "status": "passed",
+        "profile_reused": true,
+        "published_shelf_count": 1,
+        "receipt_sha256": "ab273f62f60629a3b4f743597d324fbe86c67083ca845045bf19095730e69b6d"
+      },
+      "tool_checks": {
+        "status": "passed",
+        "log_sha256": "176099229a82e387cd07fbc5b9a9e9786c438d9ebdf043344d9d66a56327b4c5",
+        "setup_regression_cases": 7
+      },
+      "cli_cases": [
+        {
+          "case": "first-doctor",
+          "exit_status": 1,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "missing-source",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "unknown-profile",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "bad-syntax",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "occupied-run-root",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "host": "debian",
+      "os": "Debian GNU/Linux 13 (trixie)",
+      "architecture": "aarch64",
+      "hearth_code_revision": "fb575fc7503446d5ef87636ce0f5b77a77d573db",
+      "hol_revision": "2a1cea8f1cb7f3885a60d947ba06eabac6ec1d32",
+      "tools": {
+        "ocaml": "5.3.0",
+        "camlp5": "Camlp5 version 8.03.01 (ocaml 5.3.0)",
+        "criu": "Version: 4.1.1"
+      },
+      "fresh_setup": {
+        "status": "passed",
+        "profile_reused": false,
+        "public_proof_check": "passed",
+        "receipt_sha256": "1538630cef514689fc68b6b64c99ff2a0e5e9dda91ba7995e458da7b0d710904",
+        "no_local_opam_switch": true
+      },
+      "profile": {
+        "profile_basis_id": "hol.light.default.v3",
+        "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+        "pool_start_seconds": 149.314,
+        "dump_seconds": 0.23,
+        "restore_seconds": 0.224,
+        "eval_seconds": 0.127,
+        "image_bytes": 262030886,
+        "loaded_strict_sha256": "ad368f150e4a680bd2f1fd09ce9cf8d9fd28ecf5c659f68d9e80a52dd1b83518",
+        "ocaml_runtime_strict_sha256": "5485607cdb2b68e2747551d8080a6cde4f91bd91fe7bb088a7bd84db15464e8b",
+        "image_inventory_sha256": "42bcb862f12982284f695a527277918243fa0cb7f7a7e761abbdf4d1ec38e1d4"
+      },
+      "demos": {
+        "repaired.ml": {
+          "source_sha256": "958a06ef8dfa14e2691aa0e9762cc9022119ea2df5b0a8937bbd7d78c15317e0",
+          "receipt_sha256": "88a501e8002a317ef38b44aca7bf4b70d1ab14e5a9dd4c906f841553027003bf",
+          "status": "succeeded",
+          "source_completed": true,
+          "eval_seconds": 0.112,
+          "bindings": [
+            {
+              "name": "HEARTH_SQUARE_REPAIRED",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        },
+        "failure.ml": {
+          "source_sha256": "85d89dae49791847b9bfb4076f9692e010942b6b8d4f18283cdf7c460220e703",
+          "receipt_sha256": "db1ee71ef7c198bbffcf02eebcd202ce3e02fe1ebb15164aba28c5c2699a4888",
+          "status": "failed",
+          "source_completed": false,
+          "eval_seconds": 0.104,
+          "bindings": [
+            {
+              "name": "HEARTH_FALSE_SQUARE",
+              "status": "missing",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        },
+        "balance.ml": {
+          "source_sha256": "0eadb0a14399ac8b608d47d054cfc48596af81d8c1916e68d301ee3fed312f3f",
+          "receipt_sha256": "3c0d942300c14d9d5a1d6ef8ebb7e416f9ac7c3c050b5bc2a9ba84498e5bfd67",
+          "status": "succeeded",
+          "source_completed": true,
+          "eval_seconds": 0.098,
+          "bindings": [
+            {
+              "name": "HEARTH_TRANSFER_CONSERVES",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            },
+            {
+              "name": "HEARTH_TRANSFER_NONNEGATIVE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        },
+        "cat-map.ml": {
+          "source_sha256": "e286fd9f132b446e195e8632df4af888b962da782547e0aefefbf82c831255d3",
+          "receipt_sha256": "60c02f95565838937fc45a5eb76bfdfd9bf89e4d2585ee91b83faf3a4b016518",
+          "status": "succeeded",
+          "source_completed": true,
+          "eval_seconds": 0.305,
+          "bindings": [
+            {
+              "name": "HEARTH_CAT_INVARIANT",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            },
+            {
+              "name": "HEARTH_CAT_INVERSE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+            }
+          ]
+        }
+      },
+      "live_loop": {
+        "status": "passed",
+        "cases": [
+          "false proof",
+          "syntax error",
+          "repair",
+          "relative filename with spaces",
+          "Ctrl-C exit 130"
+        ],
+        "log_sha256": "cf9696d9eb7eaf7ca8c9bd384df7e0755b3b37bf6f522bf8a2366a1b0b5c5f50"
+      },
+      "doctor": {
+        "status": "healthy",
+        "workers": 2,
+        "active": 0
+      },
+      "repeat_setup": {
+        "status": "passed",
+        "profile_reused": true,
+        "published_shelf_count": 1,
+        "receipt_sha256": "aca5f1a7b205ab72a110f1cce22488da6e37350aaebe05a606bfb567581c7042"
+      },
+      "tool_checks": {
+        "status": "passed",
+        "log_sha256": "422acca8a395b39e5d37979e5e5fd10630e42edd94e032cb1a0958980c46a459",
+        "setup_regression_cases": 7
+      },
+      "cli_cases": [
+        {
+          "case": "first-doctor",
+          "exit_status": 1,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "missing-source",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "unknown-profile",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "bad-syntax",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        },
+        {
+          "case": "occupied-run-root",
+          "exit_status": 2,
+          "traceback": false,
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

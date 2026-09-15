@@ -1,70 +1,83 @@
 # Validation
 
-Checked on 2026-09-15 against the exported HOL Hearth source.
+Fresh setup and agent-facing command journeys passed on **Debian 13 ARM64 and
+Ubuntu 26.04 ARM64** on 2026-09-15. The final acceptance run used code revision
+`fb575fc7503446d5ef87636ce0f5b77a77d573db`, a clean clone in each VM, and empty HOL source and runtime directories.
+Distribution packages supplied the toolchain. Neither run reused an OPAM switch
+or copied a warm image. These were real Linux runs, not distribution-ID simulation.
+
+The [machine-readable record](onboarding-evidence.json) binds setup receipts,
+profile identities, demo source/receipt hashes and live-loop logs. Raw receipts
+remain local because they include machine paths; the public record is a summary.
 
 | Check | Ubuntu 26.04 ARM64 | Debian 13 ARM64 |
 | --- | --- | --- |
-| System Python, with no third-party packages | 3.14.4: pass | 3.13.5: pass |
-| Public commands, receipts, isolated imports | pass | pass |
-| Source byte identity and dependency packaging | pass | pass |
-| Loader/parser contracts | 82 source, 22 artifact, 11 convergence cases: pass | same: pass |
-| Lifecycle and interrupted cleanup | 11 lifecycle and 14 hostile-interrupt cases: pass | same: pass |
-| Native evaluator, direct OCaml compiler | 5.4.0: pass | 5.3.0: pass |
-| Native parser/error-location checks | pass | pass |
-| Real child termination reporting | SIGTERM / 15 / exit 143: pass | SIGTERM / 15 / exit 143: pass |
-| CRIU kernel capability check | Existing configured runtime | Distribution CRIU 4.1.1: pass |
-| Real HOL recorded demos | pass, existing light profile | not run |
-| Real failure → repair → Ctrl-C edit session | pass | not run |
-| Fresh-machine HOL profile provisioning | not tested | pending |
+| Python / OCaml | 3.14.4 / 5.4.0 | 3.13.5 / 5.3.0 |
+| Camlp5 / distribution CRIU | 8.04.00 / 4.2 | 8.03.01 / 4.1.1 |
+| Pinned HOL source fetch and module build | pass | pass |
+| First light profile load, dump, restore and smoke proofs | pass | pass |
+| Public cat-map proof before setup declares ready | pass | pass |
+| Repeated setup | existing profile reused; one shelf | existing profile reused; one shelf |
+| Recorded cat-map, balance and repaired-square proofs | all five bindings proved | all five bindings proved |
+| Intentional false square | rejected; binding missing | rejected; binding missing |
+| Live false proof → syntax error → repair → Ctrl-C | pass | pass |
+| Relative proof filename containing spaces | pass | pass |
+| Missing config/source, unknown profile, bad syntax, occupied output | clear nonzero result; no traceback | same |
+| Full portable tool and provenance checks | pass | pass |
+| Direct evaluator build and real child SIGTERM reporting | pass | pass |
+| Final doctor | healthy, no active proofs or queue | healthy, no active proofs or queue |
 
-Both are real local Linux VMs. No distribution identity was spoofed. The
-Debian checks used a clean source export, system Python, distribution OCaml,
-and no copied Ubuntu executable or warm snapshot.
+The profile construction step took approximately 155–157 seconds in these two
+runs, including about 149–151 seconds of HOL startup and loading. Source fetch
+and compilation were separate short steps. These are local measurements, not
+a promise for other hardware or profiles.
 
-## Real proof demos
+## Bugs found and fixed by the fresh runs
 
-The recorded Ubuntu runs accepted all five intended theorem bindings:
+- Missing installation route: added `./hearth setup`, a pinned HOL revision,
+  capability checks, progress, logs and a source-to-restored-profile path.
+- False sudo refusal: test the actual authorized CRIU invocation instead of
+  requiring a sudo validation operation that can reject passwordless policies.
+- Root-owned dump files: transfer the generated artifacts to the unprivileged
+  controller before hashing them; reject symlinks and restrict file permissions.
+- Python 3.13 permission exceptions during restored-pidfile cleanup: use the
+  existing privileged probe for root-owned output directories.
+- OPAM-only syntax preflight: use the configured switch when present and system
+  OCaml paths otherwise; do not require a nonexistent local stublibs directory.
+- Misleading doctor output: default to the installed `light` profile, show the
+  configuration detail, and give new users a setup command. Optional profile
+  checks remain available through `--all-profiles`.
+- Unhelpful live parser exception: report a syntax error instead of `Stdlib.Exit`.
+- Duplicate demo output: keep receipt inspection opt-in with `--inspect`, and
+  offer `./hearth demo repaired` after the expected-failure demonstration.
 
-- `cat-map.ml`: `HEARTH_CAT_INVARIANT`, `HEARTH_CAT_INVERSE`.
-- `balance.ml`: `HEARTH_TRANSFER_CONSERVES`, `HEARTH_TRANSFER_NONNEGATIVE`.
-- `repaired.ml`: `HEARTH_SQUARE_REPAIRED`.
+Setup now includes a public proof check so an internal restore smoke test alone
+cannot make a broken public authoring path appear ready. Existing configurations
+and profiles are preserved. A failed build stays unpublished for diagnosis.
 
-`failure.ml` was rejected and its proposed binding stayed missing. The live
-edit test went from failure to acceptance after saving the repair, then stopped
-with SIGINT / exit 130. A separate killed-child test reported SIGKILL / signal
-9 and closed that edit session; a later session and recorded check succeeded.
-The final runtime inspection reported no active proofs, no queue, and clean
-lifecycle state. Shared warm brokers remained available.
+Seven focused setup/permission regressions accompany the portable harness:
+source byte identity, dependency packaging, seven CRIU contracts, 82 source / 22
+artifact / 11 convergence loader cases, and 11 lifecycle / 14 hostile-interrupt
+cases. Synthetic tests check orchestration; the real proof runs above check HOL.
 
-[Demo evidence](../demos/evidence.json) records exact source hashes and selected
-receipt fields. Raw receipts stay local because they contain machine paths.
-The [terminal recording](../demos/live-loop.cast) preserves captured timing and
-output, with only the source path normalized. Its subsecond timings describe
-one warm local run, not installation time or a general performance guarantee.
+## Licensing and boundaries
 
-## Boundaries
+The provenance inventory covers 15 shipped ML files, both profile manifests,
+and the HOL source build lock. Changed, new or missing ML, changed manifests,
+and standalone recipe drift require renewed review. Upstream sources and images
+remain outside the repository under their applicable licenses.
 
-The tests establish portable orchestration and evaluator compilation on the
-listed versions. They do not establish a complete Debian HOL/CRIU installation,
-snapshot portability across hosts, or compatibility with every Linux kernel.
-ARM64 is the tested architecture; x86-64 remains unverified for this release.
+Only the listed ARM64 versions and local VM/kernel environments were tested.
+This does not establish x86-64 support or CRIU operation under every container,
+kernel or privilege policy. Setup checks capabilities before loading HOL.
+Optional heavy, probability and assembly profiles were not freshly provisioned
+in this acceptance run. `light` is sufficient for the published demos.
 
-The portable tool tests use synthetic protocol fixtures. They validate
-orchestration and receipt handling, not mathematics. Real demo proofs are
-checked separately against an existing local HOL Light profile.
+The native evaluator must match its HOL runtime's OCaml compiler. Warm source
+acceptance and named theorem probes remain authoring evidence; independent final
+publication replay and review of assumptions are separate work.
 
-The native sources compile on OCaml 5.3 and 5.4. The live evaluator must still
-be built with the compiler matching the HOL runtime that will load it.
-
-## Profile source follow-up
-
-The ML provenance inventory covers 15 ML files and two complete profile
-manifests. Inventory checks and public smoke checks pass on both Linux VMs;
-the full tool check also passes on Ubuntu after this change. A clean source
-archive passes the inventory check. Disposable copies with changed, missing
-or added ML files, changed manifests, or recipe/manifest drift are rejected.
-
-All seven standalone public recipes preserve their previous basis byte hashes.
-The packaged compaction helper resolves for each profile that uses it. This
-follow-up did not load HOL or build/rebuild any profile; fresh provisioning
-remains unverified.
+The earlier [demo evidence](../demos/evidence.json) and
+[terminal recording](../demos/live-loop.cast) remain historical measurements of
+the initial source release. This page and the onboarding record describe the
+new source-built environments.

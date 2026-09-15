@@ -29,8 +29,20 @@ separate from warm authoring acceptance.
 Profiles describe a preloaded basis. `light` is suitable for the original demos.
 `heavy`, `probability` and optional assembly profiles require separately
 provisioned local snapshots. `./hearth profiles` lists recipes; it does not
-claim they are installed. `./hearth doctor` checks availability.
+claim they are installed. `./hearth doctor` checks `light` by default; use `--all-profiles` to include optional profiles.
 
 HOL source is executable OCaml. Run only source you trust on a machine whose
 files that process is permitted to access. A disposable fork isolates mutable
 proof state; it is not an operating-system security sandbox.
+
+
+## Demos
+
+`./hearth demo cat-map` and `./hearth demo balance` run the original examples.
+`./hearth demo failure` succeeds as a demonstration only when HOL actually
+rejects the intended false statement; a setup or transport failure does not
+count. Follow it with `./hearth demo repaired` for the corrected identity.
+
+Add `--inspect` to print the full receipt immediately. Otherwise use the printed
+`./hearth inspect ...` command when you need the binding details. A supplied
+`--run-root` must be absent or empty; existing output is preserved.

@@ -20,10 +20,14 @@ logical basis also requires pinned upstream source revisions and a compatible
 toolchain. The resulting CRIU images contain process state and depend on the
 host environment; byte-identical images are not promised.
 
-First-time provisioning still needs end-to-end validation on a clean machine.
-The runtime currently accepts a configured HOL source tree; this release has
-not yet supplied and validated a universal HOL/toolchain lock for fresh builds.
-The checked-in recipes address source availability, not that remaining test.
+`./hearth setup` implements this path for `light` and has passed fresh-source
+installation on Debian 13 and Ubuntu 26.04 ARM64. It fetches the exact HOL
+revision in `dev/setup-lock.json`, uses distribution OCaml packages, and records
+their versions. It then checks a proof through the public command. See
+[setup](setup.md) and [validation](validation.md).
+
+The HOL revision and recipe are pinned. Compiler/package versions are recorded
+per host; this is not a universal byte-reproducible compiler or CRIU image lock.
 
 ## Licensing
 
