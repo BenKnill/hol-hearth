@@ -23,3 +23,7 @@ This public repository starts with a fresh history. Imported first-party
 orchestration code was selected separately from experimental case studies;
 the original cryptography papers and proof copies are excluded. New demos
 were written specifically for this release.
+
+The [ML and profile source review](docs/source-provenance.md) records file-level
+provenance, recipe dependencies and the ML-KEM statement attribution. Its hash
+inventory is checked by `./hearth check` when these sources change.

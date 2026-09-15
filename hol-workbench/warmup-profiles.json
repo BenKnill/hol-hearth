@@ -506,7 +506,7 @@
         "recommended_pool_size": 2,
         "orbstack_public_capacity": 1,
         "required_extra_preloads": [
-          "research/jane-street-probes/compact_after_preload.ml"
+          "hol-workbench/profile-support/compact_after_preload.ml"
         ],
         "profile_sha256": "f113dc10e72e6beffae657525554245cc4805a493911890c7f328a5f6fef0060"
       },

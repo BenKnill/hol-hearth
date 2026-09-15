@@ -55,3 +55,16 @@ checked separately against an existing local HOL Light profile.
 
 The native sources compile on OCaml 5.3 and 5.4. The live evaluator must still
 be built with the compiler matching the HOL runtime that will load it.
+
+## Profile source follow-up
+
+The ML provenance inventory covers 15 ML files and two complete profile
+manifests. Inventory checks and public smoke checks pass on both Linux VMs;
+the full tool check also passes on Ubuntu after this change. A clean source
+archive passes the inventory check. Disposable copies with changed, missing
+or added ML files, changed manifests, or recipe/manifest drift are rejected.
+
+All seven standalone public recipes preserve their previous basis byte hashes.
+The packaged compaction helper resolves for each profile that uses it. This
+follow-up did not load HOL or build/rebuild any profile; fresh provisioning
+remains unverified.

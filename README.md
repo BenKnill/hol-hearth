@@ -84,3 +84,7 @@ See [setup](docs/setup.md), [usage and evidence](docs/usage.md),
 [MIT](LICENSE). External tools keep their own licenses; see
 [third-party dependencies](THIRD_PARTY.md). No upstream HOL sources, papers,
 memory images or third-party binaries are bundled.
+
+Public [profile recipes](profiles) are checked-in ML source; see
+[how profiles are generated](docs/profiles.md) and the
+[ML provenance review](docs/source-provenance.md).

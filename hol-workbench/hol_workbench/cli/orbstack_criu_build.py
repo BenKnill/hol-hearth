@@ -276,7 +276,7 @@ def extra_preloads(profile: str | None = None) -> list[str]:
     if not raw:
         if profile in {"s2n-arm", "s2n-arm-light", "s2n-arm-mlkem"}:
             return []
-        return [str(WORKBENCH / "research" / "jane-street-probes" / "compact_after_preload.ml")]
+        return [str(WORKBENCH_PKG / "profile-support" / "compact_after_preload.ml")]
     paths = []
     for item in raw.split(","):
         text = item.strip()

@@ -54,3 +54,8 @@ This initial release exposes the authoring tools and original demos.
 Automated first-profile provisioning has not been validated as a fresh-machine
 installation. Do not treat the source-only checks as proof-runtime setup.
 See the validation record for the exact tested scope.
+
+The [profile recipes](../profiles) are available as standalone `.ml` files,
+with exact bytes checked against the runtime manifest. A profile is generated
+from those recipes and the selected upstream HOL/runtime inputs; see
+[profile generation](profiles.md) for the remaining provisioning work.
