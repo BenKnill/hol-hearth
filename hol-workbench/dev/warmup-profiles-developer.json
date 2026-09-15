@@ -1,0 +1,810 @@
+{
+  "schema": "hol-workbench.developer-warmup-profiles.v1",
+  "profiles": {
+    "core": {
+      "basis_id": "hol.core.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Base HOL Light plus a tiny sentinel theorem.",
+      "expected_load": "HOL startup only",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use for tutorial, Boolean, arithmetic, and small self-contained scratch lemmas.",
+      "useful_operations": [
+        {
+          "name": "MESON_TAC[]",
+          "hint": "first-order and propositional closure"
+        },
+        {
+          "name": "ASM_MESON_TAC[]",
+          "hint": "same, using assumptions"
+        },
+        {
+          "name": "REWRITE_TAC[...]",
+          "hint": "unfold definitions and apply equalities"
+        },
+        {
+          "name": "ASM_REWRITE_TAC[...]",
+          "hint": "rewrite with assumptions too"
+        },
+        {
+          "name": "SIMP_TAC[...]",
+          "hint": "rewriting with simplification side conditions"
+        },
+        {
+          "name": "ARITH_TAC",
+          "hint": "Presburger arithmetic over num/int"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear real arithmetic"
+        },
+        {
+          "name": "TAUT_TAC",
+          "hint": "pure propositional goals"
+        },
+        {
+          "name": "EQ_TAC",
+          "hint": "split iff goals"
+        },
+        {
+          "name": "MATCH_MP_TAC",
+          "hint": "apply an implication or theorem shape"
+        }
+      ],
+      "base_lines": [
+        "let HOL_WORKBENCH_CORE_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "ring": {
+      "basis_id": "hol.library.ringtheory.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Generic algebra/ring automation setup.",
+      "expected_load": "Heavy cold load; good candidate for cached fork seats.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use for RING_RULE, REAL_RING, and polynomial/algebra scratch lemmas.",
+      "output_profile": "ringtheory",
+      "useful_operations": [
+        {
+          "name": "RING_RULE",
+          "hint": "prove pure ring equalities as a theorem"
+        },
+        {
+          "name": "RING_TAC",
+          "hint": "close ring-normalization goals"
+        },
+        {
+          "name": "REAL_RING",
+          "hint": "real polynomial identity conversion; not a tactic by itself"
+        },
+        {
+          "name": "CONV_TAC REAL_RING",
+          "hint": "invoke the REAL_RING conversion on the current goal"
+        },
+        {
+          "name": "REAL_FIELD",
+          "hint": "field identities with nonzero side conditions"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear real side conditions"
+        },
+        {
+          "name": "REWRITE_TAC[ADD_CLAUSES; MULT_CLAUSES]",
+          "hint": "clear small arithmetic clutter"
+        },
+        {
+          "name": "ASM_SIMP_TAC[]",
+          "hint": "discharge simplification side conditions from assumptions"
+        },
+        {
+          "name": "MATCH_MP_TAC",
+          "hint": "apply algebraic lemmas by conclusion shape"
+        },
+        {
+          "name": "MESON_TAC[]",
+          "hint": "finish first-order residue"
+        }
+      ],
+      "base_lines": [
+        "needs \"Library/ringtheory.ml\";;",
+        "let HOL_WORKBENCH_RING_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "real-algebra": {
+      "basis_id": "hol.calc-rat.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Lightweight real arithmetic and polynomial algebra setup.",
+      "expected_load": "Moderate cold load; cheaper than full Multivariate/realanalysis for REAL_ARITH, REAL_RING, and calc_rat work.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use for real polynomial identities, inequalities, finite-difference algebra, and small analytic arithmetic before reaching for heavier analysis profiles.",
+      "useful_operations": [
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear real arithmetic and inequalities"
+        },
+        {
+          "name": "REAL_RING",
+          "hint": "conversion for polynomial real identities; not a tactic by itself"
+        },
+        {
+          "name": "CONV_TAC REAL_RING",
+          "hint": "invoke the REAL_RING conversion on the current goal"
+        },
+        {
+          "name": "REAL_FIELD",
+          "hint": "field identities after proving denominators nonzero"
+        },
+        {
+          "name": "REAL_LE_MUL",
+          "hint": "nonnegative product facts"
+        },
+        {
+          "name": "REAL_LT_MUL",
+          "hint": "positive product facts"
+        },
+        {
+          "name": "REAL_POW_2",
+          "hint": "square nonnegativity and expansion"
+        },
+        {
+          "name": "REAL_MUL_ASSOC",
+          "hint": "product reassociation for rewrites"
+        },
+        {
+          "name": "REAL_SUB_0",
+          "hint": "turn equality into zero difference"
+        },
+        {
+          "name": "ASM_SIMP_TAC[]",
+          "hint": "simplify with real assumptions"
+        }
+      ],
+      "base_lines": [
+        "needs \"calc_rat.ml\";;",
+        "let HOL_WORKBENCH_REAL_ALGEBRA_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "multivariate-physics": {
+      "basis_id": "hol.multivariate.vectors.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Vector and multivariate-analysis foundation for physics/tether work.",
+      "expected_load": "Heavy cold load; avoid paying this inside proof footraces.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use for vector, real-analysis, continuous-time, and tether/physics scratch lemmas.",
+      "useful_operations": [
+        {
+          "name": "VECTOR_ARITH_TAC",
+          "hint": "linear vector equalities"
+        },
+        {
+          "name": "NORM_ARITH_TAC",
+          "hint": "norm and distance arithmetic"
+        },
+        {
+          "name": "REWRITE_TAC[dist; NORM_SUB]",
+          "hint": "expose distance as a norm"
+        },
+        {
+          "name": "REWRITE_TAC[CART_EQ]",
+          "hint": "reduce vector equality to components"
+        },
+        {
+          "name": "DOT_LADD / DOT_RADD",
+          "hint": "distribute dot over vector addition"
+        },
+        {
+          "name": "DOT_LMUL / DOT_RMUL",
+          "hint": "pull scalar multiplication out of dot"
+        },
+        {
+          "name": "VECTOR_MUL_ASSOC",
+          "hint": "normalize scalar-vector products"
+        },
+        {
+          "name": "LINEAR_*",
+          "hint": "search/use linear-map closure lemmas"
+        },
+        {
+          "name": "CONTINUOUS_ON_*",
+          "hint": "search/use continuity closure lemmas"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "finish scalar side conditions"
+        }
+      ],
+      "base_lines": [
+        "needs \"Multivariate/vectors.ml\";;",
+        "let HOL_WORKBENCH_MULTIVARIATE_PHYSICS_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "tether-orbit": {
+      "basis_id": "hol.tether-orbit.library.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Tether-in-orbit scratch basis for scalarized 2D chain dynamics, force/mass acceleration budgets, no-slack envelopes, and light vector geometry.",
+      "expected_load": "Middle-heavy physics load; intended to be much cheaper than flyspeck-geom while richer than real-algebra for tether/orbit work.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use for tether chain dynamics and orbit-control lemmas: keep project definitions/theorems in a source-specific base, then prove new force, mass, acceleration, energy, or no-slack bridge lemmas in scratch.",
+      "useful_operations": [
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear force, mass, acceleration, and one-sided envelope inequalities"
+        },
+        {
+          "name": "CONV_TAC REAL_RING",
+          "hint": "close polynomial energy, dot2, power, and finite-difference identities"
+        },
+        {
+          "name": "REAL_LE_DIV / REAL_LE_LDIV_EQ",
+          "hint": "move positive mass or length denominators across inequalities"
+        },
+        {
+          "name": "REAL_LT_IMP_LE / REAL_LT_DIV",
+          "hint": "turn strict positive mass/length hypotheses into nonnegative budget facts"
+        },
+        {
+          "name": "SUM_EQ_NUMSEG / SUM_ADD_NUMSEG",
+          "hint": "finite chain sums over nodes or segments"
+        },
+        {
+          "name": "IN_NUMSEG / LE_0",
+          "hint": "normalize indexed chain side conditions"
+        },
+        {
+          "name": "MATCH_MP_TAC ... THEN ASM_SIMP_TAC[]",
+          "hint": "apply existing bridge lemmas with force/mass hypotheses"
+        },
+        {
+          "name": "MESON_TAC[...]",
+          "hint": "thread node/segment hypotheses through quantified chain contracts"
+        },
+        {
+          "name": "VECTOR_ARITH_TAC",
+          "hint": "linear vector residue when moving from scalarized 2D to vector forms"
+        },
+        {
+          "name": "NORM_ARITH_TAC",
+          "hint": "distance/norm side goals; escalate to flyspeck-geom only for genuine 3D cross/coplanarity"
+        }
+      ],
+      "base_lines": [
+        "needs \"calc_rat.ml\";;",
+        "prioritize_real();;",
+        "needs \"Multivariate/vectors.ml\";;",
+        "let HOL_WORKBENCH_TETHER_ORBIT_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "tether-stable": {
+      "project_manifest": "../../earth-tidal-ladder-proof-spine-profile/.hol-workbench/profiles/tether-stable.json",
+      "cwd_policy": "profile_cwd",
+      "summary": "Heavy plus the pinned stable tether theorem frontier.",
+      "expected_load": "Heavy restore followed by the pinned project cutoff during developer construction only.",
+      "recommended_pool_size": 1,
+      "orbstack_public_capacity": 1,
+      "scratch_convention": "Edit only sources beyond the pinned cutoff; advance the cutoff intentionally.",
+      "useful_operations": [
+        {
+          "name": "HOL_WORKBENCH_TETHER_STABLE_SENTINEL",
+          "hint": "pinned cutoff restore sentinel"
+        }
+      ]
+    },
+    "multivariate-topology": {
+      "basis_id": "hol.multivariate.topology.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Topology-oriented Multivariate basis without the full realanalysis/Flyspeck stack.",
+      "expected_load": "Heavy cold load; a middle rung for paths, compactness, connectedness, and topology lemmas.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use when the theorem needs Multivariate/topology.ml but not the full realanalysis or Flyspeck geometry imports.",
+      "useful_operations": [
+        {
+          "name": "REWRITE_TAC[path; path_image]",
+          "hint": "open path definitions for simple curves"
+        },
+        {
+          "name": "CONTINUOUS_ON_*",
+          "hint": "search/use continuity closure lemmas"
+        },
+        {
+          "name": "COMPACT_*",
+          "hint": "search/use compactness closure lemmas"
+        },
+        {
+          "name": "CONNECTED_*",
+          "hint": "search/use connectedness closure lemmas"
+        },
+        {
+          "name": "OPEN_* / CLOSED_*",
+          "hint": "search topology set-shape facts"
+        },
+        {
+          "name": "IN_INTER / IN_UNION / IN_ELIM_THM",
+          "hint": "expand set membership"
+        },
+        {
+          "name": "SUBSET_TAC",
+          "hint": "routine set inclusions"
+        },
+        {
+          "name": "SET_TAC[]",
+          "hint": "pure set-theoretic residue"
+        },
+        {
+          "name": "MESON_TAC[]",
+          "hint": "first-order topology residue"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "scalar interval side conditions"
+        }
+      ],
+      "base_lines": [
+        "needs \"Multivariate/topology.ml\";;",
+        "let HOL_WORKBENCH_MULTIVARIATE_TOPOLOGY_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "multivariate-complex": {
+      "basis_id": "hol.multivariate.complexes.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Complex-number and complex-vector Multivariate basis.",
+      "expected_load": "Heavy cold load; useful for complex plane, Cx/drop/lift, and complex analytic scratch lemmas.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use when Complex/Multivariate complex lemmas are needed but Flyspeck is unnecessary.",
+      "useful_operations": [
+        {
+          "name": "COMPLEX_RING",
+          "hint": "complex polynomial identities"
+        },
+        {
+          "name": "COMPLEX_FIELD",
+          "hint": "complex field identities with nonzero conditions"
+        },
+        {
+          "name": "CX_DEF / RE_CX / IM_CX",
+          "hint": "move between real and complex forms"
+        },
+        {
+          "name": "COMPLEX_NORM_*",
+          "hint": "search/use complex norm facts"
+        },
+        {
+          "name": "CEXP_*",
+          "hint": "search/use complex exponential facts"
+        },
+        {
+          "name": "REWRITE_TAC[complex; cnj; cmod]",
+          "hint": "open basic complex definitions"
+        },
+        {
+          "name": "SIMP_TAC[]",
+          "hint": "simplify complex side conditions"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "finish real scalar residue"
+        },
+        {
+          "name": "VECTOR_ARITH_TAC",
+          "hint": "finish linear vector residue"
+        },
+        {
+          "name": "MESON_TAC[]",
+          "hint": "first-order residue"
+        }
+      ],
+      "base_lines": [
+        "needs \"Multivariate/complexes.ml\";;",
+        "let HOL_WORKBENCH_MULTIVARIATE_COMPLEX_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "calculus": {
+      "basis_id": "hol.multivariate.realanalysis.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "General-purpose real calculus profile: derivatives, continuity, mean-value/increasing lemmas, and real interval side conditions.",
+      "expected_load": "Very heavy cold load; warm once before repeated calculus theorem/tactic edits.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use for derivative, MVT, monotonicity, integral, and real continuous-time scratch lemmas. Keep project definitions in a source-specific base when possible.",
+      "useful_operations": [
+        {
+          "name": "HAS_REAL_DERIVATIVE_INCREASING",
+          "hint": "turn nonnegative derivative assumptions into monotonicity"
+        },
+        {
+          "name": "HAS_REAL_DERIVATIVE_INCREASING_IMP",
+          "hint": "increasing-function form when the derivative side condition already matches"
+        },
+        {
+          "name": "REAL_MVT",
+          "hint": "mean value theorem for one-dimensional real functions"
+        },
+        {
+          "name": "REAL_DIFFERENTIABLE_ON_IMP_REAL_CONTINUOUS_ON",
+          "hint": "derive interval continuity from differentiability"
+        },
+        {
+          "name": "REAL_CONTINUOUS_ON_*",
+          "hint": "search/use real continuity closure lemmas"
+        },
+        {
+          "name": "HAS_REAL_DERIVATIVE_*",
+          "hint": "search/use derivative closure rules"
+        },
+        {
+          "name": "REWRITE_TAC[IN_REAL_INTERVAL]",
+          "hint": "open interval membership side conditions"
+        },
+        {
+          "name": "MATCH_MP_TAC REAL_LE_TRANS",
+          "hint": "spell out comparison chains instead of hoping arithmetic guesses them"
+        },
+        {
+          "name": "ASM_SIMP_TAC[]",
+          "hint": "simplify analytic side conditions from assumptions"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "finish linear scalar inequalities after products are normalized"
+        }
+      ],
+      "base_lines": [
+        "needs \"Multivariate/realanalysis.ml\";;",
+        "let HOL_WORKBENCH_REALANALYSIS_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "realanalysis": {
+      "basis_id": "hol.multivariate.realanalysis.v1",
+      "alias_of": "calculus",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Heavier multivariate real-analysis foundation.",
+      "expected_load": "Very heavy cold load.",
+      "recommended_pool_size": 2,
+      "scratch_convention": "Use only when the lighter multivariate-physics profile is missing definitions or theorems.",
+      "useful_operations": [
+        {
+          "name": "HAS_REAL_DERIVATIVE_*",
+          "hint": "search/use real derivative closure lemmas"
+        },
+        {
+          "name": "REAL_CONTINUOUS_ON_*",
+          "hint": "search/use real continuity closure lemmas"
+        },
+        {
+          "name": "REAL_INTEGRAL_*",
+          "hint": "search/use real integral facts"
+        },
+        {
+          "name": "HAS_VECTOR_DERIVATIVE_*",
+          "hint": "search/use vector derivative closure lemmas"
+        },
+        {
+          "name": "INTEGRABLE_*",
+          "hint": "search/use integrability facts"
+        },
+        {
+          "name": "ABSOLUTELY_INTEGRABLE_*",
+          "hint": "search/use absolute integrability facts"
+        },
+        {
+          "name": "REWRITE_TAC[real_interval]",
+          "hint": "open real interval notation"
+        },
+        {
+          "name": "MATCH_MP_TAC",
+          "hint": "apply calculus closure lemmas"
+        },
+        {
+          "name": "ASM_SIMP_TAC[]",
+          "hint": "simplify analytic side conditions"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "finish scalar inequalities"
+        }
+      ],
+      "base_lines": [
+        "needs \"Multivariate/realanalysis.ml\";;",
+        "let HOL_WORKBENCH_REALANALYSIS_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "flyspeck-geom": {
+      "basis_id": "hol.multivariate.flyspeck.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Full Flyspeck-adjacent 3D geometry: polytopes, realanalysis, geom, cross products, complex/topology imports, and Flyspeck geometry lemmas.",
+      "expected_load": "Very heavy full load; measured 824.6s direct, about 195k stdout lines, and about 2.3GB RSS on Ben's Mac on 2026-06-01. A one-seat fork warm pool took about 14m12s, about 194k basis lines, and peaked near 3.9GB RSS during preload. Warm deliberately, usually with --pool-size 1.",
+      "recommended_pool_size": 1,
+      "scratch_convention": "Use only when lighter multivariate/realanalysis profiles miss Flyspeck-specific sphere-packing, 3D geometry, cross-product, coplanar/collinear, slice/dropout, or Flyspeck lemmas.",
+      "useful_operations": [
+        {
+          "name": "ORTHOGONAL_CROSS",
+          "hint": "cross product is perpendicular to its inputs"
+        },
+        {
+          "name": "DOT_CROSS_SELF",
+          "hint": "dot/cross self-zero facts"
+        },
+        {
+          "name": "CROSS_RADD / CROSS_LADD",
+          "hint": "distribute cross over vector addition"
+        },
+        {
+          "name": "CROSS_RMUL / CROSS_LMUL",
+          "hint": "pull scalar multiplication through cross"
+        },
+        {
+          "name": "CROSS_REFL",
+          "hint": "a cross itself is zero"
+        },
+        {
+          "name": "CROSS_LAGRANGE",
+          "hint": "norm/dot relation for cross products"
+        },
+        {
+          "name": "CROSS_BASIS",
+          "hint": "basis-vector cross products"
+        },
+        {
+          "name": "CROSS_EQ_0",
+          "hint": "zero cross product iff dependence conditions"
+        },
+        {
+          "name": "COPLANAR_CROSS_DOT",
+          "hint": "coplanarity via cross/dot"
+        },
+        {
+          "name": "CROSS_COMPONENTS",
+          "hint": "component expansion fallback"
+        }
+      ],
+      "base_lines": [
+        "needs \"Multivariate/flyspeck.ml\";;",
+        "let HOL_WORKBENCH_FLYSPECK_GEOM_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "defi-evm-arith": {
+      "basis_id": "hol.defi-evm-arith.v7",
+      "cwd_policy": "profile_cwd",
+      "summary": "DeFi/EVM-style uint256 arithmetic basis with generic floor mulDiv, CPMM quote surfaces, Uniswap v2 quote predicates, and reduced ALU/word-operation trace adapters.",
+      "expected_load": "Moderate HOL library load: words, integer helpers, bitmatch, records, local DeFi/CPMM definitions, Uniswap v2 quote predicates, value-level arithmetic-operation traces, stack-boundary theorems, and reduced ADD/MUL/SUB/DIV operation-list trace definitions.",
+      "recommended_pool_size": 2,
+      "cwd": "case-studies/defi-evm-arith",
+      "scratch_convention": "Use for theorem-only uint256, modular arithmetic, fixed-point rounding, and AMM arithmetic kernels. Keep needs/new_definition in proofs/defi_evm_arith_base.ml.",
+      "useful_operations": [
+        {
+          "name": "MATCH_MP_TAC EVM_STACK_ADD_SMALL",
+          "hint": "reduce bounded stack addition to natural addition",
+          "smoke": "ignore EVM_STACK_ADD_SMALL;;"
+        },
+        {
+          "name": "MATCH_MP_TAC EVM_STACK_MUL_SMALL",
+          "hint": "reduce bounded stack multiplication to natural multiplication",
+          "smoke": "ignore EVM_STACK_MUL_SMALL;;"
+        },
+        {
+          "name": "MATCH_MP_TAC EVM_STACK_SUB_SMALL",
+          "hint": "reduce non-underflowing stack subtraction to natural subtraction",
+          "smoke": "ignore EVM_STACK_SUB_SMALL;;"
+        },
+        {
+          "name": "MATCH_MP_TAC EVM_STACK_UDIV_SMALL",
+          "hint": "reduce stack unsigned division to natural division",
+          "smoke": "ignore EVM_STACK_UDIV_SMALL;;"
+        },
+        {
+          "name": "MATCH_MP_TAC EVM_STACK_ADD1_SMALL",
+          "hint": "reduce bounded stack increment to natural addition",
+          "smoke": "ignore EVM_STACK_ADD1_SMALL;;"
+        },
+        {
+          "name": "MATCH_MP_TAC UINT256_VALUE_WORD_OF_SMALL_FOR_STACK",
+          "hint": "preserve the value of a bounded natural encoded as a :256 word",
+          "smoke": "ignore UINT256_VALUE_WORD_OF_SMALL_FOR_STACK;;"
+        },
+        {
+          "name": "REWRITE_TAC[UNISWAP_V2_GET_AMOUNT_OUT_SUCCESS_EXPANDS_FOR_STACK]",
+          "hint": "expand getAmountOut success into uint256, guard, and overflow hypotheses",
+          "smoke": "ignore UNISWAP_V2_GET_AMOUNT_OUT_SUCCESS_EXPANDS_FOR_STACK;;"
+        },
+        {
+          "name": "REWRITE_TAC[UNISWAP_V2_GET_AMOUNT_IN_SUCCESS_EXPANDS_FOR_STACK]",
+          "hint": "expand getAmountIn success into uint256, guard, reserveOut, and overflow hypotheses",
+          "smoke": "ignore UNISWAP_V2_GET_AMOUNT_IN_SUCCESS_EXPANDS_FOR_STACK;;"
+        },
+        {
+          "name": "MATCH_MP_TAC UNISWAP_V2_GET_AMOUNT_IN_QUOTIENT_UINT256_VALUE_FOR_STACK",
+          "hint": "show the successful getAmountIn quotient fits uint256",
+          "smoke": "ignore UNISWAP_V2_GET_AMOUNT_IN_QUOTIENT_UINT256_VALUE_FOR_STACK;;"
+        },
+        {
+          "name": "REWRITE_TAC[evm_stack_step_trace]",
+          "hint": "open the reduced ALU operation-list trace relation",
+          "smoke": "ignore evm_stack_step_trace;;"
+        }
+      ],
+      "base_lines": [
+        "needs \"Library/bitsize.ml\";;",
+        "needs \"Library/integer.ml\";;",
+        "needs \"Library/words.ml\";;",
+        "needs \"Library/bitmatch.ml\";;",
+        "needs \"Library/records.ml\";;",
+        "prioritize_num();;",
+        "needs \"proofs/defi_evm_arith_base.ml\";;",
+        "needs \"proofs/quote_stack_boundary.ml\";;",
+        "let HOL_WORKBENCH_DEFI_EVM_ARITH_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "formal-ineqs": {
+      "basis_id": "hol.formal-ineqs.verifier.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Formal_ineqs verifier basis used by Flyspeck-style nonlinear inequality certificate replay.",
+      "expected_load": "Specialized heavy load; starts from a fresh HOL because arithmetic options are set before verifier libraries.",
+      "recommended_pool_size": 1,
+      "scratch_convention": "Use for Formal_ineqs/M_verifier_main certificate experiments, not ordinary geometry or algebra scratch work.",
+      "useful_operations": [
+        {
+          "name": "verify_ineq default_params",
+          "hint": "standard nonlinear inequality verifier call"
+        },
+        {
+          "name": "verify_ineq {default_params with ...}",
+          "hint": "tune verifier parameters locally"
+        },
+        {
+          "name": "verify_ineq_and_rewrite",
+          "hint": "verify then rewrite certificate goals"
+        },
+        {
+          "name": "M_verifier_main.mk_ineq",
+          "hint": "construct verifier inequality records"
+        },
+        {
+          "name": "default_params",
+          "hint": "baseline verifier parameter record"
+        },
+        {
+          "name": "Verifier_options.info_print_level",
+          "hint": "control verifier chatter"
+        },
+        {
+          "name": "Arith_options.base",
+          "hint": "arithmetic base must be set before verifier load"
+        },
+        {
+          "name": "allow_derivatives",
+          "hint": "enable derivative-aware checking when needed"
+        },
+        {
+          "name": "eps",
+          "hint": "epsilon/tolerance parameter in verifier records"
+        },
+        {
+          "name": "open M_verifier_main",
+          "hint": "bring verifier helpers into scope"
+        }
+      ],
+      "base_lines": [
+        "needs \"Formal_ineqs/arith_options.hl\";;",
+        "Arith_options.base := 200;;",
+        "needs \"Formal_ineqs/verifier/m_verifier_main.hl\";;",
+        "needs \"Formal_ineqs/verifier_options.hl\";;",
+        "Verifier_options.info_print_level := 1;;",
+        "open M_verifier_main;;",
+        "let HOL_WORKBENCH_FORMAL_INEQS_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "s2n-arm-aes": {
+      "basis_id": "hol.s2n.arm.aes.v1",
+      "cwd_policy": "profile_cwd",
+      "summary": "s2n-bignum ARM base plus AES encryption spec helpers.",
+      "expected_load": "Heavy project load; useful for AES-CTR and checked stream-cipher work.",
+      "recommended_pool_size": 2,
+      "cwd": "src/s2n-bignum",
+      "cwd_root": "criu_shelf",
+      "scratch_convention": "Use for AES/CTR/XOR ARM proof sketches before pasting into the real proof file.",
+      "useful_operations": [
+        {
+          "name": "ENSURES_INIT_TAC \"s0\"",
+          "hint": "initialize the symbolic machine state"
+        },
+        {
+          "name": "ARM_STEPS_TAC AES_*_EXEC (m--n)",
+          "hint": "symbolically execute AES ARM ranges"
+        },
+        {
+          "name": "ENSURES_FINAL_STATE_TAC",
+          "hint": "close the ensures postcondition/frame"
+        },
+        {
+          "name": "aes_encrypt_spec.ml",
+          "hint": "loaded AES encryption specification helpers"
+        },
+        {
+          "name": "NONOVERLAPPING_CLAUSES",
+          "hint": "simplify memory nonoverlap assumptions"
+        },
+        {
+          "name": "BIGNUM_FROM_MEMORY_BYTES",
+          "hint": "unfold byte-level memory words"
+        },
+        {
+          "name": "MAYCHANGE_REGS_AND_FLAGS_PERMITTED_BY_ABI",
+          "hint": "standard ABI frame allowance"
+        },
+        {
+          "name": "C_ARGUMENTS / C_RETURN",
+          "hint": "connect ABI arguments and return registers"
+        },
+        {
+          "name": "WORD_RULE",
+          "hint": "finish word-level bit/arithmetic residue"
+        },
+        {
+          "name": "REWRITE_TAC[bytes_loaded; read]",
+          "hint": "common memory-read cleanup pattern"
+        }
+      ],
+      "base_lines": [
+        "needs \"arm/proofs/base.ml\";;",
+        "needs \"arm/proofs/utils/aes_encrypt_spec.ml\";;",
+        "let HOL_WORKBENCH_S2N_ARM_AES_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "s2n-arm-aes-xts": {
+      "basis_id": "hol.s2n.arm.aes-xts.v1",
+      "cwd_policy": "profile_cwd",
+      "summary": "s2n-bignum ARM base plus AES-XTS spec helpers.",
+      "expected_load": "Heavy project load; useful for AES-XTS encryption/decryption proof sketches.",
+      "recommended_pool_size": 2,
+      "cwd": "src/s2n-bignum",
+      "cwd_root": "criu_shelf",
+      "scratch_convention": "Use for AES-XTS proof sketches where the common/encrypt/decrypt XTS specs are needed.",
+      "useful_operations": [
+        {
+          "name": "ENSURES_INIT_TAC \"s0\"",
+          "hint": "initialize the symbolic machine state"
+        },
+        {
+          "name": "ARM_STEPS_TAC AES_XTS_*_EXEC (m--n)",
+          "hint": "symbolically execute XTS ARM ranges"
+        },
+        {
+          "name": "ENSURES_FINAL_STATE_TAC",
+          "hint": "close the ensures postcondition/frame"
+        },
+        {
+          "name": "aes_xts_common_spec.ml",
+          "hint": "loaded shared XTS spec helpers"
+        },
+        {
+          "name": "aes_xts_encrypt_spec.ml",
+          "hint": "loaded XTS encryption spec helpers"
+        },
+        {
+          "name": "aes_xts_decrypt_spec.ml",
+          "hint": "loaded XTS decryption spec helpers"
+        },
+        {
+          "name": "NONOVERLAPPING_CLAUSES",
+          "hint": "simplify memory nonoverlap assumptions"
+        },
+        {
+          "name": "MAYCHANGE_REGS_AND_FLAGS_PERMITTED_BY_ABI",
+          "hint": "standard ABI frame allowance"
+        },
+        {
+          "name": "C_ARGUMENTS / C_RETURN",
+          "hint": "connect ABI arguments and return registers"
+        },
+        {
+          "name": "WORD_RULE",
+          "hint": "finish word-level bit/arithmetic residue"
+        }
+      ],
+      "base_lines": [
+        "needs \"arm/proofs/base.ml\";;",
+        "needs \"arm/proofs/utils/aes_xts_common_spec.ml\";;",
+        "needs \"arm/proofs/utils/aes_xts_encrypt_spec.ml\";;",
+        "needs \"arm/proofs/utils/aes_xts_decrypt_spec.ml\";;",
+        "let HOL_WORKBENCH_S2N_ARM_AES_XTS_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    }
+  }
+}

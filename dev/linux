@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$(uname -s)" == Linux ]] || { echo 'Linux is required; enter your Linux machine first.' >&2; exit 2; }
+caller_cwd=$(pwd -P)
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+cd "$root"
+export HOL_WORKBENCH_CALLER_CWD="$caller_cwd"
+(( $# )) || { echo 'Usage: dev/linux COMMAND [ARGUMENTS]' >&2; exit 2; }
+exec "$@"

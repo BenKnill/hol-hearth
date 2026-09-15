@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+tool=${1:-}
+[[ -n "$tool" ]] || { echo 'missing command' >&2; exit 2; }
+shift
+[[ "$(uname -s)" == Linux ]] || { echo "$tool: Linux is required" >&2; exit 2; }
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+workbench_root=$(cd -- "$script_dir/.." && pwd -P)
+python=${HOL_WORKBENCH_PYTHON:-}
+if [[ -n "$python" && "$python" != /* ]]; then
+  echo 'HOL_WORKBENCH_PYTHON must be an absolute path' >&2
+  exit 2
+fi
+if [[ -z "$python" ]]; then
+  python=$(command -v python3) || { echo 'Python 3.11+ is required' >&2; exit 2; }
+fi
+"$python" -I -B -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' || {
+  echo 'Python 3.11+ is required' >&2; exit 2;
+}
+prefix=()
+case "$tool" in
+  prove) module=prove.py ;;
+  inspect) module=inspect.py ;;
+  smoke) module=smoke.py ;;
+  configure) module=runtime_config.py; prefix=(configure) ;;
+  *) echo "unknown command: $tool" >&2; exit 2 ;;
+esac
+export HOL_WORKBENCH_CHECKOUT_LAUNCHER_BIN="$script_dir"
+export PYTHONDONTWRITEBYTECODE=1
+bootstrap='import runpy,sys; root=sys.argv.pop(1); module=sys.argv.pop(1); sys.path[:0]=[root]; runpy.run_path(module,run_name="__main__")'
+exec "$python" -I -B -c "$bootstrap" "$workbench_root" "$workbench_root/hol_workbench/cli/$module" "${prefix[@]}" "$@"

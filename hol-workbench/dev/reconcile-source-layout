@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+  echo "reconcile-source-layout: Linux only" >&2
+  exit 2
+fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../.." && pwd)"
+export PYTHONPATH="${repo_root}/hol-workbench"
+export PYTHONDONTWRITEBYTECODE=1
+exec "${HOL_WORKBENCH_PYTHON:-python3}" -m hol_workbench.cli.reconcile_source_layout "$@"

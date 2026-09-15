@@ -1,0 +1,561 @@
+{
+  "schema": "hol-workbench.warmup-profiles.v1",
+  "public_authoring_profiles": [
+    "light",
+    "heavy",
+    "probability",
+    "s2n-arm",
+    "s2n-arm-light",
+    "s2n-arm-mlkem",
+    "s2n-x86"
+  ],
+  "profiles": {
+    "light": {
+      "basis_id": "hol.light.default.v3",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Default small warm basis for ordinary arithmetic, real algebra, and ring scratch work.",
+      "expected_load": "Small-to-moderate global HOL load; warm this before general short proof-edit loops.",
+      "recommended_pool_size": 2,
+      "orbstack_public_capacity": 2,
+      "scratch_convention": "Use as the default non-project profile for small standalone lemmas, REAL_ARITH/REAL_RING, calc_rat, and ring-theory experiments.",
+      "output_profile": "ringtheory",
+      "useful_operations": [
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear real arithmetic and inequalities"
+        },
+        {
+          "name": "REAL_RING",
+          "hint": "conversion for polynomial real identities; not a tactic by itself"
+        },
+        {
+          "name": "CONV_TAC REAL_RING",
+          "hint": "invoke the REAL_RING conversion on the current goal"
+        },
+        {
+          "name": "REAL_FIELD",
+          "hint": "field identities after proving denominators nonzero"
+        },
+        {
+          "name": "RING_TAC",
+          "hint": "ordinary real/complex polynomial normalization preserved across the full light preload"
+        },
+        {
+          "name": "HOL_WORKBENCH_ABSTRACT_RING_TAC",
+          "hint": "abstract-ring tactic retained from Library/ringtheory.ml"
+        },
+        {
+          "name": "MESON_TAC[]",
+          "hint": "first-order and propositional closure"
+        },
+        {
+          "name": "ASM_SIMP_TAC[]",
+          "hint": "simplify with assumptions"
+        },
+        {
+          "name": "MATCH_MP_TAC",
+          "hint": "apply a theorem by conclusion shape"
+        },
+        {
+          "name": "REWRITE_TAC[...]",
+          "hint": "unfold definitions and apply equalities"
+        }
+      ],
+      "base_lines": [
+        "needs \"calc_rat.ml\";;",
+        "prioritize_real();;",
+        "let HOL_WORKBENCH_REAL_POLY_RING_TAC = CONV_TAC REAL_RING;;",
+        "needs \"Library/ringtheory.ml\";;",
+        "let HOL_WORKBENCH_ABSTRACT_RING_TAC = RING_TAC;;",
+        "let RING_TAC = HOL_WORKBENCH_REAL_POLY_RING_TAC;;",
+        "let HOL_WORKBENCH_LIGHT_RING_SMOKE = prove(`!x y:real. (x + y) pow 2 = x pow 2 + &2 * x * y + y pow 2`,RING_TAC);;",
+        "let HOL_WORKBENCH_LIGHT_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "heavy": {
+      "basis_id": "hol.heavy.realanalysis.v2",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Default large HOL basis for Multivariate realanalysis/calculus, topology/vector work, tether/physics scratch, and broad geometry-free theorem search.",
+      "expected_load": "Very heavy realanalysis load; warm once and share across agents. Does not load Flyspeck.",
+      "recommended_pool_size": 2,
+      "orbstack_public_capacity": 2,
+      "scratch_convention": "Use for calculus, Multivariate realanalysis, tether/physics, topology, complex/vector, derivative/MVT/integral, and no-slack monitor scratch work.",
+      "output_profile": "ringtheory",
+      "useful_operations": [
+        {
+          "name": "VECTOR_ARITH_TAC",
+          "hint": "linear vector equalities"
+        },
+        {
+          "name": "NORM_ARITH_TAC",
+          "hint": "norm and distance arithmetic"
+        },
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear scalar side conditions"
+        },
+        {
+          "name": "HAS_REAL_DERIVATIVE_INCREASING",
+          "hint": "monotonicity from derivative side conditions"
+        },
+        {
+          "name": "REAL_MVT",
+          "hint": "one-dimensional mean value theorem"
+        },
+        {
+          "name": "REAL_CONTINUOUS_ON_*",
+          "hint": "search/use real continuity closure lemmas"
+        },
+        {
+          "name": "REAL_INTEGRAL_*",
+          "hint": "search/use real integral facts"
+        },
+        {
+          "name": "HAS_VECTOR_DERIVATIVE_*",
+          "hint": "search/use vector derivative closure lemmas"
+        },
+        {
+          "name": "CONTINUOUS_ON_*",
+          "hint": "search/use continuity closure lemmas"
+        },
+        {
+          "name": "COMPACT_* / CONNECTED_*",
+          "hint": "topology closure/search anchors"
+        }
+      ],
+      "base_lines": [
+        "needs \"calc_rat.ml\";;",
+        "prioritize_real();;",
+        "needs \"Library/ringtheory.ml\";;",
+        "needs \"Multivariate/realanalysis.ml\";;",
+        "let HOL_WORKBENCH_HEAVY_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "probability": {
+      "basis_id": "hol.probability.full.v1",
+      "cwd_policy": "global_hol_lib",
+      "summary": "Full upstream probability basis: measure, random variables, expectation, martingales, characteristic functions, CLT, ergodic theory, and standard distributions.",
+      "expected_load": "Extreme cold load over realanalysis and the complete Probability/make.ml aggregator; retain and restore this shelf for repeated probability work.",
+      "recommended_pool_size": 1,
+      "orbstack_public_capacity": 2,
+      "scratch_convention": "Use for modern upstream Probability/* theorem work. Keep it separate from heavy so ordinary analysis does not pay the probability load; use disposable fork-child attempts with unique run roots.",
+      "useful_operations": [
+        {
+          "name": "EXPECTATION_ADD",
+          "hint": "linearity of expectation for integrable random variables",
+          "smoke": "ignore EXPECTATION_ADD;;"
+        },
+        {
+          "name": "EXPECTATION_MONO",
+          "hint": "monotonicity of expectation",
+          "smoke": "ignore EXPECTATION_MONO;;"
+        },
+        {
+          "name": "EXPECTATION_CAUCHY_SCHWARZ",
+          "hint": "expectation form of Cauchy-Schwarz",
+          "smoke": "ignore EXPECTATION_CAUCHY_SCHWARZ;;"
+        },
+        {
+          "name": "GEN_COND_EXP_TOWER",
+          "hint": "tower property for general conditional expectation",
+          "smoke": "ignore GEN_COND_EXP_TOWER;;"
+        },
+        {
+          "name": "GEN_COND_EXP_JENSEN",
+          "hint": "conditional Jensen inequality",
+          "smoke": "ignore GEN_COND_EXP_JENSEN;;"
+        },
+        {
+          "name": "BIRKHOFF_ERGODIC_THEOREM",
+          "hint": "pointwise ergodic theorem",
+          "smoke": "ignore BIRKHOFF_ERGODIC_THEOREM;;"
+        },
+        {
+          "name": "LEVY_INVERSION",
+          "hint": "distribution recovery from characteristic functions",
+          "smoke": "ignore LEVY_INVERSION;;"
+        },
+        {
+          "name": "EXPECTATION_NORMAL_DIST",
+          "hint": "expectation of the normal distribution",
+          "smoke": "ignore EXPECTATION_NORMAL_DIST;;"
+        },
+        {
+          "name": "VARIANCE_NORMAL_DIST",
+          "hint": "variance of the normal distribution",
+          "smoke": "ignore VARIANCE_NORMAL_DIST;;"
+        },
+        {
+          "name": "IID_SLLN_VIA_BIRKHOFF",
+          "hint": "strong law via ergodic theory",
+          "smoke": "ignore IID_SLLN_VIA_BIRKHOFF;;"
+        }
+      ],
+      "base_lines": [
+        "needs \"Probability/make.ml\";;",
+        "let HOL_WORKBENCH_PROBABILITY_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "s2n-arm": {
+      "basis_id": "hol.s2n.arm.base.v2",
+      "cwd_policy": "profile_cwd",
+      "summary": "s2n-bignum ARM proof base for functional AArch64 assembly.",
+      "expected_load": "Heavy project load with ARM proof infrastructure; no ML-KEM/ML-DSA preload.",
+      "recommended_pool_size": 1,
+      "orbstack_public_capacity": 1,
+      "cwd": "src/s2n-bignum",
+      "cwd_root": "criu_shelf",
+      "logical_source_roots": [
+        {
+          "alias": "s2n_bignum",
+          "source_role": "managed_mirror",
+          "execution_role": "profile_cwd",
+          "remote": "https://github.com/awslabs/s2n-bignum.git",
+          "revision": "fce78c7c17baee6a60511efe821930d4d049a6c0",
+          "tree": "080737d6be9678e2daa6dde4ad98a7945d8b8f27"
+        }
+      ],
+      "scratch_convention": "Use for functional AArch64 instruction, memory, bignum, ABI, and bounded-kernel proofs.",
+      "publication_guard": {
+        "reference_profile": "s2n-arm",
+        "execution_topology": "mechanical_basis_broker_v3",
+        "recommended_pool_size": 1,
+        "orbstack_public_capacity": 1,
+        "required_extra_preloads": [],
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957"
+      },
+      "useful_operations": [
+        {
+          "name": "ENSURES_INIT_TAC \"s0\"",
+          "hint": "initialize the symbolic machine state"
+        },
+        {
+          "name": "ARM_STEPS_TAC EXEC (m--n)",
+          "hint": "symbolically execute ARM instruction ranges"
+        },
+        {
+          "name": "ENSURES_FINAL_STATE_TAC",
+          "hint": "close the ensures postcondition/frame"
+        },
+        {
+          "name": "BIGNUM_TERMRANGE_TAC",
+          "hint": "derive numeric range facts for bignum terms"
+        },
+        {
+          "name": "NONOVERLAPPING_CLAUSES",
+          "hint": "simplify memory nonoverlap assumptions"
+        },
+        {
+          "name": "BIGNUM_FROM_MEMORY_BYTES",
+          "hint": "unfold byte-level bignum memory reads"
+        },
+        {
+          "name": "MAYCHANGE_REGS_AND_FLAGS_PERMITTED_BY_ABI",
+          "hint": "standard ABI frame allowance"
+        },
+        {
+          "name": "C_ARGUMENTS / C_RETURN",
+          "hint": "connect ABI arguments and return registers"
+        },
+        {
+          "name": "ARM_SIM_TAC",
+          "hint": "compact ARM symbolic simulation helper"
+        },
+        {
+          "name": "WORD_RULE",
+          "hint": "finish word-level bit/arithmetic residue"
+        }
+      ],
+      "base_lines": [
+        "needs \"arm/proofs/base.ml\";;",
+        "let HOL_WORKBENCH_S2N_ARM_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "s2n-arm-light": {
+      "basis_id": "hol.s2n.arm.light.v1",
+      "cwd_policy": "profile_cwd",
+      "summary": "s2n-bignum ARM proof base plus the light arithmetic and abstract-ring basis.",
+      "expected_load": "Heavy project load with ARM proof infrastructure, calc_rat, and Library/ringtheory.ml; no ML-KEM/ML-DSA preload.",
+      "recommended_pool_size": 1,
+      "orbstack_public_capacity": 1,
+      "cwd": "src/s2n-bignum",
+      "cwd_root": "criu_shelf",
+      "logical_source_roots": [
+        {
+          "alias": "s2n_bignum",
+          "source_role": "managed_mirror",
+          "execution_role": "profile_cwd",
+          "remote": "https://github.com/awslabs/s2n-bignum.git",
+          "revision": "fce78c7c17baee6a60511efe821930d4d049a6c0",
+          "tree": "080737d6be9678e2daa6dde4ad98a7945d8b8f27"
+        }
+      ],
+      "scratch_convention": "Use for mixed AArch64 instruction/bignum proofs and standalone arithmetic or abstract-ring lemmas that need the complete light basis.",
+      "publication_guard": {
+        "reference_profile": "s2n-arm-light",
+        "execution_topology": "mechanical_basis_broker_v3",
+        "recommended_pool_size": 1,
+        "orbstack_public_capacity": 1,
+        "required_extra_preloads": [],
+        "require_publication_provenance": true,
+        "profile_sha256": "af5cc71e0ba122ce0453e2db1e99a474fcd3d0baf4ce0d02c9831565d5a8419c"
+      },
+      "post_restore_sentinels": [
+        {
+          "capability": "generic_criu_evaluation",
+          "binding": "HOL_WORKBENCH_S2N_ARM_LIGHT_GENERIC_CRIU_SMOKE",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_GENERIC_CRIU_SMOKE = prove(`1 + 1 = 2`,ARITH_TAC);;",
+          "marker": "__HOL_WORKBENCH_POST_RESTORE_SENTINEL__:generic_criu_evaluation:HOL_WORKBENCH_S2N_ARM_LIGHT_GENERIC_CRIU_SMOKE"
+        },
+        {
+          "capability": "real_arithmetic",
+          "binding": "HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_ARITH_SMOKE",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_ARITH_SMOKE = prove(`!x y:real. x <= y ==> x + x <= y + y`,REAL_ARITH_TAC);;",
+          "marker": "__HOL_WORKBENCH_POST_RESTORE_SENTINEL__:real_arithmetic:HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_ARITH_SMOKE"
+        },
+        {
+          "capability": "real_polynomial_normalization",
+          "binding": "HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_RING_RESTORE_SMOKE",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_RING_RESTORE_SMOKE = prove(`!x y:real. (x + y) pow 2 = x pow 2 + &2 * x * y + y pow 2`,RING_TAC);;",
+          "marker": "__HOL_WORKBENCH_POST_RESTORE_SENTINEL__:real_polynomial_normalization:HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_RING_RESTORE_SMOKE"
+        },
+        {
+          "capability": "abstract_ring_normalization",
+          "binding": "HOL_WORKBENCH_S2N_ARM_LIGHT_ABSTRACT_RING_SMOKE",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_ABSTRACT_RING_SMOKE = prove(`!r:A ring. ring_0 r = ring_add r (ring_0 r) (ring_0 r)`,HOL_WORKBENCH_ABSTRACT_RING_TAC);;",
+          "marker": "__HOL_WORKBENCH_POST_RESTORE_SENTINEL__:abstract_ring_normalization:HOL_WORKBENCH_S2N_ARM_LIGHT_ABSTRACT_RING_SMOKE"
+        },
+        {
+          "capability": "arm_infrastructure",
+          "binding": "HOL_WORKBENCH_S2N_ARM_LIGHT_ARM_STEPS_HANDLE",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_ARM_STEPS_HANDLE = ARM_STEPS_TAC;;",
+          "marker": "__HOL_WORKBENCH_POST_RESTORE_SENTINEL__:arm_infrastructure:HOL_WORKBENCH_S2N_ARM_LIGHT_ARM_STEPS_HANDLE"
+        },
+        {
+          "capability": "word_infrastructure",
+          "binding": "HOL_WORKBENCH_S2N_ARM_LIGHT_WORD_SMOKE",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_WORD_SMOKE = WORD_RULE `!x:int64. word_add x x = word_shl x 1`;;",
+          "marker": "__HOL_WORKBENCH_POST_RESTORE_SENTINEL__:word_infrastructure:HOL_WORKBENCH_S2N_ARM_LIGHT_WORD_SMOKE"
+        }
+      ],
+      "useful_operations": [
+        {
+          "name": "REAL_ARITH_TAC",
+          "hint": "linear real arithmetic and inequalities",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_ARITH_SMOKE = prove(`!x y:real. x <= y ==> x + x <= y + y`,REAL_ARITH_TAC);;"
+        },
+        {
+          "name": "RING_TAC",
+          "hint": "ordinary real polynomial normalization from the light basis",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_REAL_RING_RESTORE_SMOKE = prove(`!x y:real. (x + y) pow 2 = x pow 2 + &2 * x * y + y pow 2`,RING_TAC);;"
+        },
+        {
+          "name": "HOL_WORKBENCH_ABSTRACT_RING_TAC",
+          "hint": "abstract-ring tactic retained from Library/ringtheory.ml",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_ABSTRACT_RING_SMOKE = prove(`!r:A ring. ring_0 r = ring_add r (ring_0 r) (ring_0 r)`,HOL_WORKBENCH_ABSTRACT_RING_TAC);;"
+        },
+        {
+          "name": "ENSURES_INIT_TAC \"s0\"",
+          "hint": "initialize the symbolic machine state"
+        },
+        {
+          "name": "ARM_STEPS_TAC EXEC (m--n)",
+          "hint": "symbolically execute ARM instruction ranges",
+          "smoke": "ignore ARM_STEPS_TAC;;"
+        },
+        {
+          "name": "ENSURES_FINAL_STATE_TAC",
+          "hint": "close the ensures postcondition/frame"
+        },
+        {
+          "name": "BIGNUM_TERMRANGE_TAC",
+          "hint": "derive numeric range facts for bignum terms"
+        },
+        {
+          "name": "NONOVERLAPPING_CLAUSES",
+          "hint": "simplify memory nonoverlap assumptions"
+        },
+        {
+          "name": "MAYCHANGE_REGS_AND_FLAGS_PERMITTED_BY_ABI",
+          "hint": "standard ABI frame allowance"
+        },
+        {
+          "name": "WORD_RULE",
+          "hint": "finish word-level bit/arithmetic residue",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_LIGHT_WORD_SMOKE = WORD_RULE `!x:int64. word_add x x = word_shl x 1`;;"
+        }
+      ],
+      "base_lines": [
+        "needs \"arm/proofs/base.ml\";;",
+        "needs \"calc_rat.ml\";;",
+        "prioritize_real();;",
+        "let HOL_WORKBENCH_REAL_POLY_RING_TAC = CONV_TAC REAL_RING;;",
+        "needs \"Library/ringtheory.ml\";;",
+        "let HOL_WORKBENCH_ABSTRACT_RING_TAC = RING_TAC;;",
+        "let RING_TAC = HOL_WORKBENCH_REAL_POLY_RING_TAC;;",
+        "let HOL_WORKBENCH_S2N_ARM_LIGHT_RING_SMOKE = prove(`!x y:real. (x + y) pow 2 = x pow 2 + &2 * x * y + y pow 2`,RING_TAC);;",
+        "let HOL_WORKBENCH_S2N_ARM_LIGHT_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    },
+    "s2n-arm-mlkem": {
+      "basis_id": "hol.s2n.arm.mlkem.v1",
+      "cwd_policy": "profile_cwd",
+      "summary": "s2n-bignum ARM base plus shared ML-KEM/ML-DSA NTT development.",
+      "expected_load": "Heavy opt-in project load for ML-KEM/ML-DSA NTT assembly proofs.",
+      "recommended_pool_size": 2,
+      "cwd": "src/s2n-bignum",
+      "cwd_root": "criu_shelf",
+      "logical_source_roots": [
+        {
+          "alias": "s2n_bignum",
+          "source_role": "managed_mirror",
+          "execution_role": "profile_cwd",
+          "remote": "https://github.com/awslabs/s2n-bignum.git",
+          "revision": "fce78c7c17baee6a60511efe821930d4d049a6c0",
+          "tree": "080737d6be9678e2daa6dde4ad98a7945d8b8f27"
+        },
+        {
+          "alias": "mldsa_native",
+          "source_role": "entrypoint_repository",
+          "source_subdir": "proofs/hol_light",
+          "project_subdir": "proofs/hol_light",
+          "execution_role": "none"
+        }
+      ],
+      "scratch_convention": "Use for ARM ML-KEM/ML-DSA NTT proofs that need common/mlkem_mldsa.ml.",
+      "publication_guard": {
+        "reference_profile": "s2n-arm-mlkem",
+        "execution_topology": "mechanical_basis_broker_v3",
+        "recommended_pool_size": 2,
+        "orbstack_public_capacity": 1,
+        "required_extra_preloads": [],
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299"
+      },
+      "useful_operations": [
+        {
+          "name": "ENSURES_INIT_TAC \"s0\"",
+          "hint": "initialize the symbolic machine state"
+        },
+        {
+          "name": "ARM_STEPS_TAC EXEC (m--n)",
+          "hint": "symbolically execute ARM instruction ranges"
+        },
+        {
+          "name": "FORWARD_NTT",
+          "hint": "forward NTT equals bitreverse-pair reorder after the pure transform",
+          "smoke": "let HOL_WORKBENCH_S2N_ARM_MLKEM_RESTORE_SENTINEL = prove(`forward_ntt = reorder bitreverse_pairs o pure_forward_ntt`,ACCEPT_TAC FORWARD_NTT);;"
+        },
+        {
+          "name": "INVERSE_NTT",
+          "hint": "inverse NTT decomposition through reorder and pure inverse transform"
+        },
+        {
+          "name": "ARM_MLDSA_FORWARD_NTT",
+          "hint": "Arm-oriented ML-DSA forward NTT decomposition"
+        },
+        {
+          "name": "bitreverse_pairs",
+          "hint": "ML-KEM pair-preserving bit-reversal order"
+        },
+        {
+          "name": "BIGNUM_TERMRANGE_TAC",
+          "hint": "derive numeric range facts for bignum terms"
+        },
+        {
+          "name": "NONOVERLAPPING_CLAUSES",
+          "hint": "simplify memory nonoverlap assumptions"
+        },
+        {
+          "name": "MAYCHANGE_REGS_AND_FLAGS_PERMITTED_BY_ABI",
+          "hint": "standard ABI frame allowance"
+        },
+        {
+          "name": "WORD_RULE",
+          "hint": "finish word-level bit/arithmetic residue"
+        }
+      ],
+      "base_lines": [
+        "needs \"arm/proofs/base.ml\";;",
+        "needs \"common/mlkem_mldsa.ml\";;",
+        "let HOL_WORKBENCH_S2N_ARM_MLKEM_WARMUP = prove(`forward_ntt = reorder bitreverse_pairs o pure_forward_ntt`,ACCEPT_TAC FORWARD_NTT);;"
+      ]
+    },
+    "s2n-x86": {
+      "basis_id": "hol.s2n.x86.base.v1",
+      "cwd_policy": "profile_cwd",
+      "summary": "s2n-bignum x86 proof base.",
+      "expected_load": "Heavy project load plus x86 proof infrastructure.",
+      "recommended_pool_size": 2,
+      "orbstack_public_capacity": 1,
+      "cwd": "src/s2n-bignum",
+      "cwd_root": "criu_shelf",
+      "logical_source_roots": [
+        {
+          "alias": "s2n_bignum",
+          "source_role": "managed_mirror",
+          "execution_role": "profile_cwd",
+          "remote": "https://github.com/awslabs/s2n-bignum.git",
+          "revision": "fce78c7c17baee6a60511efe821930d4d049a6c0",
+          "tree": "080737d6be9678e2daa6dde4ad98a7945d8b8f27"
+        }
+      ],
+      "scratch_convention": "Use for x86 instruction, memory, bignum, and verified-assembly scratch lemmas.",
+      "publication_guard": {
+        "reference_profile": "s2n-x86",
+        "execution_topology": "mechanical_basis_broker_v3",
+        "recommended_pool_size": 2,
+        "orbstack_public_capacity": 1,
+        "required_extra_preloads": [
+          "research/jane-street-probes/compact_after_preload.ml"
+        ],
+        "profile_sha256": "f113dc10e72e6beffae657525554245cc4805a493911890c7f328a5f6fef0060"
+      },
+      "useful_operations": [
+        {
+          "name": "ENSURES_INIT_TAC \"s0\"",
+          "hint": "initialize the symbolic machine state"
+        },
+        {
+          "name": "X86_STEPS_TAC EXEC (m--n)",
+          "hint": "symbolically execute x86 instruction ranges"
+        },
+        {
+          "name": "ENSURES_FINAL_STATE_TAC",
+          "hint": "close the ensures postcondition/frame"
+        },
+        {
+          "name": "BIGNUM_TERMRANGE_TAC",
+          "hint": "derive numeric range facts for bignum terms"
+        },
+        {
+          "name": "NONOVERLAPPING_CLAUSES",
+          "hint": "simplify memory nonoverlap assumptions"
+        },
+        {
+          "name": "BIGNUM_FROM_MEMORY_BYTES",
+          "hint": "unfold byte-level bignum memory reads"
+        },
+        {
+          "name": "MAYCHANGE_REGS_AND_FLAGS_PERMITTED_BY_ABI",
+          "hint": "standard ABI frame allowance"
+        },
+        {
+          "name": "C_ARGUMENTS / C_RETURN",
+          "hint": "connect ABI arguments and return registers"
+        },
+        {
+          "name": "X86_SIM_TAC",
+          "hint": "compact x86 symbolic simulation helper"
+        },
+        {
+          "name": "WORD_RULE",
+          "hint": "finish word-level bit/arithmetic residue"
+        }
+      ],
+      "base_lines": [
+        "needs \"x86/proofs/base.ml\";;",
+        "let HOL_WORKBENCH_S2N_X86_WARMUP = prove(`T`,MESON_TAC[]);;"
+      ]
+    }
+  }
+}

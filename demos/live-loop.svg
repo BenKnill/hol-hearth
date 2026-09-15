@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="440" viewBox="0 0 1100 440">
+<rect width="1100" height="440" rx="18" fill="#111820"/>
+<circle cx="37" cy="32" r="6" fill="#ed8d69"/><circle cx="57" cy="32" r="6" fill="#e9bc72"/><circle cx="77" cy="32" r="6" fill="#99dfbe"/>
+<text x="40" y="86" fill="#ffffff" font-family="monospace" font-size="27">HOL Hearth / repair a proof as you edit</text>
+<g font-family="monospace" font-size="17"><text x="40" y="140" fill="#d8dee8">HOT LOOP: ready in 0.1s; complete-source edit loop active; Ctrl-C stops</text><text x="40" y="174" fill="#d8dee8">HOT LOOP: watching /tmp/hearth-edit.ml</text><text x="40" y="208" fill="#ffd18c">0.035s FAIL line=1 Exception: Failure &quot;find&quot;.</text><text x="40" y="242" fill="#d8dee8">NEXT: edit the source and save again</text><text x="40" y="276" fill="#99dfbe">0.027s OK phrases=11 hol=accepted scope=complete-source</text><text x="40" y="310" fill="#d8dee8">HOT LOOP: stopping</text><text x="40" y="344" fill="#d8dee8">HOT LOOP: stopped (SIGINT, exit 130)</text></g>
+<text x="40" y="410" fill="#8797a6" font-family="monospace" font-size="14">Captured from a real HOL Light warm session. Source path normalized. Timings are one local run.</text>
+</svg>
