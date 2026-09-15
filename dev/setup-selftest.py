@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
 from hol_workbench.cli import orbstack_criu_restore as restore
 from hol_workbench.cli import prove_doctor
+from hol_workbench.cli.hol_syntax_preflight import syntax_preflight_environment
 from hol_workbench import criu_maintenance_preflight as maintenance
 from hol_workbench.criu_shelf_result_evidence import publish_dump_artifacts_for_controller
 from hol_workbench.runtime_config import write_runtime_config
@@ -97,6 +98,18 @@ class SetupRegression(unittest.TestCase):
     def test_doctor_defaults_to_light(self):
         self.assertEqual(prove_doctor._parse([]).profile, "light")
         self.assertTrue(prove_doctor._parse(["--all-profiles"]).all_profiles)
+
+    def test_distribution_parser_does_not_require_opam(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            env = syntax_preflight_environment(Path(temporary), environ={
+                "PATH": "/other/toolchain/bin", "OPAM_SWITCH_PREFIX": "/other/toolchain",
+                "CAML_LD_LIBRARY_PATH": "/other/toolchain/stublibs",
+                "OCAML_TOPLEVEL_PATH": "/other/toolchain/toplevel",
+            })
+            self.assertNotIn("_opam", env["PATH"])
+            self.assertNotIn("/other/toolchain", env["PATH"])
+            for name in ("OPAM_SWITCH_PREFIX", "CAML_LD_LIBRARY_PATH", "OCAML_TOPLEVEL_PATH"):
+                self.assertNotIn(name, env)
 
 
 if __name__ == "__main__":

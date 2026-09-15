@@ -33,14 +33,24 @@ def syntax_preflight_environment(
     # Never allow another active switch or a hostile caller PATH to select the
     # compiler/preprocessor.  A system compiler is the deliberate fallback for
     # HOLDIR switches based on ocaml-system.
-    env["PATH"] = _unique_paths([str(tool_bin), *(str(path) for path in SYSTEM_TOOL_DIRS)])
-    env["OPAM_SWITCH_PREFIX"] = str(switch_prefix)
-    env["CAML_LD_LIBRARY_PATH"] = _unique_paths(
-        [str(stublibs), *source.get("CAML_LD_LIBRARY_PATH", "").split(os.pathsep)]
-    )
+    env["PATH"] = _unique_paths([
+        *([str(tool_bin)] if tool_bin.is_dir() else []),
+        *(str(path) for path in SYSTEM_TOOL_DIRS),
+    ])
+    if switch_prefix.is_dir():
+        env["OPAM_SWITCH_PREFIX"] = str(switch_prefix)
+    else:
+        env.pop("OPAM_SWITCH_PREFIX", None)
+    if stublibs.is_dir():
+        env["CAML_LD_LIBRARY_PATH"] = str(stublibs)
+    else:
+        # Distribution packages use OCaml's standard library search paths.
+        env.pop("CAML_LD_LIBRARY_PATH", None)
     local_toplevel = switch_prefix / "lib" / "toplevel"
     if local_toplevel.is_dir():
         env["OCAML_TOPLEVEL_PATH"] = str(local_toplevel)
+    else:
+        env.pop("OCAML_TOPLEVEL_PATH", None)
     return env
 
 
@@ -66,7 +76,6 @@ def hol_syntax_preflight(source: Path, *, environ: Mapping[str, str] | None = No
     except UbuntuRuntimeLayoutError as exc:
         return f"HOL syntax preflight configuration invalid: {exc}"
     parser_extension = holdir / "pa_j.cmo"
-    stublibs = holdir / "_opam" / "lib" / "stublibs"
     env = syntax_preflight_environment(holdir, environ=active_environ)
     tools = {name: _selected_tool(name, env=env) for name in ("camlp5", "camlp5r", "ocamlc")}
     missing = [name for name, tool in tools.items() if tool is None]
@@ -75,8 +84,6 @@ def hol_syntax_preflight(source: Path, *, environ: Mapping[str, str] | None = No
             f"HOL syntax toolchain unavailable for HOLDIR {holdir}: missing {', '.join(missing)}; "
             f"searched selected switch first: {holdir / '_opam' / 'bin'}"
         )
-    if not stublibs.is_dir():
-        return f"HOL syntax stublibs unavailable: {stublibs}"
     if not parser_extension.is_file():
         return f"HOL parser extension unavailable: {parser_extension}"
 

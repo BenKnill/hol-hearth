@@ -14,6 +14,7 @@ images under MIT.
 | `profiles/*.ml` (7) | Exact generated copies of the public recipes. Short load instructions, tactic aliases and smoke checks. MIT; see the ML-KEM attribution below. |
 | `hol-workbench/profile-support/compact_after_preload.ml` | First-party three-line helper using OCaml GC APIs and a Workbench marker. MIT. |
 | Both `warmup-profiles*.json` manifests | Reviewed embedded recipes, operation examples and restore sentinels, including developer profiles. No external proof corpus is embedded. MIT; see ML-KEM attribution below. |
+| `dev/setup-lock.json` | First-party build metadata naming the same publicly reviewed HOL revision below. MIT. Upstream sources are fetched separately under their own license. |
 
 The [inventory](source-provenance.json) records the reviewed file bytes by
 SHA-256. `./hearth check` refuses new, removed or changed ML-family files or
@@ -30,8 +31,8 @@ runtime or CRIU image was added.
 
 These are external source dependencies, not vendored Hearth files. The HOL
 revision below identifies the upstream source checked during this licensing
-review; it is not a claim that an existing local profile used that revision,
-nor a tested fresh-build lock.
+review and pinned for new setups. It is not a claim that older, independently
+configured local profiles used that revision.
 
 | Source | License evidence |
 | --- | --- |
