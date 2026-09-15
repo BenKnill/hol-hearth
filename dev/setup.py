@@ -101,7 +101,7 @@ def run_phase(name: str, argv: list[str], *, logs: Path, cwd: Path, env: dict[st
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__, epilog=(
+    parser = argparse.ArgumentParser(prog="hearth setup", description=__doc__, epilog=(
         "Install distribution packages first; see docs/setup.md. This command fetches HOL, "
         "compiles its module, builds the evaluator, and creates light only when missing. "
         "It does not rebuild an existing profile or overwrite another runtime configuration."))
@@ -117,6 +117,8 @@ def main() -> int:
     if conflicts:
         raise SetupError(f"Unset setup-conflicting runtime overrides first: {', '.join(conflicts)}")
     lock = json.loads((ROOT / "dev/setup-lock.json").read_text())
+    if lock.get("schema") != "hol-hearth.setup-lock.v1" or lock.get("profile") != "light" or lock.get("hol_light_use_module") is not True:
+        raise SetupError("Unsupported setup lock; this command constructs the compiled light profile.")
     data = (args.data_dir or Path(os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local/share"))) / "hol-hearth").expanduser().resolve()
     holdir, shelves = data / "hol-light", data / "shelves"
     if data == ROOT or ROOT in data.parents:

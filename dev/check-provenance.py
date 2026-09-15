@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFESTS = (
     "hol-workbench/warmup-profiles.json",
     "hol-workbench/dev/warmup-profiles-developer.json",
+    "dev/setup-lock.json",
 )
 IGNORED = {".git", "_build", "_opam", ".venv", "runs", ".cache", ".ruff_cache", "__pycache__"}
 
@@ -56,7 +57,7 @@ def main() -> int:
         expected_bytes = ("\n".join(profile["base_lines"]) + "\n").encode()
         if (ROOT / "profiles" / f"{name}.ml").read_bytes() != expected_bytes:
             raise SystemExit(f"Published ML recipe differs from runtime manifest: {name}")
-    print(f"Provenance inventory: {len(ml_files)} ML files and {len(MANIFESTS)} profile manifests match reviewed bytes")
+    print(f"Provenance inventory: {len(ml_files)} ML files and {len(MANIFESTS)} profile/source manifests match reviewed bytes")
     return 0
 
 

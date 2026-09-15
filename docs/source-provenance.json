@@ -1,7 +1,7 @@
 {
   "schema": "hol-hearth.source-provenance.v1",
   "reviewed_on": "2026-09-15",
-  "scope": "Published ML-family source files and complete profile manifests; external runtimes and generated memory images are not included.",
+  "scope": "Published ML-family source files, complete profile manifests and the HOL source build lock; external runtimes and generated memory images are not included.",
   "files": {
     "demos/balance.ml": {
       "sha256": "0eadb0a14399ac8b608d47d054cfc48596af81d8c1916e68d301ee3fed312f3f",
@@ -22,6 +22,11 @@
       "sha256": "958a06ef8dfa14e2691aa0e9762cc9022119ea2df5b0a8937bbd7d78c15317e0",
       "license": "MIT",
       "origin": "Original proof/demo written for the HOL Hearth source release; no imported proof text."
+    },
+    "dev/setup-lock.json": {
+      "sha256": "c15286df5650fa87e449ada63759ae598cfcf9f5930fee0fcec894efb5894d6f",
+      "license": "MIT",
+      "origin": "First-party build metadata pinning the publicly reviewed HOL Light revision; fetched upstream implementations retain their own licenses."
     },
     "hol-workbench/dev/warmup-profiles-developer.json": {
       "sha256": "a6e6257e9e498783ba89839d926a729d960f004eda52583f3496fc2dba16e5f5",
