@@ -243,9 +243,11 @@ def run_capability_round_trip_probe() -> None:
 
 
 def _require_sudo_timestamp() -> None:
+    # sudo -v can require a password even when the configured CRIU command
+    # is authorized by NOPASSWD. Test the exact execution prefix we will use.
     try:
         completed = subprocess.run(
-            [SUDO_EXECUTABLE, "-n", "-v"],
+            criu_command("--version"),
             stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
@@ -253,11 +255,12 @@ def _require_sudo_timestamp() -> None:
             check=False,
         )
     except (OSError, subprocess.SubprocessError) as exc:
-        raise CriuMaintenancePreflightError(f"cannot validate legacy sudo CRIU authority: {exc}") from exc
+        raise CriuMaintenancePreflightError(f"cannot validate sudo CRIU authority: {exc}") from exc
     if completed.returncode != 0:
         raise CriuMaintenancePreflightError(
-            "criu_mode=sudo has no noninteractive authorization; run sudo -v for this maintenance shell, "
-            "or provision criu_mode=capability once so future builds need no sudo timestamp"
+            "criu_mode=sudo cannot execute the configured CRIU command noninteractively; "
+            "run sudo -v in this shell or use an authorized passwordless sudo policy. "
+            f"Diagnostic: {_bounded_output(completed)}"
         )
 
 
