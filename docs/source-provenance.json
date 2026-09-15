@@ -34,9 +34,9 @@
       "origin": "First-party Workbench recipe orchestration, tactic aliases and small smoke checks. Imports reference separately installed upstream libraries; they do not embed those libraries."
     },
     "hol-workbench/native-eval/eval.ml": {
-      "sha256": "cd4acb53467b320928093a0d675efbb8b1a42283e624b439897d6c2b78d45935",
+      "sha256": "75d475c4046b4b7bd1d3bbd684bf99b349e4ff1ba92190fb4cf14647dc7f3fa3",
       "license": "MIT",
-      "origin": "First-party Workbench evaluator; original file-addition history and current contents reviewed, including Hearth signal portability changes. No third-party source copy identified."
+      "origin": "First-party Workbench evaluator; original file-addition history and current contents reviewed, including the original Hearth parser-error diagnostic. No third-party source copy identified."
     },
     "hol-workbench/native-eval/hot_session.ml": {
       "sha256": "7180282425a4127512c09fbc4421a39453dc84da420c0e82726c7725434cbb48",

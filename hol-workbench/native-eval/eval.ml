@@ -72,6 +72,8 @@ let evaluate ?timeout source =
   let outcome =
     try loop () with
     | Timeout -> Timed_out (Option.value timeout ~default: 0)
+    | Exit -> Failed (line_of source !phrase_start,
+                      "Syntax error: HOL parser could not read this phrase")
     | error ->
         Buffer.clear buffer;
         (try Location.report_exception formatter error
