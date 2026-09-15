@@ -18,7 +18,7 @@ HOL Hearth — warm HOL Light proof checks on Linux
   hearth doctor                        Inspect the configured runtime
   hearth configure OPTIONS             Set local HOL and CRIU paths
   hearth build-native                  Build the live-loop evaluator with OCaml
-  hearth demo [cat-map|balance|failure] [--run-root DIR]
+  hearth demo [cat-map|balance|failure|repaired] [--run-root DIR]
 
 Runtime: Linux, Python 3.11+, a compatible local HOL/CRIU warm profile.
 The live loop also needs an evaluator built with the profile's OCaml compiler.

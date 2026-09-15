@@ -41,7 +41,8 @@ need `sudo -v`.
 Setup fetches the exact HOL commit in [setup-lock.json](../dev/setup-lock.json),
 compiles its module and the live evaluator, then loads
 [`light.ml`](../profiles/light.ml), checkpoints it, restores it and checks its
-smoke theorems. It builds no optional heavy or assembly profiles. Progress is
+smoke theorems. It then checks the cat-map proof through the same public command
+used for ordinary authoring. It builds no optional heavy or assembly profiles. Progress is
 printed every 20 seconds, with a log path for each step.
 
 Sources, snapshots and setup receipts go under

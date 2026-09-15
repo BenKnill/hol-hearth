@@ -188,10 +188,12 @@ def main() -> int:
                   "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('hol_workbench.cli.orbstack_criu_build',run_name='__main__')", str(WB)])
         profile = resolve_published_warm_profile(WB / "bin", "light")
         phase("doctor", [str(ROOT / "hearth"), "doctor", "--profile", "light"])
+        phase("proof-check", [str(ROOT / "hearth"), "demo", "cat-map", "--run-root", str(logs / "proof-check")])
         receipt = {"schema": "hol-hearth.setup.v1", "status": "ready", "profile": "light",
                    "profile_reused": profile_ready, "hol_revision": lock["hol_light_revision"],
                    "hearth_revision": source_identity["revision"], "tools": versions,
-                   "config": str(config_path), "profile_root": str(profile.root), "logs": str(logs)}
+                   "config": str(config_path), "profile_root": str(profile.root), "logs": str(logs),
+                   "public_proof_check": "passed", "public_proof_run_root": str(logs / "proof-check")}
         (logs / "setup.json").write_text(json.dumps(receipt, indent=2) + "\n")
         print(f"SETUP: ready (light {'reused' if profile_ready else 'built and restored'})\n"
               f"RECEIPT: {logs / 'setup.json'}\nNEXT: ./hearth demo cat-map", flush=True)
