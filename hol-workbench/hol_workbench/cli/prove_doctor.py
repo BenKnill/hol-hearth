@@ -148,14 +148,16 @@ def render_doctor(report: dict[str, Any]) -> list[str]:
     lifecycle = _layer(report, "lifecycle")
     if report["status"] == "healthy":
         next_step = "rerun the same prove command"
+    elif config["status"] == "blocked":
+        next_step = "./hearth setup --check (first-time setup); see docs/setup.md"
     elif queue["status"] in {"saturated", "waiting"} and lifecycle["status"] == "clean":
         next_step = public_command("prove", "status", "--watch")
     else:
-        next_step = "do not reload, rebuild, or kill workers; give DETAILS to the Workbench development lane"
+        next_step = "inspect DETAILS and profile build logs; see docs/setup.md before changing an existing runtime"
     return [
         f"DOCTOR: {report['status']}",
         "OS: ready (Linux)",
-        f"CONFIG: {config['status']}",
+        f"CONFIG: {config['status']} ({config['detail']})",
         f"PROFILES: {profiles['status']} ({profiles['detail']})",
         f"WORKERS: resident={runtime.get('workers', 0)} active={runtime['active']}",
         f"QUEUE: {queue['status']} ({queue['detail']})",
@@ -167,7 +169,9 @@ def render_doctor(report: dict[str, Any]) -> list[str]:
 
 def _parse(args: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="prove doctor", description=__doc__)
-    parser.add_argument("--profile")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--profile", default="light", help="Profile to check (default: light)")
+    group.add_argument("--all-profiles", action="store_true", help="Also check optional profiles that may not be installed")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--stalled-after", type=float, default=120.0)
     options = parser.parse_args(args)
@@ -180,7 +184,7 @@ def main(args: list[str], *, script_dir: str | Path) -> int:
     options = _parse(args)
     try:
         report = collect_doctor(
-            Path(script_dir).resolve(), profile=options.profile, stalled_after=options.stalled_after
+            Path(script_dir).resolve(), profile=None if options.all_profiles else options.profile, stalled_after=options.stalled_after
         )
     except (OSError, RuntimeError, SystemExit, ValueError) as exc:
         print(f"prove doctor: {exc}", file=sys.stderr)

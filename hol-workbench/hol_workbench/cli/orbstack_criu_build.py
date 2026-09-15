@@ -744,6 +744,10 @@ def main() -> int:
             item["dump_environment"] = {"CRIU_PMC_OFF": "1"}
             item["dump_status"] = dump.returncode
             item["dump_seconds"] = round(time.monotonic() - dump_start, 3)
+            if restore_log_may_be_root_owned(criu_readiness.mode):
+                from hol_workbench.criu_shelf_result_evidence import publish_dump_artifacts_for_controller
+
+                publish_dump_artifacts_for_controller(image_dir)
             item["image_bytes"] = du_bytes(image_dir)
             inventory_start = time.monotonic()
             item["image_inventory"] = image_inventory_record(image_dir)
@@ -961,9 +965,14 @@ def main() -> int:
     )
     if not publication_failures:
         publish_build_results(root, rows, plan.profiles)
-    print(report)
-    print(root)
-    print(json.dumps(rows, indent=2, sort_keys=True))
+    print(f"BUILD REPORT: {report}")
+    print(f"BUILD RESULTS: {root / 'build-results.json'}")
+    for row in rows:
+        print(f"PROFILE: {row.get('profile')} {row.get('status')}")
+        if row.get("exception"):
+            print(f"REASON: {row['exception']}")
+    for failure in publication_failures:
+        print(f"PUBLICATION: {failure}")
     return 0 if not publication_failures else 1
 
 

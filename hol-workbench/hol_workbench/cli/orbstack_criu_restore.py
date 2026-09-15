@@ -1124,8 +1124,13 @@ def _handle_transaction_failure(
 
 
 def _pidfile_is_file(pidfile: Path) -> bool:
-    if pidfile.is_file():
-        return True
+    try:
+        if pidfile.is_file():
+            return True
+    except PermissionError:
+        # Python 3.13 raises here for a root-owned restore-output directory;
+        # use the privileged probe below, as for an unreadable pidfile.
+        pass
     try:
         completed = subprocess.run(
             ["sudo", "-n", "/usr/bin/test", "-f", str(pidfile)],

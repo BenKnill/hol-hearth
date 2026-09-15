@@ -96,6 +96,21 @@ def capture_new_restore_evidence(
     return {**_file_evidence(created[0], schema=RESTORE_EVIDENCE_SCHEMA), "restore_status": 0}
 
 
+def publish_dump_artifacts_for_controller(image_dir: Path) -> None:
+    """Make sudo-created dump files readable by their unprivileged controller."""
+    if image_dir.is_symlink():
+        raise RuntimeError("CRIU dump directory must not be a symlink")
+    root = image_dir.resolve(strict=True)
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            raise RuntimeError(f"CRIU dump ownership transfer refuses symlink {path}")
+        if path.is_dir():
+            continue
+        if not path.is_file():
+            raise RuntimeError(f"CRIU dump ownership transfer refuses special file {path}")
+        publish_restore_log_for_controller(path, expected_parent=path.parent)
+
+
 def capture_eval_evidence(
     log: Path,
     *,

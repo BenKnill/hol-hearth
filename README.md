@@ -7,9 +7,9 @@ It reuses local CRIU snapshots, evaluates exact source bytes in disposable
 children, and keeps the source hash, completion result and named theorem checks
 together. A live mode checks each saved edit.
 
-> Initial source release. Real proof checks require an existing compatible
-> local HOL/CRIU profile. Runtime provisioning is a separate maintainer step;
-> cloning this repository alone does not create a proof environment.
+Run `./hearth setup` once to build a local `light` profile from pinned HOL
+sources. Subsequent proof checks reuse it. A Linux kernel that supports CRIU
+and permission to run CRIU are required; see [setup](docs/setup.md).
 
 ![A real HOL Light session rejects an identity, accepts its repair, and stops cleanly.](demos/live-loop.svg)
 
@@ -28,6 +28,24 @@ cd hol-hearth
 
 No Python packages, virtual environment, Node, OPAM, or Dune are required for
 these commands. The checks do not load HOL or create a snapshot.
+
+## First proof on a fresh machine
+
+On Debian or Ubuntu with Python 3.11+ and OCaml 4.14+ packages:
+
+```sh
+sudo apt-get update
+sudo apt-get install --no-install-recommends python3 git make gcc ocaml-nox \
+  ocaml-findlib camlp5 libzarith-ocaml-dev libcamlp-streams-ocaml-dev criu sudo
+./hearth setup --check
+./hearth setup
+./hearth demo cat-map
+```
+
+If CRIU needs a sudo password, run `sudo -v` in the same shell before setup.
+Setup prints progress and log paths while HOL loads. It builds only `light`,
+keeps upstream sources and snapshots outside the clone, and preserves existing
+runtime configurations. It never rebuilds an already compatible profile.
 
 ## Check a proof
 
@@ -69,6 +87,7 @@ may remain for the next session.
 | Operation | Dependencies |
 | --- | --- |
 | Help, profile listing, receipt reading, tool checks | Linux, Bash, Python 3.11+ standard library |
+| First-time setup | Above, Git, Make, GCC, OCaml 4.14+, Findlib, Camlp5, Zarith, camlp-streams, CRIU |
 | Recorded proof check | Above, local HOL Light runtime, CRIU and a compatible published profile |
 | Live edit loop | Above, small evaluator compiled with the HOL runtime's OCaml compiler |
 | Optional code linting | Ruff |

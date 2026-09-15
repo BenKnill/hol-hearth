@@ -55,11 +55,8 @@ class RuntimeConfig:
 
 def setup_command() -> str:
     return (
-        "./hearth configure "
-        "--hol-light-dir /absolute/path/to/hol-light "
-        "--criu-shelf-root /absolute/path/to/warm-shelves "
-        "--criu-bin /absolute/path/to/criu "
-        "--criu-mode sudo"
+        "./hearth setup (new environment); "
+        "see docs/setup.md for configuring an existing HOL/CRIU installation"
     )
 
 

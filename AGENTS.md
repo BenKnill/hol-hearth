@@ -3,6 +3,12 @@
 Run code, tests, OCaml and HOL on Linux. Preserve the user's configured HOL
 checkout and warm profiles. Work in a separate source checkout.
 
+For a fresh Linux environment, follow docs/setup.md: install the distribution
+packages, then run `./hearth setup --check` and `./hearth setup`. Setup creates
+the first `light` profile from pinned HOL sources. It preserves an existing
+runtime configuration and reuses an already compatible profile. `./hearth
+doctor` checks `light` by default; optional uninstalled profiles are not errors.
+
 Use a recorded check first:
 
 ```sh

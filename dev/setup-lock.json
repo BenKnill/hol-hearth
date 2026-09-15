@@ -1,0 +1,7 @@
+{
+  "schema": "hol-hearth.setup-lock.v1",
+  "hol_light_remote": "https://github.com/jrh13/hol-light.git",
+  "hol_light_revision": "2a1cea8f1cb7f3885a60d947ba06eabac6ec1d32",
+  "hol_light_use_module": true,
+  "profile": "light"
+}

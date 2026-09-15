@@ -23,8 +23,8 @@ bounded receipt reader without loading HOL or touching a warm profile.
 SUCCESS = """\
 SMOKE: passed current public contract
 EVIDENCE: harness health only; no theorem claim
-NEXT: dev/linux hol-workbench/bin/prove /ABS/SOURCE.ml --profile light --run-root /ABS/runs
-DETAILS: dev/linux hol-workbench/bin/prove --help
+NEXT: ./hearth doctor (or ./hearth setup for a new environment)
+DETAILS: ./hearth --help
 """
 
 SYSTEM_PATH = "/usr/local/bin:/usr/bin:/bin"
