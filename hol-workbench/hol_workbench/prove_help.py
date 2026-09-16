@@ -1,75 +1,46 @@
-"""User-facing help text for ``hol-workbench/bin/prove``."""
-
-import sys
-
+"""Help for the public HOL Hearth proof command."""
 PUBLIC_HELP = """usage:
-  hol-workbench/bin/prove /ABS/SOURCE.ml [--run-root /ABS/runs] [--profile PROFILE] [--timeout SECONDS]
-  hol-workbench/bin/prove /ABS/SOURCE.ml --loop [--profile PROFILE] [--timeout SECONDS]
-  hol-workbench/bin/prove profiles
-  hol-workbench/bin/prove status [--watch|--json]
-  hol-workbench/bin/prove doctor [--profile PROFILE|--json]
-
---loop and --run-root are mutually exclusive. Recorded --run-root is the
-ordinary one-shot check; --loop is a dedicated live session (edit in another
-window). Neither is publication evidence.
-After either mode, a published-profile broker and idle monitor may remain.
-That is the warm seat, not a leaked prove child. Do not kill it.
+  hearth prove SOURCE.ml [--run-root DIR] [--profile PROFILE] [--timeout SECONDS]
+  hearth prove SOURCE.ml --loop [--run-root DIR] [--profile PROFILE] [--timeout SECONDS]
+  hearth profiles [--all | PROFILE [--verbose]]
+  hearth status [--profile PROFILE] [--watch|--json]
+  hearth doctor [--profile PROFILE|--all-profiles] [--json]
 
 Recorded replay:
-  Ordinary prove evaluates the current source in a fresh warm child and writes
-  one compact receipt under --run-root. It does not reuse live-loop state and is
-  the recorded proof check; independent publication replay is separate.
-  If execution stops before nonce-bound probes, bindings remain missing;
-  binding-like transcript text is unverified and cannot identify the residual.
-  --timeout SECONDS defaults to 120. For longer sources, choose a larger budget.
-  The mechanical broker response deadline includes a 15-second allowance
-  (minimum 30 seconds); a controller response timeout is transport evidence,
-  not a HOL theorem failure or an evaluator deadline measurement.
+  Evaluate the complete project in a fresh child of a warm HOL profile.
+  Keep exact source/dependency hashes, completion and named theorem checks.
+  Existing run roots retain each attempt in a new timestamped directory.
+  --timeout defaults to 120 seconds; set an explicit budget for long proofs.
+  Queue wait is separate from proof time. A controller response deadline
+  includes a 15-second allowance (minimum 30 seconds).
 
 Authoring loop:
-  --loop restores one published profile once, then sends each stable saved edit
-  as source bytes to disposable HOL children. It creates no per-edit evidence
-  files. OK means HOL Light evaluated the complete source successfully. A child
-  killed by a signal is reported with its explicit name and number; Ctrl-C stops
-  the session. Loop children and the session socket must go away; the published
-  warm seat stays.
+  --loop watches source and transitive dependencies and runs the same recorded
+  check after stable edits. It keeps a receipt for every attempt, including failures.
+  Edits during evaluation mark that result stale and schedule another check.
+  A long proof still takes its full evaluation time after an edit. Work on a
+  small leaf and keep expensive stable dependencies in the selected warm basis.
+  Ctrl-C cancels the owned replay. The shared warm seat stays; do not kill it.
+
+Inspection:
+  hearth inspect DIR --binding THEOREM
+  hearth inspect DIR --verbose
+  hearth inspect DIR --json
+  Failure details include a bounded exception block. Transcript/goal text is
+  diagnostic; successful OCaml execution alone does not finish interactive goals.
 
 Runtime:
-  Linux-only. Both source modes require a published warm CRIU profile; neither
-  mode cold-loads, rebuilds, repairs, or exposes backend controls.
-  Source and run-root paths are absolute paths visible inside Linux.
+  Linux and an existing compatible HOL/CRIU profile. Source and run-root paths
+  may be absolute or relative to the calling directory. No cold-load fallback.
+  light, heavy, probability, s2n-arm, s2n-arm-light, s2n-arm-mlkem, s2n-x86.
+  Prefer an explicit profile for project work. Optional recipes are not installed
+  merely because they are listed. Independent publication replay is a later step.
 
-Profiles:
-  light, heavy, probability, s2n-arm, s2n-arm-light, s2n-arm-mlkem, or
-  s2n-x86. The source route infers one unless --profile is explicit. light is
-  the ordinary arithmetic profile; s2n-arm-light combines it with the ARM
-  basis and should be selected explicitly for mixed work; s2n-arm-mlkem is
-  only for ML-KEM/ML-DSA work.
-
-Status:
-  status reads live profile owners and admission demand without starting HOL,
-  restoring a profile, or changing worker state. --watch repeats the snapshot.
-  doctor checks configuration, compatibility, saturation, and stale ownership
-  without repairing, rebuilding, reloading, killing, or starting HOL.
+Theorem exploration:
+  Use ordinary HOL source, e.g. search [name "ITER"];; or print_thm ITER;;
+  and inspect its recorded transcript. There is no second lookup execution path.
 """
 
-
-def help_text(topic: str = "public") -> str:
-    if topic in {"public", "default", ""}:
-        return PUBLIC_HELP
-    raise ValueError(f"unknown prove help topic: {topic}")
-
-
-def main(argv: list[str] | None = None) -> int:
-    args = list(sys.argv[1:] if argv is None else argv)
-    topic = args[0] if args else "public"
-    try:
-        sys.stdout.write(help_text(topic))
-    except ValueError as exc:
-        print(exc, file=sys.stderr)
-        return 2
+def main(argv=None):
+    print(PUBLIC_HELP, end="")
     return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

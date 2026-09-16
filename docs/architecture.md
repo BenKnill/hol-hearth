@@ -2,26 +2,30 @@
 
 ```mermaid
 flowchart LR
-  S[Exact source bytes] --> P[prove]
-  W[Local CRIU warm profile] --> C[Fresh HOL child]
-  P --> C
-  C --> R[Receipt and bounded transcript]
-  R --> I[inspect]
+    S[Proof leaf or complete project] --> D[Exact source and dependency capture]
+    W[Project watcher] --> D
+    B[Local HOL and CRIU warm basis] --> C[Fresh proof child]
+    D --> C
+    C --> R[Recorded completion and named kernel probes]
+    R --> I[Target, inputs and failure inspection]
 ```
 
-The orchestration layer is Python standard library code. CRIU is a separate
-executable. HOL Light remains the proof authority. The live evaluator uses
-OCaml's installed toplevel parser, including HOL syntax, instead of replacing
-it with a text parser.
+There is one proof execution path. Live editing schedules ordinary recorded
+checks; it does not use a second OCaml evaluator with different loader/error
+semantics. Each attempt is isolated in a disposable child of the warm basis.
+The broker's actual capacity governs admission and queueing.
 
-A warm broker owns the loaded basis. Each proof runs in a fresh child.
-Source packaging preserves dependency identity. Receipt handling keeps
-transport failure, source completion and theorem binding checks separate.
+The Python standard-library command layer handles source capture, process
+lifecycle, receipts and inspection. HOL remains the theorem authority.
+Source completion, named binding checks and process transport are separate
+observations. The watcher compares the captured dependency identity with
+current inputs before labeling a result current.
 
-Internal Python modules and receipt schemas retain the `hol_workbench`
-namespace for compatibility with existing profiles. The public command is
-`hearth`. There is no macOS dispatcher or distro-name check in its launcher.
+Profile recipes describe a preloaded mathematical basis. Stable library loading
+can be amortized across attempts. Arbitrary project prefix checkpointing,
+automatic proof search/repair and final publication replay are outside the
+ordinary authoring command.
 
-The source includes internal snapshot and lifecycle code used by the
-authoring path. Provisioning and independent publication machinery are
-maintainer concerns and are not ordinary proof commands.
+Internal modules and receipt schema names retain hol_workbench for compatibility
+with existing local profiles. The public command is hearth. There is no host
+dispatcher, distro whitelist or separate native evaluator build.

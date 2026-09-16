@@ -30,6 +30,7 @@ def main() -> int:
     commands = [
         [sys.executable, "-I", "-B", str(ROOT / "dev/check-provenance.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/setup-selftest.py")],
+        [sys.executable, "-I", "-B", str(ROOT / "dev/authoring-selftest.py")],
         [sys.executable, "-I", "-B", str(WB / "dev/python_syntax_selftest.py"), str(WB)],
         [sys.executable, "-I", "-B", str(WB / "dev/python_import_selftest.py"), str(WB)],
         [str(ROOT / "hearth"), "smoke"],

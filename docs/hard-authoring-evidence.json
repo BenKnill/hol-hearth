@@ -1,0 +1,513 @@
+{
+  "schema": "hol-hearth.hard-authoring-validation.v1",
+  "checked_on": "2026-09-16",
+  "environment": "Ubuntu 26.04 ARM64; existing compatible light profiles; no profile rebuild",
+  "code_scope": "Acceptance during implementation on public base 05518b877feb5716773c57e68e1e896b67b12d2c; full-run client metadata has unknown revision. Source, profile and transcript identities are retained below.",
+  "ancestor_source_checkpoint": "f5ef30706624577d20d5fac8a3210fe96a99b2e0",
+  "external_source_distribution": "Not included or relicensed; retained outside this repository",
+  "evidence_boundary": "Warm HOL authoring acceptance; not independent final audit, native floating-point correctness or full discrete-adjoint correctness.",
+  "full_root": {
+    "case": "full shared-table root",
+    "source_file": "shared_table_records.ml",
+    "receipt_sha256": "d38c2e999ef0b8ae3f58021508d397231d60702c1a454475e9dec54e661e1e0d",
+    "source_sha256": "3524898060c0bd0588a7e325e5ee1a241a9bf89b6986967c089b82d4e176505a",
+    "source_dependency_closure_sha256": "d50c8480789c01f30c54c0f8b614288f13b397dc67c37e0c76c8fbd4900e9d53",
+    "profile_basis_id": "hol.light.default.v3",
+    "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+    "eval_elapsed_seconds": 642.844,
+    "effective_capacity": 1,
+    "capacity_model": "serialized_single_shelf",
+    "admission_wait_seconds": 0.0,
+    "semantic_source_status": "succeeded",
+    "source_completed": true,
+    "claims_complete": true,
+    "completion_marker_valid": true,
+    "exit_status": 0,
+    "first_failure": null,
+    "raw_transcript_sha256": "9e76603588cca93e29f59ec66dbf4e0e3cf95db747658ce08b90b6e2b2d10f7e",
+    "transcript_sha256": "4df09ed436246fa92368fe3dfe032783b2791d0eb043badd0671b7dc0c703c6e",
+    "broker_child_quiescent": true,
+    "broker_seat_reusable": true,
+    "binding_count": 73,
+    "proved_bindings": [
+      "AI_SHARED_WORDS_000",
+      "AI_SHARED_FACE_DATA_001",
+      "AI_SHARED_FACE_DATA_002",
+      "AI_SHARED_FACE_DATA_003",
+      "AI_SHARED_FACE_DATA_004",
+      "AI_SHARED_FACE_DATA_005",
+      "AI_SHARED_FACE_DATA_006",
+      "AI_SHARED_FACE_DATA_007",
+      "AI_SHARED_FACE_DATA_008",
+      "AI_SHARED_FACE_DATA_009",
+      "AI_SHARED_FACE_DATA_010",
+      "AI_SHARED_FACE_DATA_011",
+      "AI_SHARED_FACE_DATA_012",
+      "AI_SHARED_FACE_DATA_013",
+      "AI_SHARED_FACE_DATA_014",
+      "AI_SHARED_FACE_DATA_015",
+      "AI_SHARED_FACE_DATA_016",
+      "AI_SHARED_FACE_DATA_017",
+      "AI_SHARED_FACE_DATA_018",
+      "AI_SHARED_FACE_DATA_019",
+      "AI_SHARED_FACE_DATA_020",
+      "AI_SHARED_FACE_DATA_021",
+      "AI_SHARED_FACE_DATA_022",
+      "AI_SHARED_FACE_DATA_023",
+      "AI_SHARED_FACE_DATA_024",
+      "AI_SHARED_FACE_DATA_025",
+      "AI_SHARED_FACE_DATA_026",
+      "AI_SHARED_FACE_DATA_027",
+      "AI_SHARED_FACE_DATA_028",
+      "AI_SHARED_FACE_DATA_029",
+      "AI_SHARED_FACE_DATA_030",
+      "AI_SHARED_FACE_DATA_031",
+      "AI_SHARED_FACE_DATA_032",
+      "AI_SHARED_FACE_DATA_033",
+      "AI_SHARED_FACE_DATA_034",
+      "AI_SHARED_FACE_DATA_035",
+      "AI_SHARED_FACE_DATA_036",
+      "AI_SHARED_FACE_DATA_037",
+      "AI_SHARED_FACE_DATA_038",
+      "AI_SHARED_FACE_DATA_039",
+      "AI_SHARED_FACE_DATA_040",
+      "AI_SHARED_FACE_DATA_041",
+      "AI_SHARED_FACE_DATA_042",
+      "AI_SHARED_FACE_DATA_043",
+      "AI_SHARED_FACE_DATA_044",
+      "AI_SHARED_FACE_DATA_045",
+      "AI_SHARED_FACE_DATA_046",
+      "AI_SHARED_FACE_DATA_047",
+      "AI_SHARED_FACE_DATA_048",
+      "AI_SHARED_FACE_DATA_049",
+      "AI_SHARED_FACE_DATA_050",
+      "AI_SHARED_FACE_DATA_051",
+      "AI_SHARED_FACE_DATA_052",
+      "AI_SHARED_FACE_DATA_053",
+      "AI_SHARED_FACE_DATA_054",
+      "AI_SHARED_FACE_DATA_055",
+      "AI_SHARED_FACE_DATA_056",
+      "AI_SHARED_FACE_DATA_057",
+      "AI_SHARED_FACE_DATA_058",
+      "AI_SHARED_FACE_DATA_059",
+      "AI_SHARED_FACE_DATA_060",
+      "AI_SHARED_FACE_DATA_061",
+      "AI_SHARED_FACE_DATA_062",
+      "AI_SHARED_FACE_DATA_063",
+      "AI_SHARED_FACE_DATA_064",
+      "AI_ACTUAL_TABLE_BOUNDS",
+      "AI_ACTUAL_TABLE_WORK",
+      "AI_ACTUAL_TABLE_POWER",
+      "AI_ACTUAL_COEFFICIENT_ERROR_PAIRS",
+      "AI_ACTUAL_FORWARD_X_ERROR",
+      "AI_ACTUAL_FORWARD_Z_ERROR",
+      "AI_ACTUAL_TRANSPOSE_X_ERROR",
+      "AI_ACTUAL_TRANSPOSE_Z_ERROR"
+    ],
+    "foundation_deltas": {
+      "axioms": 0,
+      "constants": 158,
+      "definitions": 158,
+      "types": 0
+    },
+    "input_files": [
+      {
+        "name": "shared_table_records.ml",
+        "sha256": "3524898060c0bd0588a7e325e5ee1a241a9bf89b6986967c089b82d4e176505a",
+        "role": "entrypoint"
+      },
+      {
+        "name": "native_face_records.ml",
+        "sha256": "634558d8475515cb5ea559cde039cdfa03b37a3aa223c967aa8f2a8a4ddb3d75",
+        "role": "dependency"
+      },
+      {
+        "name": "native_face_contract.ml",
+        "sha256": "d40ed7f9f93ff9423603f3003f103636d6b613d89835d76fce5beacadf09a046",
+        "role": "dependency"
+      },
+      {
+        "name": "face_pairing.ml",
+        "sha256": "5297ac8e60911733773f8e2ca5711c40c424dda2d2255ff2059fd6fa9dae437e",
+        "role": "dependency"
+      },
+      {
+        "name": "affine_face.ml",
+        "sha256": "a65cee82a7ee02394f77128d4cbb322429eb41cb3553cebe589c1b212b4f9c68",
+        "role": "dependency"
+      },
+      {
+        "name": "edge_scatter.ml",
+        "sha256": "6cb184100616d81b0dfbbddac08ce42cd08afe7770bea5a572a98b6482e723f2",
+        "role": "dependency"
+      },
+      {
+        "name": "interface_pair.ml",
+        "sha256": "7179da2145094f32b8814b0d356d53d0c38ebed373f58632c4b3db8724c6092f",
+        "role": "dependency"
+      },
+      {
+        "name": "shared_table_geometry.ml",
+        "sha256": "7089d47c40d487e8710646aba2b9e6ea7eaa586105e29ee3fb83f675a630a75a",
+        "role": "dependency"
+      },
+      {
+        "name": "shared_table.ml",
+        "sha256": "399a0a1cc227d55b18b9a33fed335836efc614b13daf4e33ec52cde0c2ebd3fb",
+        "role": "dependency"
+      },
+      {
+        "name": "shared_table_bounds.ml",
+        "sha256": "3a6df0a64066864599775ff0b148068e9abe430249d32637e45523485e080a55",
+        "role": "dependency"
+      }
+    ],
+    "literal_empty_hypothesis_checks": 138,
+    "literal_completion_marker": "AI_REPLAY_ACTUAL_SHARED_TABLE_OK"
+  },
+  "negative_controls": [
+    {
+      "case": "wrong index",
+      "source_file": "shared-table-control-index.ml",
+      "receipt_sha256": "1f3ea72cc1cc497170d97bf8f7cea72e842e9e2cac78b87180dbc5c486e523d0",
+      "source_sha256": "a310dddb9f3402cfd2f1ffedaf6d2739ab254d292ee48de83e88aa12086e0628",
+      "source_dependency_closure_sha256": "7ad4f7b598a315b36aff8393f208767d839296873d1307d826138cdc2b17de92",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "eval_elapsed_seconds": 8.722,
+      "effective_capacity": 1,
+      "capacity_model": "serialized_single_shelf",
+      "admission_wait_seconds": 507.854,
+      "semantic_source_status": "failed",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "exit_status": 1,
+      "first_failure": "Exception: Failure \"REAL_ARITH `false`: linear_ineqs: no contradiction\".",
+      "raw_transcript_sha256": "99cb1ac605b8bd97c10c11e663f9e7fd966baa541b3a9332f4603d4d2002b5da",
+      "transcript_sha256": "41b700d166f3f0c0f679c45962f0ffbba128eed7f0d28b74c9023b71952ce4e3",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_count": 10,
+      "proved_bindings": [],
+      "foundation_deltas": {
+        "axioms": 0,
+        "constants": 30,
+        "definitions": 30,
+        "types": 0
+      },
+      "input_files": [
+        {
+          "name": "runs/shared-table-control-index.ml",
+          "sha256": "a310dddb9f3402cfd2f1ffedaf6d2739ab254d292ee48de83e88aa12086e0628",
+          "role": "entrypoint"
+        },
+        {
+          "name": "proofs/native_face_pilot.ml",
+          "sha256": "05db27e06ca7c619e7df4cc1346b810633564a25eceb2ef52d6dc16df4026155",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/native_face_contract.ml",
+          "sha256": "d40ed7f9f93ff9423603f3003f103636d6b613d89835d76fce5beacadf09a046",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/face_pairing.ml",
+          "sha256": "5297ac8e60911733773f8e2ca5711c40c424dda2d2255ff2059fd6fa9dae437e",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/affine_face.ml",
+          "sha256": "a65cee82a7ee02394f77128d4cbb322429eb41cb3553cebe589c1b212b4f9c68",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/edge_scatter.ml",
+          "sha256": "6cb184100616d81b0dfbbddac08ce42cd08afe7770bea5a572a98b6482e723f2",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/interface_pair.ml",
+          "sha256": "7179da2145094f32b8814b0d356d53d0c38ebed373f58632c4b3db8724c6092f",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table_geometry.ml",
+          "sha256": "7089d47c40d487e8710646aba2b9e6ea7eaa586105e29ee3fb83f675a630a75a",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table.ml",
+          "sha256": "399a0a1cc227d55b18b9a33fed335836efc614b13daf4e33ec52cde0c2ebd3fb",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table_bounds.ml",
+          "sha256": "3a6df0a64066864599775ff0b148068e9abe430249d32637e45523485e080a55",
+          "role": "dependency"
+        }
+      ]
+    },
+    {
+      "case": "wrong normal",
+      "source_file": "shared-table-control-normal.ml",
+      "receipt_sha256": "0644ea62250e1b7f8bd231a4a5789b827fb10427a32305c67677b647841f1835",
+      "source_sha256": "94d53096df41287083d95489cd523c8404a150f6f4b2633bbc568c13772308f9",
+      "source_dependency_closure_sha256": "455a8372131d24a2b65648f3684bad51855bd45e6cb7bc66adc6b61d599b2381",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "eval_elapsed_seconds": 9.415,
+      "effective_capacity": 1,
+      "capacity_model": "serialized_single_shelf",
+      "admission_wait_seconds": 489.219,
+      "semantic_source_status": "failed",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "exit_status": 1,
+      "first_failure": "Exception: Failure \"REAL_ARITH `false`: linear_ineqs: no contradiction\".",
+      "raw_transcript_sha256": "908d0df0422c827239ee4d950ee90eeaa3f8d5bcf83073f30324294335116edb",
+      "transcript_sha256": "966394266c9f74a2bdd5b6f57ce42d7816cedd0b13912a231c7ac8d64e1dab24",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_count": 10,
+      "proved_bindings": [],
+      "foundation_deltas": {
+        "axioms": 0,
+        "constants": 30,
+        "definitions": 30,
+        "types": 0
+      },
+      "input_files": [
+        {
+          "name": "runs/shared-table-control-normal.ml",
+          "sha256": "94d53096df41287083d95489cd523c8404a150f6f4b2633bbc568c13772308f9",
+          "role": "entrypoint"
+        },
+        {
+          "name": "proofs/native_face_pilot.ml",
+          "sha256": "05db27e06ca7c619e7df4cc1346b810633564a25eceb2ef52d6dc16df4026155",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/native_face_contract.ml",
+          "sha256": "d40ed7f9f93ff9423603f3003f103636d6b613d89835d76fce5beacadf09a046",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/face_pairing.ml",
+          "sha256": "5297ac8e60911733773f8e2ca5711c40c424dda2d2255ff2059fd6fa9dae437e",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/affine_face.ml",
+          "sha256": "a65cee82a7ee02394f77128d4cbb322429eb41cb3553cebe589c1b212b4f9c68",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/edge_scatter.ml",
+          "sha256": "6cb184100616d81b0dfbbddac08ce42cd08afe7770bea5a572a98b6482e723f2",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/interface_pair.ml",
+          "sha256": "7179da2145094f32b8814b0d356d53d0c38ebed373f58632c4b3db8724c6092f",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table_geometry.ml",
+          "sha256": "7089d47c40d487e8710646aba2b9e6ea7eaa586105e29ee3fb83f675a630a75a",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table.ml",
+          "sha256": "399a0a1cc227d55b18b9a33fed335836efc614b13daf4e33ec52cde0c2ebd3fb",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table_bounds.ml",
+          "sha256": "3a6df0a64066864599775ff0b148068e9abe430249d32637e45523485e080a55",
+          "role": "dependency"
+        }
+      ]
+    },
+    {
+      "case": "wrong weight",
+      "source_file": "shared-table-control-weight.ml",
+      "receipt_sha256": "06da7a325f8e8d3b282fd75b8e4e7a7b9f1b39ad7eb22531e3578aaab4dd20d2",
+      "source_sha256": "910b7548af2d3d290a223b4bde1c17d14d5de8edbb601fa8d116d79cfe3df587",
+      "source_dependency_closure_sha256": "b5e879796739afdadf87025a0faed838efdfc8ab3002fbf74770b7e1eea4369f",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "eval_elapsed_seconds": 9.113,
+      "effective_capacity": 1,
+      "capacity_model": "serialized_single_shelf",
+      "admission_wait_seconds": 498.685,
+      "semantic_source_status": "failed",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "exit_status": 1,
+      "first_failure": "Exception: Failure \"REAL_ARITH `false`: linear_ineqs: no contradiction\".",
+      "raw_transcript_sha256": "4d3fef5ea7c3a11f05f673473c59db5a3db1ba6341b6aa53d3b6ef2ca4eb5a9b",
+      "transcript_sha256": "964465a1e9897b634d87f6a3c1f1708b17ec70871af8acfee374a8eeb2d19ea0",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_count": 10,
+      "proved_bindings": [],
+      "foundation_deltas": {
+        "axioms": 0,
+        "constants": 30,
+        "definitions": 30,
+        "types": 0
+      },
+      "input_files": [
+        {
+          "name": "runs/shared-table-control-weight.ml",
+          "sha256": "910b7548af2d3d290a223b4bde1c17d14d5de8edbb601fa8d116d79cfe3df587",
+          "role": "entrypoint"
+        },
+        {
+          "name": "proofs/native_face_pilot.ml",
+          "sha256": "05db27e06ca7c619e7df4cc1346b810633564a25eceb2ef52d6dc16df4026155",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/native_face_contract.ml",
+          "sha256": "d40ed7f9f93ff9423603f3003f103636d6b613d89835d76fce5beacadf09a046",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/face_pairing.ml",
+          "sha256": "5297ac8e60911733773f8e2ca5711c40c424dda2d2255ff2059fd6fa9dae437e",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/affine_face.ml",
+          "sha256": "a65cee82a7ee02394f77128d4cbb322429eb41cb3553cebe589c1b212b4f9c68",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/edge_scatter.ml",
+          "sha256": "6cb184100616d81b0dfbbddac08ce42cd08afe7770bea5a572a98b6482e723f2",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/interface_pair.ml",
+          "sha256": "7179da2145094f32b8814b0d356d53d0c38ebed373f58632c4b3db8724c6092f",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table_geometry.ml",
+          "sha256": "7089d47c40d487e8710646aba2b9e6ea7eaa586105e29ee3fb83f675a630a75a",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table.ml",
+          "sha256": "399a0a1cc227d55b18b9a33fed335836efc614b13daf4e33ec52cde0c2ebd3fb",
+          "role": "dependency"
+        },
+        {
+          "name": "proofs/shared_table_bounds.ml",
+          "sha256": "3a6df0a64066864599775ff0b148068e9abe430249d32637e45523485e080a55",
+          "role": "dependency"
+        }
+      ]
+    }
+  ],
+  "watch_regressions": [
+    {
+      "case": "initial",
+      "accepted": true,
+      "source": "e9370ef38ef5b12b22292d855b7370c5abe3d47ab092e55838b1886c45b878f1",
+      "closure": "fe2b78b54dcfbd3e6dac33ef5aba8cb47d029a8025d7c80ab114781e58e6284e",
+      "receipt_sha256": "d55ab19c316cc58ba32afa07e24167e9ec0a0b370fd3e9747bd5c01a03ea39c6"
+    },
+    {
+      "case": "unused failed helper only",
+      "accepted": false,
+      "source": "e9370ef38ef5b12b22292d855b7370c5abe3d47ab092e55838b1886c45b878f1",
+      "closure": "4b10dc0c2e047f4517c0ba7240e3c459baf097ac8d582b44f822b182d620e81a",
+      "receipt_sha256": "1ad7a87047356f003521a84f198be5bdc1f3d81965123ef4f2dfb1754ddeb2d6"
+    },
+    {
+      "case": "helper-only repair",
+      "accepted": true,
+      "source": "e9370ef38ef5b12b22292d855b7370c5abe3d47ab092e55838b1886c45b878f1",
+      "closure": "fe2b78b54dcfbd3e6dac33ef5aba8cb47d029a8025d7c80ab114781e58e6284e",
+      "receipt_sha256": "2fa2556c354fac4ea1e7f92d7d22b256ca192419ec3d02190fb9d70f357a8c13"
+    },
+    {
+      "case": "helper deletion",
+      "accepted": false,
+      "source": "e9370ef38ef5b12b22292d855b7370c5abe3d47ab092e55838b1886c45b878f1",
+      "closure": "3c228a9c65f0f688f52ca67fa0c1edf2b8fa9a63254c9260ab554d3e73400d53",
+      "receipt_sha256": "88b41d74f8c760d49283cae23c217b452efe77f08f39fa1f07b4cd1ebd603046"
+    },
+    {
+      "case": "helper restoration",
+      "accepted": true,
+      "source": "e9370ef38ef5b12b22292d855b7370c5abe3d47ab092e55838b1886c45b878f1",
+      "closure": "fe2b78b54dcfbd3e6dac33ef5aba8cb47d029a8025d7c80ab114781e58e6284e",
+      "receipt_sha256": "cbcdf1df6270bddcaec09aae07be3ad10abdc859c9af06a2e3f2b76e4e3c54bc"
+    },
+    {
+      "case": "captured before concurrent edit",
+      "accepted": true,
+      "source": "b3f55626f63b8e326ee7ee1e332bb75aa119814922675423a1b5a29a7abe122a",
+      "closure": "4c935cd7ef7285220f669e81cc27bfbc6fc085507542bd8cdad4929175082c55",
+      "receipt_sha256": "9093130c9469a9e09a0df5c6a493a604cee343a42af76837a0a8d1deac3d265b"
+    },
+    {
+      "case": "dependency changed during evaluation",
+      "accepted": false,
+      "source": "b3f55626f63b8e326ee7ee1e332bb75aa119814922675423a1b5a29a7abe122a",
+      "closure": "58bf387e49a59434c8adbc29cfca9eb2f71118efe4feaac86f4b16c4e68846ae",
+      "receipt_sha256": "d2c1cb096e7a2bb204a2cff56226e4b56cd941fa0699ede1510ed2686ad7ad63"
+    }
+  ],
+  "acoustic_watch": [
+    {
+      "case": "acoustic pilot",
+      "accepted": true,
+      "source": "b8e0db183c9577dbb8dabe5d1152078c11eaa08ab8c7876e26dd0e5b33c9b899",
+      "closure": "eaeca744c84fe5a46f2b016b0d1917ce20b33c625fc780ffc621e46154c07781",
+      "bindings": 10,
+      "first_failure": null,
+      "receipt_sha256": "eb8b43fd84352b88643c4e442b1f89ef0fb5491e92c907a11afa704ebd0cc09d"
+    },
+    {
+      "case": "acoustic helper-only failed proof",
+      "accepted": false,
+      "source": "b8e0db183c9577dbb8dabe5d1152078c11eaa08ab8c7876e26dd0e5b33c9b899",
+      "closure": "43381774d7b1b6d07bbc36250f968507ca63e16200048a25ba9a96eee31ec1c4",
+      "bindings": 10,
+      "first_failure": "Exception:",
+      "receipt_sha256": "2969cbe798ce8c28d0ce7162fdff6ca2f3dc33e429db098a50f141d71ce42f7d"
+    },
+    {
+      "case": "acoustic helper-only repair",
+      "accepted": true,
+      "source": "b8e0db183c9577dbb8dabe5d1152078c11eaa08ab8c7876e26dd0e5b33c9b899",
+      "closure": "eaeca744c84fe5a46f2b016b0d1917ce20b33c625fc780ffc621e46154c07781",
+      "bindings": 10,
+      "first_failure": null,
+      "receipt_sha256": "efa5a670c46c9091dce2c159c2f7c8091a520eb3f65cc949b46c7e0b6954b0ac"
+    }
+  ],
+  "active_cancellation": {
+    "case": "cancel during active HOL sleep before receipt",
+    "watch_exit": 130,
+    "cancel_seconds": 0.13228356803301722,
+    "active_before": 1,
+    "active_after": 0,
+    "basis_pids_preserved": true,
+    "semantic_source_status": "not_completed",
+    "termination_kind": null,
+    "cancellation_reason": null,
+    "receipt_sha256": "357053382439711cbec8a4857abccfc165438cd7706c293677b75feed343c177",
+    "subsequent_proof_succeeded": true
+  },
+  "portable_check_log_sha256": "a80d648e83ebca05f68989f9b515c5a89dd3ab1d55b6c0fe0216aef05be7a9ce"
+}

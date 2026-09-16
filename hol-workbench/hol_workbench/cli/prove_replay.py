@@ -109,7 +109,7 @@ def main(
         print(f"RECEIPT: {receipt}", flush=True)
         if status == 0:
             print(
-                "PROOF CHECK: passed; HOL Light accepted the complete source and recorded theorem bindings",
+                "SOURCE CHECK: passed; complete source evaluated and discovered named theorem bindings checked",
                 flush=True,
             )
         for line in replay_handoff(run_root, succeeded=status == 0):

@@ -22,6 +22,8 @@ def _parser() -> argparse.ArgumentParser:
         allow_abbrev=False,
     )
     parser.add_argument("run_dir", nargs="+")
+    parser.add_argument("--json", action="store_true", help="print the complete recorded receipt")
+    parser.add_argument("--binding", action="append", default=[], help="show an exact theorem binding (repeatable)")
     parser.add_argument("--verbose", action="store_true", help="show the full card-first inspect report")
     parser.add_argument("--tail", type=int, help="print the last N raw-log lines after the compact summary")
     parser.add_argument("--grep", help="regex filter for a bounded raw-log peek after the compact summary")
@@ -51,7 +53,13 @@ def _replay_receipt(path: Path) -> Path | None:
     elif path.is_dir():
         candidates = [path / "transcript.log.json"]
         try:
-            candidates.extend(child / "transcript.log.json" for child in path.iterdir() if child.is_dir())
+            children = [child for child in path.iterdir() if child.is_dir()]
+            candidates.extend(child / "transcript.log.json" for child in children)
+            # A caller-selected root may contain watch sessions, each with attempts.
+            candidates.extend(
+                attempt / "transcript.log.json"
+                for child in children for attempt in child.iterdir() if attempt.is_dir()
+            )
         except OSError:
             return None
     else:
@@ -122,6 +130,42 @@ def _bounded_transcript(args: argparse.Namespace, receipt: dict[str, Any]) -> No
         print(line[: args.max_line_chars])
 
 
+
+def _failure_details(receipt: dict[str, Any]) -> None:
+    if not receipt.get("first_failure"):
+        return
+    value = receipt.get("raw_transcript") or receipt.get("transcript")
+    try:
+        lines = Path(str(value)).read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return
+    needle = str(receipt["first_failure"]).strip().removeprefix("# ").strip()
+    index = next((i for i, line in enumerate(lines) if needle and needle in line), None)
+    if index is None:
+        return
+    print("failure_details: diagnostic transcript; generated-file positions are not editable-source coordinates")
+    for line in lines[index:index + 14]:
+        if line.startswith(("val ", "HOL_WORKBENCH_", "__HOL_", "# val ")):
+            break
+        print("  " + line[:800])
+
+
+def _input_details(receipt: dict[str, Any], *, verbose: bool) -> None:
+    closure = receipt.get("source_dependency_closure") or {}
+    entry = closure.get("entrypoint") or {}
+    rows = {entry.get("path"): entry.get("sha256")} if entry else {}
+    for row in closure.get("records") or []:
+        if row.get("resolved_path"):
+            rows[row["resolved_path"]] = row.get("sha256")
+    if rows:
+        digest = short_sha256(receipt.get("source_dependency_closure_sha256")) or "unknown"
+        print(f"inputs: {len(rows)} files; closure_sha={digest}")
+        print("binding_scope: discovered entrypoint claims; imported declarations are not individually probed")
+    if verbose:
+        for path, digest in rows.items():
+            print(f"  input: {path} sha256={digest or 'unavailable'}")
+
+
 def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
     receipt = _read_json(receipt_path)
     bindings = receipt.get("bindings")
@@ -142,6 +186,14 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
     )
     recorded_exits_zero = recorded_exits_complete and all(recorded_exit_fields[name] == 0 for name in exit_fields)
     succeeded = semantic_succeeded and (legacy_exit_fallback or recorded_exits_zero)
+    selected_names = set(args.binding)
+    selected = [row for row in binding_rows if isinstance(row, dict) and row.get("name") in selected_names]
+    selection_ok = not selected_names or (
+        {row.get("name") for row in selected} == selected_names and all(row.get("status") == "proved" for row in selected)
+    )
+    if args.json:
+        print(json.dumps(receipt, indent=2, sort_keys=True))
+        return 0 if succeeded and selection_ok else 1
     status = "succeeded" if succeeded else "failed" if semantic_succeeded else receipt.get("semantic_source_status")
     print(f"replay: {receipt.get('evidence') or 'unknown'}")
     print(f"status: {status or 'failed'}")
@@ -160,11 +212,24 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
             print(f"{name}: {receipt.get(name, 'missing')}")
     dict_rows = [row for row in binding_rows if isinstance(row, dict)]
     print(f"bindings: {len(binding_rows)}")
-    labels = [_binding_card_label(row) for row in dict_rows]
-    for row, label in zip(dict_rows[:12], labels[:12], strict=True):
-        print(f"  {row.get('name') or 'unnamed'}: {label}")
-    if len(dict_rows) > 12:
-        print(f"  ... {len(dict_rows) - 12} more")
+    display_rows = selected if selected_names else dict_rows
+    visible = display_rows if args.verbose or selected_names else display_rows[:12]
+    accounting = (receipt.get("transcript_accounting") or {}).get("claim_accounting") or []
+    claims = {row.get("theorem"): row for row in accounting if isinstance(row, dict)}
+    for row in visible:
+        name = row.get("name") or "unnamed"
+        claim = claims.get(name) or {}
+        span = claim.get("source_span")
+        location = f" source_line={span[0]}" if isinstance(span, list) and span else ""
+        print(f"  {name}: {_binding_card_label(row)}{location}")
+        if selected_names and claim.get("statement"):
+            print("    source_statement: " + " ".join(str(claim["statement"]).split())[:1600])
+            print("    statement_scope: source quotation; status is from the named kernel probe")
+    if len(display_rows) > len(visible):
+        print(f"  ... {len(display_rows) - len(visible)} more; use --verbose or --binding NAME")
+    for name in sorted(selected_names - {row.get("name") for row in selected}):
+        print(f"  {name}: not recorded (not a claim of theorem absence)")
+    _input_details(receipt, verbose=args.verbose)
     if receipt.get("first_failure"):
         failure_line = receipt.get("first_failure_transcript_line")
         coordinate = f"transcript_line={failure_line} " if type(failure_line) is int else ""
@@ -218,8 +283,9 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         print(f"source_dependency_closure_sha256: {receipt.get('source_dependency_closure_sha256') or 'unknown'}")
         print(f"transcript: {receipt.get('transcript') or 'unavailable'}")
         print(f"raw_transcript: {receipt.get('raw_transcript') or 'unavailable'}")
+    _failure_details(receipt)
     _bounded_transcript(args, receipt)
-    return 0 if succeeded else 1
+    return 0 if succeeded and selection_ok else 1
 
 
 def main(argv: list[str] | None = None) -> int:

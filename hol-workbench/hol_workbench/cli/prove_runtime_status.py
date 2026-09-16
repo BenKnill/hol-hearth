@@ -13,6 +13,7 @@ from typing import Any
 from hol_workbench.cli.prove_profiles import public_authoring_profile_names
 from hol_workbench.cli.public_commands import public_command
 from hol_workbench.cli.published_profile import resolve_published_warm_profile
+from hol_workbench.criu_shelf_capacity import restored_shelf_capacity
 from hol_workbench.criu_shelf_demand import read_shelf_demands
 from hol_workbench.criu_shelf_owner import read_shelf_owners
 from hol_workbench.orbstack_runtime_inventory import profile_runtime_inventory
@@ -58,7 +59,7 @@ def _profile_status(script_dir: Path, name: str) -> dict[str, Any]:
     return {
         "profile": name,
         "status": status,
-        "capacity": profile.capacity,
+        "capacity": min(profile.capacity, restored_shelf_capacity(profile.root)),
         "active": active,
         "workers": int(runtime.get("process_count") or 0),
         "queued": queued,
@@ -82,7 +83,7 @@ def collect_status(script_dir: Path, *, profile: str | None = None) -> dict[str,
     unavailable = sum(row["status"] == "unavailable" for row in rows)
     return {
         "schema": "hol-workbench.public-runtime-status.v1",
-        "status": "degraded" if unavailable else "ready",
+        "status": "degraded" if unavailable == len(rows) else "ready",
         "profiles": rows,
         "summary": {
             "profiles": len(rows),
@@ -104,9 +105,9 @@ def _duration(seconds: object) -> str:
 def render_status(report: dict[str, Any]) -> list[str]:
     summary = report["summary"]
     lines = [
-        f"WORKBENCH: {report['status']} workers={summary.get('workers', 0)} "
+        f"WORKBENCH: {report['status']} processes={summary.get('workers', 0)} "
         f"active={summary['active']} queued={summary['queued']}",
-        "PROFILE             STATE        WORKERS  ACTIVE/CAP  QUEUED  OLDEST",
+        "PROFILE             STATE        PROCESSES ACTIVE/CAP  QUEUED  OLDEST",
     ]
     for row in report["profiles"]:
         active = f"{row['active']}/{row['capacity']}"

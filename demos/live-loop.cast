@@ -1,8 +1,0 @@
-{"version": 2, "width": 104, "height": 20, "title": "HOL Hearth: reject, repair, stop", "env": {"TERM": "xterm-256color"}, "note": "Real captured output. The source path is normalized; timestamps are unmodified."}
-[0.193038, "o", "HOT LOOP: starting profile=light (profile startup is paid once; every save evaluates the complete source)\n"]
-[0.340021, "o", "HOT LOOP: ready in 0.1s; complete-source edit loop active; Ctrl-C stops\n"]
-[0.340129, "o", "HOT LOOP: watching /tmp/hearth-edit.ml\n"]
-[0.430094, "o", "0.035s FAIL line=1 Exception: Failure \"find\".\n"]
-[0.430862, "o", "NEXT: edit the source and save again\n"]
-[0.566786, "o", "0.027s OK phrases=11 hol=accepted scope=complete-source\n"]
-[0.604487, "o", "HOT LOOP: stopping\nHOT LOOP: stopped (SIGINT, exit 130)\n"]

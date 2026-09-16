@@ -51,6 +51,11 @@ def main(
     scripts = str(Path(script_dir).resolve() if script_dir is not None else Path(__file__).resolve().parents[2] / "bin")
     working_directory = str(Path(cwd).resolve()) if cwd is not None else os.getcwd()
 
+    if args and args[0] == "profiles":
+        from hol_workbench.cli import prove_profiles
+
+        return prove_profiles.main(["profiles", scripts, *args[1:]])
+
     if args and args[0] in DEVELOPER_ONLY_COMMANDS:
         print(
             f"prove {args[0]}: developer-only; public prove is the Linux warm-profile source loop",
@@ -85,10 +90,6 @@ def main(
         from hol_workbench.cli import prove_replay
 
         return prove_replay.main(args, script_dir=scripts, cwd=working_directory)
-    if args[0] == "profiles":
-        from hol_workbench.cli import prove_profiles
-
-        return prove_profiles.main(["profiles", scripts, *args[1:]])
     if args[0] == "status":
         from hol_workbench.cli import prove_runtime_status
 

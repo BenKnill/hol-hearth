@@ -1,34 +1,48 @@
 # HOL Hearth development
 
-Run code, tests, OCaml and HOL on Linux. Preserve the user's configured HOL
-checkout and warm profiles. Work in a separate source checkout.
+Hearth must help authors advance substantial proof projects. Use the latest
+ancestor acceptance cases in docs/validation.md; theorem counts and tiny-proof
+latency alone do not establish product usefulness.
 
-For a fresh Linux environment, follow docs/setup.md: install the distribution
-packages, then run `./hearth setup --check` and `./hearth setup`. Setup creates
-the first `light` profile from pinned HOL sources. It preserves an existing
-runtime configuration and reuses an already compatible profile. `./hearth
-doctor` checks `light` by default; optional uninstalled profiles are not errors.
+Run inspection, code, HOL, CRIU and tests on Linux. Preserve the configured
+runtime and existing profiles. Work in a separate checkout.
 
-Use a recorded check first:
+## Authoring contract
+
+Use one recorded execution path for both ordinary prove and project watching:
 
 ```sh
-./hearth prove /ABS/source.ml --profile light --run-root /ABS/runs
-./hearth inspect /ABS/runs
+./hearth prove /ABS/project/leaf.ml --profile light --run-root /ABS/runs
+./hearth inspect /ABS/runs --binding TARGET_THEOREM
+./hearth prove /ABS/project/leaf.ml --profile light --loop --run-root /ABS/runs
 ```
 
-Use `--loop` only for a live multi-edit session. Never substitute cold loading,
-rebuild profiles, or kill shared brokers to recover from an authoring failure.
+Support transitive project dependencies, exact source identity, meaningful
+negative controls, long explicit budgets, and admission queueing. Display
+effective proof capacity, not a count of sockets or runtime processes.
+An imported failure rejects the source even when some named claims succeed.
+Edits invalidate the displayed current result. Keep every attempt's receipt.
 
-Run `./hearth check` after changes. This uses stdlib-only tests and does not load
-HOL. Build evaluator changes with `./hearth build-native` using the same OCaml
-compiler as the configured HOL profile. Run changed-source demos on an existing
-compatible profile. Preserve exact source hashes, complete-source status, and
-nonce-bound binding evidence in receipts; natural transcript text is diagnostic.
+Every replay starts in a fresh child. Work on a small leaf; complete-source
+replay is not incremental proof-prefix reuse. Keep the warm seat after Ctrl-C.
+Do not recover by killing shared brokers, rebuilding profiles or cold-loading HOL.
 
-Keep runtime requirements minimal. Do not add a package manager, environment
-manager, host OS dispatcher, or distro name gate to ordinary proof commands.
-Linux facilities and tool capabilities determine support.
+Use the existing HOL parser and dependency scanner. Do not introduce a second
+evaluator, ad hoc source-language parser, theorem-lookup backend or automatic
+proof-repair engine. HOL search and g/e exploration run as ordinary source;
+source execution and completed theorem bindings remain distinct.
 
-Only add code and assets with documented provenance and MIT-compatible terms.
-Do not commit external checkouts, papers, warm profiles, local logs, credentials,
-machine configuration, or old private Git history.
+## Changes and validation
+
+Run ./hearth check after edits and exercise changed behavior with real project
+inputs on an existing profile. Preserve failed attempts and inspect the target
+binding and complete-source result. Do not replace a failed hard acceptance case
+with an easier demo. Keep installer smoke tests labeled as installation checks.
+
+Keep the runtime small: Python standard library, Bash, HOL and CRIU.
+For a new Linux environment, docs/setup.md describes source-built light setup.
+That is provisioning, not a recovery mechanism for a proof failure.
+
+Only publish source and assets with reviewed MIT-compatible provenance.
+Keep external proof projects, upstream sources, local logs, machine paths,
+memory images and private history outside the public repository.

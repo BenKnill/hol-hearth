@@ -1,6 +1,6 @@
 # ML and profile source review
 
-Reviewed 2026-09-15. No incompatible license or unresolved copied proof source
+Reviewed 2026-09-16. No incompatible license or unresolved copied proof source
 was identified in the files shipped by this source release. This review covers
 the files below; it does not license third-party libraries or generated memory
 images under MIT.
@@ -9,12 +9,14 @@ images under MIT.
 
 | Files | Provenance and decision |
 | --- | --- |
-| `demos/*.ml` (4) | Original release examples: a quadratic identity, balance arithmetic, and an intentional failure/repair pair. MIT. |
-| `hol-workbench/native-eval/*.ml` (3) | First-party phrase evaluator, process/session controller and test probe. Inspected all source and original addition history; no imported third-party implementation identified. MIT. |
+| `dev/fixtures/setup-smoke.ml` | Original quadratic-identity installation check, moved byte-for-byte from the release example. MIT. |
 | `profiles/*.ml` (7) | Exact generated copies of the public recipes. Short load instructions, tactic aliases and smoke checks. MIT; see the ML-KEM attribution below. |
 | `hol-workbench/profile-support/compact_after_preload.ml` | First-party three-line helper using OCaml GC APIs and a Workbench marker. MIT. |
 | Both `warmup-profiles*.json` manifests | Reviewed embedded recipes, operation examples and restore sentinels, including developer profiles. No external proof corpus is embedded. MIT; see ML-KEM attribution below. |
 | `dev/setup-lock.json` | First-party build metadata naming the same publicly reviewed HOL revision below. MIT. Upstream sources are fetched separately under their own license. |
+
+The release ships nine ML source files. The external acoustic certificate used
+for acceptance remains outside this repository and is not relicensed here.
 
 The [inventory](source-provenance.json) records the reviewed file bytes by
 SHA-256. `./hearth check` refuses new, removed or changed ML-family files or

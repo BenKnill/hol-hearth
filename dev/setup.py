@@ -182,13 +182,12 @@ def main() -> int:
                 raise SetupError("HOL build did not produce its required runtime files.")
             if not config_path.exists():
                 write_runtime_config(hol_light_dir=holdir, criu_shelf_root=shelves, criu_bin=criu, criu_mode=args.criu_mode)
-        phase("native-build", [str(ROOT / "hearth"), "build-native", "--ocamlc", str(Path(shutil.which("ocamlc")).resolve())])
         if not profile_ready:
             phase("light-profile", [sys.executable, "-I", "-B", "-c",
                   "import runpy,sys; sys.path.insert(0,sys.argv.pop(1)); runpy.run_module('hol_workbench.cli.orbstack_criu_build',run_name='__main__')", str(WB)])
         profile = resolve_published_warm_profile(WB / "bin", "light")
         phase("doctor", [str(ROOT / "hearth"), "doctor", "--profile", "light"])
-        phase("proof-check", [str(ROOT / "hearth"), "demo", "cat-map", "--run-root", str(logs / "proof-check")])
+        phase("proof-check", [str(ROOT / "hearth"), "prove", str(ROOT / "dev/fixtures/setup-smoke.ml"), "--profile", "light", "--run-root", str(logs / "proof-check")])
         receipt = {"schema": "hol-hearth.setup.v1", "status": "ready", "profile": "light",
                    "profile_reused": profile_ready, "hol_revision": lock["hol_light_revision"],
                    "hearth_revision": source_identity["revision"], "tools": versions,
@@ -196,7 +195,7 @@ def main() -> int:
                    "public_proof_check": "passed", "public_proof_run_root": str(logs / "proof-check")}
         (logs / "setup.json").write_text(json.dumps(receipt, indent=2) + "\n")
         print(f"SETUP: ready (light {'reused' if profile_ready else 'built and restored'})\n"
-              f"RECEIPT: {logs / 'setup.json'}\nNEXT: ./hearth demo cat-map", flush=True)
+              f"RECEIPT: {logs / 'setup.json'}\nNEXT: ./hearth prove /ABS/project/proof.ml --profile light --run-root /ABS/runs", flush=True)
     return 0
 
 

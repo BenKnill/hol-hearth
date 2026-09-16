@@ -10,7 +10,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from hol_workbench.cli.prove_loop import _source_import_roots
 from hol_workbench.cli.reconcile_source_layout import _materialize
 from hol_workbench.logical_source_roots import (
     LOGICAL_SOURCE_ROOT_SCHEMA,
@@ -291,22 +290,6 @@ def main() -> int:
                 assert roots["mldsa_native"] == source_tree
                 assert project_roots["mldsa_native"] == artifact_project
                 validate_requested_logical_source_roots(source, DECLARATIONS, roots)
-                if suffix == "a":
-                    loop_roots = _source_import_roots(
-                        source, execution, DECLARATIONS, profile_root
-                    )
-                    assert loop_roots["s2n_bignum"] == execution
-                    assert loop_roots["mldsa_native"] == source_tree
-                    unsupported_loop = source_tree / "proofs" / "recursive.ml"
-                    unsupported_loop.write_text(
-                        'needs "mldsa_native/proofs/helper.ml";;\n', encoding="utf-8"
-                    )
-                    require_error(
-                        "refused_loop_recursive_logical_source_dependency",
-                        lambda unsupported_loop=unsupported_loop: _source_import_roots(
-                            unsupported_loop, execution, DECLARATIONS, profile_root
-                        ),
-                    )
                 closure = build_source_dependency_closure(
                     source,
                     holdir_root=root / "empty-holdir",

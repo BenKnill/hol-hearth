@@ -1,83 +1,87 @@
-# Validation
+# Validation and development basis
 
-Fresh setup and agent-facing command journeys passed on **Debian 13 ARM64 and
-Ubuntu 26.04 ARM64** on 2026-09-15. The final acceptance run used code revision
-`fb575fc7503446d5ef87636ce0f5b77a77d573db`, a clean clone in each VM, and empty HOL source and runtime directories.
-Distribution packages supplied the toolchain. Neither run reused an OPAM switch
-or copied a warm image. These were real Linux runs, not distribution-ID simulation.
+## Acceptance follows substantial proof work
 
-The [machine-readable record](onboarding-evidence.json) binds setup receipts,
-profile identities, demo source/receipt hashes and live-loop logs. Raw receipts
-remain local because they include machine paths; the public record is a summary.
+The most recent ancestor campaign examined was the September 8 acoustic–elastic
+shared-table certificate, after the September Laghos interleaved-authoring work.
+The acoustic source checkpoint was
+`f5ef30706624577d20d5fac8a3210fe96a99b2e0`; the ancestor runtime checkout is
+`e5bcfa1a7dc19d477fbc90ec447b82bd59a32fab`.
 
-| Check | Ubuntu 26.04 ARM64 | Debian 13 ARM64 |
-| --- | --- | --- |
-| Python / OCaml | 3.14.4 / 5.4.0 | 3.13.5 / 5.3.0 |
-| Camlp5 / distribution CRIU | 8.04.00 / 4.2 | 8.03.01 / 4.1.1 |
-| Pinned HOL source fetch and module build | pass | pass |
-| First light profile load, dump, restore and smoke proofs | pass | pass |
-| Public cat-map proof before setup declares ready | pass | pass |
-| Repeated setup | existing profile reused; one shelf | existing profile reused; one shelf |
-| Recorded cat-map, balance and repaired-square proofs | all five bindings proved | all five bindings proved |
-| Intentional false square | rejected; binding missing | rejected; binding missing |
-| Live false proof → syntax error → repair → Ctrl-C | pass | pass |
-| Relative proof filename containing spaces | pass | pass |
-| Missing config/source, unknown profile, bad syntax, occupied output | clear nonzero result; no traceback | same |
-| Full portable tool and provenance checks | pass | pass |
-| Direct evaluator build and real child SIGTERM reporting | pass | pass |
-| Final doctor | healthy, no active proofs or queue | healthy, no active proofs or queue |
+The useful workflow was a modular pilot, exact transitive imports, a full root
+at milestones, bounded inspection, and serial admission for long work. The
+ancestor full root took 821.696 seconds in HOL. The preceding Laghos campaign
+also improved edit latency by reducing imports; neither result justifies
+promising arbitrary proof-prefix reuse.
 
-The profile construction step took approximately 155–157 seconds in these two
-runs, including about 149–151 seconds of HOL startup and loading. Source fetch
-and compilation were separate short steps. These are local measurements, not
-a promise for other hardware or profiles.
+The certificate concerns a captured real operator with 320 incidences over 64
+faces, repeated destinations, geometric coefficient identities, work/power
+identities and coefficient-error bounds. It is not verification of production
+time stepping, native floating-point execution, or an entire discrete adjoint.
+Wrong node indices, reversed normals and wrong weights are meaningful controls:
+an internally consistent dot-product test alone can miss these geometric errors.
 
-## Bugs found and fixed by the fresh runs
+## Hearth acceptance, September 16
 
-- Missing installation route: added `./hearth setup`, a pinned HOL revision,
-  capability checks, progress, logs and a source-to-restored-profile path.
-- False sudo refusal: test the actual authorized CRIU invocation instead of
-  requiring a sudo validation operation that can reject passwordless policies.
-- Root-owned dump files: transfer the generated artifacts to the unprivileged
-  controller before hashing them; reject symlinks and restrict file permissions.
-- Python 3.13 permission exceptions during restored-pidfile cleanup: use the
-  existing privileged probe for root-owned output directories.
-- OPAM-only syntax preflight: use the configured switch when present and system
-  OCaml paths otherwise; do not require a nonexistent local stublibs directory.
-- Misleading doctor output: default to the installed `light` profile, show the
-  configuration detail, and give new users a setup command. Optional profile
-  checks remain available through `--all-profiles`.
-- Unhelpful live parser exception: report a syntax error instead of `Stdlib.Exit`.
-- Duplicate demo output: keep receipt inspection opt-in with `--inspect`, and
-  offer `./hearth demo repaired` after the expected-failure demonstration.
+Real runs used existing compatible `light` profiles in Ubuntu 26.04 ARM64.
+No profile was rebuilt for this campaign. The full root and three original
+controls used the ancestor's serial shelf; watcher tests also used Hearth's
+source-built distribution-toolchain shelf from the earlier setup acceptance.
 
-Setup now includes a public proof check so an internal restore smoke test alone
-cannot make a broken public authoring path appear ready. Existing configurations
-and profiles are preserved. A failed build stays unpublished for diagnosis.
+| Check | Observed result |
+| --- | --- |
+| Full original shared-table root | **642.844 s HOL evaluation; accepted**; 73 discovered root bindings proved, literal source check of 138 empty-hypothesis theorem values passed, zero new axioms |
+| Intended targets beyond the first 12 bindings | Work and transpose-error targets inspected by name, with source locations and exact dependency identity |
+| Wrong node index / reversed normal / wrong weight | All three rejected by HOL with the expected arithmetic contradiction failure; not transport failures |
+| Admission during the full proof | Three controls queued; one effective proof seat despite three runtime processes; queue wait did not consume their proof budgets |
+| Acoustic pilot through project watcher | Accepted, dependency-only false proof rejected, dependency-only repair accepted; unchanged root bytes and changed closure identities |
+| Dependency/edit regressions | Seven real events: initial success, failed unused helper, repair, deletion, restoration, older captured revision, subsequent rejection of concurrent edit |
+| Active Ctrl-C | Cancelled before completion in 0.132 s; exit 130, failure receipt retained, active count returned to zero, warm basis PID preserved; subsequent proof succeeded |
+| Portable checks | Standard-library import check, source provenance, 7 setup regressions, 3 project/inspection regressions, public command contract, source/dependency/logical-root checks, 7 CRIU contracts, 82 source / 22 artifact / 11 convergence loader cases, 10 shared lifecycle cases |
 
-Seven focused setup/permission regressions accompany the portable harness:
-source byte identity, dependency packaging, seven CRIU contracts, 82 source / 22
-artifact / 11 convergence loader cases, and 11 lifecycle / 14 hostile-interrupt
-cases. Synthetic tests check orchestration; the real proof runs above check HOL.
+The [sanitized acceptance record](hard-authoring-evidence.json) records exact
+source, profile and receipt hashes. Original project sources and raw machine
+receipts remain outside this repository. They have not been copied into Hearth
+or relicensed as MIT. The hard run occurred during implementation; its client
+metadata does not identify a committed Hearth revision. Its mathematical inputs,
+profile and transcript are independently hash-bound in the receipt.
 
-## Licensing and boundaries
+## Changes made from these results
 
-The provenance inventory covers 15 shipped ML files, both profile manifests,
-and the HOL source build lock. Changed, new or missing ML, changed manifests,
-and standalone recipe drift require renewed review. Upstream sources and images
-remain outside the repository under their applicable licenses.
+- Removed the separate native live evaluator and compiler/build requirement.
+  Watching now schedules the ordinary receipt-producing replay. An imported
+  failure rejects the complete source, including an unused failed theorem.
+- Removed the toy demo command, recordings and demo-led onboarding. The one
+  retained small proof is explicitly an installation fixture.
+- Removed the separate theorem-signature lookup backend and its broken query
+  route. HOL search and interactive tactic exploration use ordinary source.
+- Added full receipt JSON, exact target selection, complete verbose binding
+  lists, source locations and bounded multiline failure details.
+- Display effective admission capacity and commands that run from a project
+  directory outside the Hearth checkout.
 
-Only the listed ARM64 versions and local VM/kernel environments were tested.
-This does not establish x86-64 support or CRIU operation under every container,
-kernel or privilege policy. Setup checks capabilities before loading HOL.
-Optional heavy, probability and assembly profiles were not freshly provisioned
-in this acceptance run. `light` is sufficient for the published demos.
+Every watched attempt evaluates its complete source in a fresh child. This
+preserves isolation but does not make a ten-minute root recheck instantaneous.
+Use a focused leaf and a suitable warm library basis. Open interactive goals are
+not completed theorems; source acceptance must not be confused with proving the
+intended target. Inspect that target explicitly.
 
-The native evaluator must match its HOL runtime's OCaml compiler. Warm source
-acceptance and named theorem probes remain authoring evidence; independent final
-publication replay and review of assumptions are separate work.
+## Historical clean installation evidence
 
-The earlier [demo evidence](../demos/evidence.json) and
-[terminal recording](../demos/live-loop.cast) remain historical measurements of
-the initial source release. This page and the onboarding record describe the
-new source-built environments.
+On September 15, revision `fb575fc7503446d5ef87636ce0f5b77a77d573db` was installed
+from clean clones and empty HOL/runtime directories on **Debian 13 ARM64** and
+**Ubuntu 26.04 ARM64**, using distribution OCaml 5.3 / 5.4 and CRIU 4.1.1 / 4.2.
+Pinned HOL fetch, build, first light load/dump/restore, public proof check,
+repeated setup, relative paths containing spaces, and failure journeys passed.
+Profile construction took about 155–157 seconds; source fetch and compilation
+were separate. The [historical record](onboarding-evidence.json) retains these
+measurements, including the now-removed demo/evaluator tests.
+
+These historical results do not validate the new watcher on Debian. Current
+changes were tested on Ubuntu; x86-64 and optional heavy, probability and
+assembly profile provisioning were not tested in this campaign. Warm checks
+are authoring evidence, not an independent final publication audit.
+
+The provenance inventory covers nine shipped ML files, two profile manifests
+and the HOL build lock. External sources and generated images retain their own
+licenses. See [source provenance](source-provenance.md).

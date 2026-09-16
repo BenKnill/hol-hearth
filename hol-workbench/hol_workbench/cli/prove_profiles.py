@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from hol_workbench.cli.prove_profile_signature import run_theorem_signature_query
 from hol_workbench.cli.public_commands import public_command
 from hol_workbench.hashing import sha256_text
 from hol_workbench.logical_source_roots import (
@@ -501,7 +500,6 @@ def _profile_use_commands(profile: str | None = None) -> list[str]:
     return [
         public_command("prove", "/ABS/SOURCE.ml", "--profile", profile_name, "--run-root", "/ABS/runs"),
         public_command("prove", "profiles", profile_name),
-        public_command("prove", "profiles", profile_name, "THEOREM", "--run-root", "/ABS/runs"),
     ]
 
 
@@ -544,27 +542,10 @@ def profiles_command(script_dir: str | Path, args: list[str]) -> int:
     elif len(args) == 1 and not args[0].startswith("-"):
         as_json = False
         detail_name = args[0]
-    elif len(args) == 2 and not any(arg.startswith("-") for arg in args):
-        _public_profile(data, args[0])
-        return run_theorem_signature_query(
-            script_dir=script_dir,
-            profile=args[0],
-            theorem=args[1],
-            run_root="runs",
-        )
-    elif len(args) == 4 and args[2] == "--run-root" and not any(arg.startswith("-") for arg in args[:2]):
-        _public_profile(data, args[0])
-        return run_theorem_signature_query(
-            script_dir=script_dir,
-            profile=args[0],
-            theorem=args[1],
-            run_root=args[3],
-        )
     else:
-        raise SystemExit(
-            f"usage: {preferred_tool_command('prove')} profiles "
-            "[--json|--all|PROFILE [--verbose]|PROFILE THEOREM [--run-root RUN_ROOT]]"
-        )
+        print("usage: hearth profiles [--json|--all|PROFILE [--verbose]]")
+        print("Explore theorems in a proof source with search or print_thm, then inspect its transcript.")
+        return 0 if args in (["--help"], ["-h"]) else 2
 
     if as_json:
         print(json.dumps(public_profile_document(data), indent=2, sort_keys=True))

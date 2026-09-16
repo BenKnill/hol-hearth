@@ -149,16 +149,11 @@ def main(argv: list[str]) -> int:
     prove_help = _run([str(prove), "--help"], cwd=root)
     assert prove_help.returncode == 0, prove_help.stderr
     assert "--loop" in prove_help.stdout and "Recorded replay:" in prove_help.stdout
-    assert prove_help.stdout.find("/ABS/SOURCE.ml [--run-root") < prove_help.stdout.find(
-        "/ABS/SOURCE.ml --loop"
-    )
-    assert prove_help.stdout.find("Recorded replay:") < prove_help.stdout.find("Authoring loop:")
-    assert "mutually exclusive" in prove_help.stdout
-    assert "warm seat" in prove_help.stdout
-    assert "Do not kill it" in prove_help.stdout
-    assert "bindings remain missing" in prove_help.stdout
-    assert "cannot identify the residual" in prove_help.stdout
-    assert "absolute paths visible inside Linux" in prove_help.stdout
+    assert "same recorded" in prove_help.stdout
+    assert "transitive dependencies" in prove_help.stdout
+    assert "relative to the calling directory" in prove_help.stdout
+    profiles_all = _run([str(prove), "profiles", "--all"], cwd=root)
+    assert profiles_all.returncode == 0, profiles_all.stderr
     inspect_help = _run([str(inspect), "--help"], cwd=root)
     assert inspect_help.returncode == 0, inspect_help.stderr
     assert "bounded Workbench artifact inspection" not in inspect_help.stderr

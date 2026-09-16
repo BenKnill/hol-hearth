@@ -2,6 +2,7 @@
 set -euo pipefail
 [[ "$(uname -s)" == Linux ]] || { echo 'HOL Hearth requires Linux.' >&2; exit 2; }
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+export HOL_HEARTH_LAUNCHER="$root/hearth"
 operation=${1:---help}
 if (( $# )); then shift; fi
 case "$operation" in
@@ -13,23 +14,22 @@ HOL Hearth — warm HOL Light proof checks on Linux
   hearth setup [--check]                Build the first light profile from source
   hearth prove FILE.ml --run-root DIR   Check a source and record a receipt
   hearth inspect DIR                   Read a recorded result
-  hearth prove FILE.ml --loop           Check each saved edit
+  hearth prove FILE.ml --loop           Record checks after project edits
   hearth profiles                      List proof profiles
   hearth doctor                        Inspect the configured runtime
   hearth configure OPTIONS             Set local HOL and CRIU paths
-  hearth build-native                  Build the live-loop evaluator with OCaml
-  hearth demo [cat-map|balance|failure|repaired] [--run-root DIR]
+  hearth status [--profile PROFILE]     Show active proofs and the admission queue
 
 Runtime: Linux, Python 3.11+, a compatible local HOL/CRIU warm profile.
-The live loop also needs an evaluator built with the profile's OCaml compiler.
+One checked replay path serves single runs and project watching.
 HELP
     ;;
-  --version) echo 'HOL Hearth 0.1.0-dev' ;;
+  --version) echo 'HOL Hearth 0.2.0' ;;
   prove|inspect|smoke|configure)
     exec "$root/hol-workbench/bin/workbench-python" "$operation" "$@" ;;
   profiles|doctor|status)
     exec "$root/hol-workbench/bin/workbench-python" prove "$operation" "$@" ;;
-  check|setup|build-native|demo)
+  check|setup)
     python=${HOL_WORKBENCH_PYTHON:-$(command -v python3)}
     exec "$python" -I -B "$root/dev/$operation.py" "$@" ;;
   *) echo "Unknown command: $operation. Run hearth --help." >&2; exit 2 ;;
