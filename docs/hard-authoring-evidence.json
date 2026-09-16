@@ -509,5 +509,15 @@
     "receipt_sha256": "357053382439711cbec8a4857abccfc165438cd7706c293677b75feed343c177",
     "subsequent_proof_succeeded": true
   },
-  "portable_check_log_sha256": "a80d648e83ebca05f68989f9b515c5a89dd3ab1d55b6c0fe0216aef05be7a9ce"
+  "portable_check_log_sha256": "a80d648e83ebca05f68989f9b515c5a89dd3ab1d55b6c0fe0216aef05be7a9ce",
+  "clean_checkout": {
+    "code_revision": "a2eb135022c16e894d26a241eadaa563d2eef259",
+    "setup_reused_existing_profile": true,
+    "setup_receipt_sha256": "0c689a61e1e3c214aea05163158b13e83b544f24028efc8741d7b6db032945fa",
+    "pilot_receipt_sha256": "5ea28e534a7cc3b312ff7de32f49a00d80c7b716d53b8a5618b84ae8d7007730",
+    "pilot_source_sha256": "b8e0db183c9577dbb8dabe5d1152078c11eaa08ab8c7876e26dd0e5b33c9b899",
+    "pilot_eval_seconds": 9.634,
+    "pilot_bindings_proved": 10,
+    "printed_inspection_command_from_other_directory": "passed"
+  }
 }

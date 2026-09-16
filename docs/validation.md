@@ -37,6 +37,7 @@ source-built distribution-toolchain shelf from the earlier setup acceptance.
 | Acoustic pilot through project watcher | Accepted, dependency-only false proof rejected, dependency-only repair accepted; unchanged root bytes and changed closure identities |
 | Dependency/edit regressions | Seven real events: initial success, failed unused helper, repair, deletion, restoration, older captured revision, subsequent rejection of concurrent edit |
 | Active Ctrl-C | Cancelled before completion in 0.132 s; exit 130, failure receipt retained, active count returned to zero, warm basis PID preserved; subsequent proof succeeded |
+| Clean checkout of runtime commit a2eb135 | Repeated setup reused the profile, its public proof passed, the acoustic pilot passed, and the printed target-inspection command worked from another directory |
 | Portable checks | Standard-library import check, source provenance, 7 setup regressions, 3 project/inspection regressions, public command contract, source/dependency/logical-root checks, 7 CRIU contracts, 82 source / 22 artifact / 11 convergence loader cases, 10 shared lifecycle cases |
 
 The [sanitized acceptance record](hard-authoring-evidence.json) records exact
