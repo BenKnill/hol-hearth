@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
 from hol_workbench.cli.published_profile import PublishedWarmProfile
@@ -16,6 +17,7 @@ def run_published_warm_replay(
     evidence_role: str = "warm_development_only",
     display_transcript: bool = False,
     expected_source_sha256: str | None = None,
+    on_phase: Callable[[str], None] | None = None,
 ) -> int:
     """Evaluate once in a fresh child; persist only when a transcript is requested."""
 
@@ -41,6 +43,7 @@ def run_published_warm_replay(
             evidence_role=evidence_role,
             display_transcript=display_transcript,
             expected_source_sha256=expected_source_sha256,
+            on_phase=on_phase,
         )
     finally:
         if (profile.root / "pool").is_dir():

@@ -28,6 +28,7 @@ def main() -> int:
         raise SystemExit(f"Non-stdlib runtime imports: {sorted(unexpected)}")
     print(f"Runtime imports: {len(modules)} modules, standard library only", flush=True)
     commands = [
+        [sys.executable, "-I", "-B", str(ROOT / "dev/progress-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/check-provenance.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/setup-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/authoring-selftest.py")],

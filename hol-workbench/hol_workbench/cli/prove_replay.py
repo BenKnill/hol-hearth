@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import sys
 from pathlib import Path
@@ -14,10 +15,12 @@ from hol_workbench.authoring_source_path import (
 )
 from hol_workbench.cli.orbstack_criu_vanilla_artifacts import default_transcript_path
 from hol_workbench.cli.prove_profiles import public_authoring_profile_names
-from hol_workbench.cli.public_commands import replay_handoff
+from hol_workbench.cli.public_commands import public_command, replay_handoff
 from hol_workbench.cli.published_profile import resolve_published_warm_profile
 from hol_workbench.cli.published_profile_replay import run_published_warm_replay
+from hol_workbench.cli.replay_progress import ReplayProgress, add_progress_argument
 from hol_workbench.hashing import sha256_file, short_sha256
+from hol_workbench.jsonio import read_json
 from hol_workbench.proofs.profile_inference import infer_public_profile_for_source
 
 
@@ -31,14 +34,15 @@ def _parse(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--profile")
     parser.add_argument("--run-root", default=None)
     parser.add_argument("--timeout", type=float, default=120.0)
+    add_progress_argument(parser)
     parsed = parser.parse_args(args)
     source = parsed.source or parsed.positional_source
     if not source:
         parser.error("SOURCE.ml is required")
     if parsed.source and parsed.positional_source:
         parser.error("specify SOURCE.ml once")
-    if parsed.timeout <= 0:
-        parser.error("--timeout must be positive")
+    if not math.isfinite(parsed.timeout) or parsed.timeout <= 0:
+        parser.error("--timeout must be finite and positive")
     parsed.source = source
     return parsed
 
@@ -96,14 +100,16 @@ def main(
         print(f"prove: source digest unavailable: {source}", file=sys.stderr)
         return 2
     print(f"REPLAY: profile={name} source={source} sha={short}", flush=True)
-    status = run_published_warm_replay(
-        profile,
-        source,
-        timeout=options.timeout,
-        transcript=transcript,
-        evidence_role="recorded_warm_replay",
-        expected_source_sha256=expected_sha256,
-    )
+    with ReplayProgress(timeout=options.timeout, interval=options.progress_interval) as progress:
+        status = run_published_warm_replay(
+            profile,
+            source,
+            timeout=options.timeout,
+            transcript=transcript,
+            evidence_role="recorded_warm_replay",
+            expected_source_sha256=expected_sha256,
+            on_phase=progress.set_phase,
+        )
     receipt = Path(f"{transcript}.json")
     if receipt.is_file():
         print(f"RECEIPT: {receipt}", flush=True)
@@ -112,8 +118,17 @@ def main(
                 "SOURCE CHECK: passed; complete source evaluated and discovered named theorem bindings checked",
                 flush=True,
             )
-        for line in replay_handoff(run_root, succeeded=status == 0):
-            print(line, flush=True)
+        recorded = read_json(receipt)
+        if recorded.get("transport_status") in {"timeout", "interrupted", "cancelled"}:
+            reason = "timeout" if recorded.get("transport_status") == "timeout" else "cancelled"
+            print(f"INCOMPLETE: {reason}; this attempt did not complete the source check. "
+                  "This is no conclusion about whether the theorem is true or false.", flush=True)
+            print("NEXT: inspect this attempt's diagnostics, isolate the slow proof in a small "
+                  "leaf, then rerun with an explicit budget.", flush=True)
+            print(f"DETAILS: {public_command('inspect', receipt.parent, '--tail', '40')}", flush=True)
+        else:
+            for line in replay_handoff(run_root, succeeded=status == 0):
+                print(line, flush=True)
     elif status == 0:
         print("prove: replay succeeded without its required receipt", file=sys.stderr)
         return 1

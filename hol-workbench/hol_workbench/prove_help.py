@@ -13,6 +13,12 @@ Recorded replay:
   --timeout defaults to 120 seconds; set an explicit budget for long proofs.
   Queue wait is separate from proof time. A controller response deadline
   includes a 15-second allowance (minimum 30 seconds).
+  Progress goes to stderr every 15 seconds during a replay; set
+  --progress-interval SECONDS (minimum 1), or 0 to disable. Loop uses it too.
+  Known phases, elapsed time and request countdowns do not measure tactic
+  progress or predict completion. Queue time does not consume the proof budget.
+  Ctrl-C cancels the owned child and releases admission; the warm seat stays.
+  Timeout is an incomplete check, not a disproof. Inspect its recorded attempt.
 
 Authoring loop:
   --loop watches source and transitive dependencies and runs the same recorded
