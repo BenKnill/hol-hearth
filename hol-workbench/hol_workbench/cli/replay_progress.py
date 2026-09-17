@@ -11,6 +11,8 @@ from typing import TextIO
 
 from hol_workbench.warm_eval_timeout import warm_eval_response_timeout
 
+REPORTER_JOIN_TIMEOUT = 0.1
+
 
 def progress_interval(value: str) -> float:
     interval = float(value)
@@ -49,6 +51,7 @@ class ReplayProgress:
         self.request_started: float | None = None
         self.lock = threading.Lock()
         self.stopped = threading.Event()
+        self.wake = threading.Event()
         self.thread: threading.Thread | None = None
         self.hint_shown = False
 
@@ -60,8 +63,11 @@ class ReplayProgress:
 
     def __exit__(self, *exc: object) -> None:
         self.stopped.set()
+        self.wake.set()
         if self.thread is not None:
-            self.thread.join()
+            # A stalled diagnostic sink must not hold proof completion. The
+            # daemon may finish its pending write later; no replay owns it.
+            self.thread.join(timeout=REPORTER_JOIN_TIMEOUT)
 
     def set_phase(self, phase: str) -> None:
         with self.lock:
@@ -70,7 +76,9 @@ class ReplayProgress:
             if phase == "evaluation-request":
                 self.request_started = self.phase_started
         if phase == "cancelling" and self.interval:
-            self.emit()
+            # Only publish state here: this callback precedes HOL child cleanup.
+            # Wake the reporter without waiting for its output sink.
+            self.wake.set()
 
     def _line(self, now: float) -> str:
         # Called with the lock held so one line uses one coherent phase snapshot.
@@ -101,13 +109,23 @@ class ReplayProgress:
                 )
                 self.hint_shown = True
             lines.append(self._line(self.clock()))
-            try:
-                self.stream.write("\n".join(lines) + "\n")
-                self.stream.flush()
-            except (OSError, ValueError):
-                # Diagnostics must not turn a valid proof into a failed attempt.
-                self.stopped.set()
+        # Never hold the phase lock during I/O. A full pipe or stalled log
+        # collector may block this daemon, but cannot block phase callbacks,
+        # child cleanup, admission release, or the bounded context exit.
+        if self.stopped.is_set():
+            return
+        try:
+            self.stream.write("\n".join(lines) + "\n")
+            self.stream.flush()
+        except (OSError, ValueError):
+            # Diagnostics must not turn a valid proof into a failed attempt.
+            self.stopped.set()
+            self.wake.set()
 
     def _run(self) -> None:
-        while not self.stopped.wait(self.interval):
+        while not self.stopped.is_set():
+            self.wake.wait(self.interval)
+            self.wake.clear()
+            if self.stopped.is_set():
+                return
             self.emit()

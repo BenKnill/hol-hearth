@@ -73,6 +73,72 @@ class ProgressRegression(unittest.TestCase):
         self.assertIsNone(disabled.thread)
         self.assertEqual(before, stream.getvalue())
 
+    def test_blocked_output_cannot_hold_cancellation_or_context_exit(self):
+        for blocking_operation in ("write", "flush"):
+            with self.subTest(blocking_operation=blocking_operation):
+                entered = threading.Event()
+                release = threading.Event()
+                phase_done = threading.Event()
+                exit_done = threading.Event()
+
+                class BlockedSink:
+                    def write(self, text):
+                        if blocking_operation == "write":
+                            entered.set()
+                            release.wait()
+
+                    def flush(self):
+                        if blocking_operation == "flush":
+                            entered.set()
+                            release.wait()
+
+                progress = ReplayProgress(timeout=180, interval=0.01, stream=BlockedSink())
+                progress.__enter__()
+                controller = None
+                try:
+                    self.assertTrue(entered.wait(1), "reporter did not enter blocked output")
+
+                    def cancel_and_exit():
+                        progress.set_phase("cancelling")
+                        phase_done.set()
+                        progress.__exit__(None, None, None)
+                        exit_done.set()
+
+                    controller = threading.Thread(target=cancel_and_exit, daemon=True)
+                    controller.start()
+                    self.assertTrue(phase_done.wait(1), "cancellation callback waited for output")
+                    self.assertTrue(exit_done.wait(1), "context exit waited for blocked reporter")
+                    self.assertFalse(release.is_set(), "sink must stay blocked through both checks")
+                    self.assertTrue(progress.thread.is_alive(), "test must exercise a stalled writer")
+                    self.assertTrue(progress.thread.daemon)
+                finally:
+                    release.set()
+                    if controller is not None:
+                        controller.join(timeout=2)
+                    progress.__exit__(None, None, None)
+                    progress.thread.join(timeout=2)
+                self.assertFalse(progress.thread.is_alive(), "released reporter did not terminate")
+                self.assertTrue(exit_done.is_set())
+
+    def test_cancellation_wakes_only_the_background_reporter(self):
+        written = threading.Event()
+        writer_threads = []
+
+        class Stream(io.StringIO):
+            def write(self, text):
+                writer_threads.append(threading.current_thread())
+                return super().write(text)
+
+            def flush(self):
+                written.set()
+
+        output = Stream()
+        with ReplayProgress(timeout=180, interval=3600, stream=output) as progress:
+            progress.set_phase("cancelling")
+            self.assertTrue(written.wait(1), "cancellation did not wake reporter")
+            self.assertIn("phase=cancelling", output.getvalue())
+            self.assertEqual(writer_threads, [progress.thread])
+
     def test_cli_rejects_unbounded_output_and_nonfinite_budgets(self):
         for parse in (prove_replay._parse, prove_loop._parse):
             for interval in ("-1", "0.1", "nan", "inf"):
