@@ -1214,3 +1214,133 @@ def scan_ocaml_loaders(source: bytes) -> LoaderScanResult:
         size_bytes=len(source),
         occurrences=_classify_tokens(lexer, tokens),
     )
+
+
+@dataclass(frozen=True)
+class ProveBinding:
+    """One standalone, literal prove phrase; every coordinate is a byte offset."""
+
+    name: str
+    binding_span: ByteSpan
+    statement_span: ByteSpan
+    tactic_span: ByteSpan
+    source_line: int
+
+
+@dataclass(frozen=True)
+class ProveBindingScanResult:
+    """Conservative phrase boundaries, not a replacement for the HOL parser."""
+
+    status: ScanStatus
+    source_sha256: str
+    bindings: tuple[ProveBinding, ...]
+    refusal: LoaderScanRefusal | None = None
+
+
+def scan_prove_bindings(source: bytes) -> ProveBindingScanResult:
+    """Locate only unambiguous, complete top-level let NAME = [time] prove phrases.
+
+    Reuse the loader lexer's strict UTF-8, quote, comment, delimiter and size
+    checks. HOL remains the syntax/execution authority. Unsupported phrases,
+    nested declarations, duplicate names and nonliteral goals produce no row.
+    A lexical refusal anywhere invalidates all boundaries.
+    """
+    checked = scan_ocaml_loaders(source)
+    if checked.status != "ok":
+        return ProveBindingScanResult("refused", checked.source_sha256, (), checked.refusal)
+    lexer = _Lexer(source, source.decode("utf-8"))
+    tokens = lexer.tokenize()
+    # Count binding-pattern identifiers conservatively, including destructuring,
+    # mutually defined names and local shadows. This is not pattern parsing:
+    # uncertain headers may suppress a row, but never select among shadows.
+    name_counts: dict[str, int] = {}
+    header_names: set[str] | None = None
+    for token in tokens:
+        if token.kind == "IDENT" and token.value in {"let", "and"}:
+            header_names = set()
+        elif header_names is not None:
+            if token.value == "=" or token.kind == "SEMISEMI":
+                for name in header_names:
+                    name_counts[name] = name_counts.get(name, 0) + 1
+                header_names = None
+            elif token.kind == "IDENT":
+                header_names.add(token.value)
+
+    candidates: list[ProveBinding] = []
+    phrase: list[_Token] = []
+    blocks: list[str] = []
+    delimiters: list[str] = []
+    for token in tokens:
+        if token.kind == "IDENT":
+            if token.value in {"begin", "struct", "sig", "object"}:
+                blocks.append(token.value)
+            elif token.value == "end":
+                if not blocks:
+                    # Unsupported/malformed block syntax: no reliable suffix.
+                    return ProveBindingScanResult("ok", checked.source_sha256, ())
+                blocks.pop()
+        if token.kind in _OPEN_TO_CLOSE:
+            delimiters.append(_OPEN_TO_CLOSE[token.kind])
+        elif token.kind in _CLOSE_KINDS:
+            delimiters.pop()  # already checked by the shared lexer
+        phrase.append(token)
+        if token.kind != "SEMISEMI" or blocks or delimiters:
+            continue
+        current, phrase = phrase, []
+        if len(current) < 10:
+            continue
+        if not (current[0].value == "let" and current[0].kind == "IDENT"
+                and current[1].kind == "IDENT" and current[2].value == "="):
+            continue
+        name = current[1].value
+        if name_counts.get(name) != 1:
+            continue
+        index = 3
+        if current[index].value == "time":
+            index += 1
+        if not (current[index].value == "prove" and current[index].kind == "IDENT"):
+            continue
+        index += 1
+        if not (current[index].kind == "LPAREN" and current[index + 1].kind == "HOL"
+                and current[index + 2].kind == "COMMA"):
+            continue
+        _opening, quoted, comma = current[index:index + 3]
+        # The prove tuple must close immediately before the phrase terminator.
+        depth = 0
+        close_index = None
+        for pos in range(index, len(current)):
+            item = current[pos]
+            if item.kind in _OPEN_TO_CLOSE:
+                depth += 1
+            elif item.kind in _CLOSE_KINDS:
+                depth -= 1
+                if depth == 0:
+                    close_index = pos
+                    break
+        if close_index != len(current) - 2 or current[close_index].kind != "RPAREN":
+            continue
+        tactic_tokens = current[index + 3:close_index]
+        if not tactic_tokens:
+            continue
+        # A second tuple field separator is outside the supported prove grammar.
+        depth = 0
+        extra_field = False
+        for item in tactic_tokens:
+            if item.kind in _OPEN_TO_CLOSE:
+                depth += 1
+            elif item.kind in _CLOSE_KINDS:
+                depth -= 1
+            elif item.kind == "COMMA" and depth == 0:
+                extra_field = True
+        if extra_field:
+            continue
+        candidates.append(ProveBinding(
+            name=name,
+            binding_span=ByteSpan(current[0].span.start, current[-1].span.end),
+            statement_span=quoted.span,
+            tactic_span=ByteSpan(comma.span.end, current[close_index].span.start),
+            source_line=lexer.line_for_byte(current[0].span.start),
+        ))
+    if blocks:
+        return ProveBindingScanResult("ok", checked.source_sha256, ())
+    return ProveBindingScanResult("ok", checked.source_sha256, tuple(candidates))

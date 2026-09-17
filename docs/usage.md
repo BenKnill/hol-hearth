@@ -100,6 +100,48 @@ binding. Successful execution of a scratch source does not mean its interactive
 goals are solved. Automatic residual capture from a failed `prove` is not
 currently implemented; Hearth does not invent that state.
 
+## Reopen a failed binding as a scratch proof
+
+Prepare the same prefix and the selected goal without running HOL:
+
+```sh
+./hearth reopen /ABS/project/runs --binding TARGET_THEOREM \
+  --out /ABS/project/scratch/TARGET_debug.ml
+```
+
+The output directory must already exist. Reopen writes a new scratch and its
+adjacent `TARGET_debug.ml.reopen` directory. The directory contains the recorded
+local dependencies, a prefix ending immediately before the selected binding,
+and `origin.json` with the original receipt, source hash and byte spans.
+The copied dependencies retain their relative layout and exact bytes. The
+prefix retains the exact original bytes after a diagnostic provenance comment.
+
+The scratch imports that prefix, states `g` with the exact recorded quotation,
+and includes the complete original tactic in an inactive comment. Copy selected
+tactic steps into `e (...)` commands and run the printed ordinary prove command.
+Inspect its transcript with `--tail 40` to see the assumptions and current goals.
+Reopen executes nothing, and opening the goal does not establish the theorem.
+It starts the original goal; it does not recover a failed tactic's residual.
+
+A run root selects its newest receipt. To reopen an earlier failed attempt,
+pass that attempt directory or its `transcript.log.json`. Selection is explicit:
+`--binding` identifies a recorded, unproved entrypoint claim, not an inferred
+failure location. If an earlier phrase or import itself fails, the generated
+prefix can fail too; reopen does not execute or repair it.
+
+Reopen refuses changed entrypoint or dependency bytes, duplicate or ambiguous
+bindings, imported bindings, nonliteral goals and unsupported phrase syntax.
+The supported form is a standalone `let NAME = [time] prove (quoted_goal,
+tactic);;`. It uses the existing strict source lexer; HOL remains the parser and
+execution authority.
+
+This first version preserves acyclic, captured local imports using relative
+`needs`, `loadt` and `loads`. It refuses mapped/library or unresolved profile
+imports, `#use`, bare `load`, and ELF-bearing sources rather than guess how to
+relocate them. Existing scratch files and companion directories are never
+overwritten. A refused command leaves no generated files. Choose a new output
+name for another attempt.
+
 ## Runtime and evidence
 
 `./hearth profiles` lists recipes, not installed environments.
