@@ -21,6 +21,7 @@ prefix=()
 case "$tool" in
   prove) module=prove.py ;;
   inspect) module=inspect.py ;;
+  reopen) module=reopen.py ;;
   smoke) module=smoke.py ;;
   configure) module=runtime_config.py; prefix=(configure) ;;
   *) echo "unknown command: $tool" >&2; exit 2 ;;
