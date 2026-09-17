@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from hol_workbench.evidence_policy import RAW_LOG_POLICY
+from hol_workbench.filter_output import strip_ansi
 from hol_workbench.fork_child_ocaml import ocaml_string_literal
 from hol_workbench.hashing import sha256_bytes, sha256_text
 from hol_workbench.ids import slugify, stamp
@@ -337,11 +338,62 @@ def _exact_marker_lines(transcript: bytes, contract: dict[str, Any]) -> dict[byt
 
 
 def first_error(transcript: str) -> tuple[int | None, str | None]:
-    for index, line in enumerate(transcript.splitlines(), 1):
-        stripped = line.strip()
-        if FAILURE_LINE_RE.search(stripped) or re.search(r"\bException(?: raised)?:", stripped):
-            return index, stripped
+    """Return a bounded exception block, including the useful wrapped message."""
+
+    lines = transcript.splitlines()
+    for offset, line in enumerate(lines):
+        stripped = line.strip().removeprefix("# ").strip()
+        if not (FAILURE_LINE_RE.search(stripped) or re.search(r"\bException(?: raised)?:", stripped)):
+            continue
+        message = [stripped]
+        for continuation in lines[offset + 1:offset + 14]:
+            text = continuation.strip()
+            if not text or text.startswith(("val ", "# ", "__HOL_", "HOL_WORKBENCH_", "Error in included file")):
+                break
+            if not continuation[:1].isspace() and not FAILURE_LINE_RE.match(text):
+                break
+            message.append(text)
+        return offset + 1, " ".join(message)[:2400]
     return None, None
+
+
+def diagnostic_claim_output(source: list[str], lines: list[int]) -> list[dict[str, Any]]:
+    """Keep bounded printed theorem text, explicitly separate from kernel probes."""
+
+    output = []
+    for lineno in lines[-3:]:
+        offset = lineno - 1
+        first = source[offset]
+        text = [first]
+        for following in source[offset + 1:offset + 28]:
+            stripped = following.strip()
+            if not stripped or stripped.startswith(("val ", "# ", "__HOL_", "HOL_WORKBENCH_")):
+                break
+            if not following[:1].isspace() and not stripped.startswith("|-"):
+                break
+            text.append(following)
+        full = "\n".join(text)
+        bounded = full[:4096]
+        # This is transcript formatting, not a HOL term parser or proof check.
+        header, separator, conclusion = bounded.partition("=")
+        output.append({
+            "transcript_line": lineno,
+            "text": bounded,
+            "printed_conclusion": strip_ansi(conclusion.strip()) if separator and ": thm" in header else None,
+            "truncated": len(full) > len(bounded) or len(text) == 28,
+            "verified": False,
+        })
+    return output
+
+
+def binding_status_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    """Count all recorded claims; diagnostic output never contributes to proved."""
+
+    counts = dict.fromkeys(("proved", "failed", "printed_unprobed", "missing", "unknown"), 0)
+    for row in rows:
+        status = str(row.get("status") or "unknown")
+        counts[status] = counts.get(status, 0) + 1
+    return counts
 
 
 def claim_target_row(claim: dict) -> dict:
@@ -362,7 +414,7 @@ def target_pack_status(claim_docs: list[dict], *, child_status: int) -> str:
         return "complete"
     if "failed" in statuses or child_status != 0:
         return "failed"
-    if statuses & {"missing", "unknown"}:
+    if statuses & {"missing", "unknown", "printed_unprobed"}:
         return "partial"
     return "failed"
 
@@ -390,6 +442,7 @@ def claim_doc(
     marker_count: int,
     mismatch_marker_count: int,
     diagnostic_lines: list[int],
+    diagnostic_output: list[dict[str, Any]],
 ) -> dict:
     return {
         "schema": VANILLA_CLAIM_SCHEMA,
@@ -417,6 +470,7 @@ def claim_doc(
         "first_error_line": first_error_line,
         "first_error_transcript_line": first_error_lineno,
         "natural_output_diagnostic_lines": diagnostic_lines,
+        "natural_output_diagnostic": diagnostic_output,
         "natural_output_is_evidence": False,
         "raw_log_policy": RAW_LOG_POLICY,
     }
@@ -433,6 +487,7 @@ def account_claims(
     names = [str(claim.get("name")) for claim in claims if claim.get("name")]
     diagnostic = transcript.decode("utf-8", errors="replace")
     natural = diagnostic_claim_lines(diagnostic, names)
+    diagnostic_lines = diagnostic.splitlines()
     error_lineno, error_line = first_error(diagnostic)
     marker_lines = _exact_marker_lines(transcript, contract)
     docs: list[dict] = []
@@ -456,8 +511,9 @@ def account_claims(
             evidence = "nonce_probe_marker_ambiguous"
             observed_line = None
         else:
-            status = "missing"
-            evidence = "nonce_probe_marker_missing"
+            printed = bool(natural.get(str(claim["name"])))
+            status = "printed_unprobed" if printed else "missing"
+            evidence = "unverified_toplevel_output" if printed else "nonce_probe_marker_missing"
             observed_line = None
         docs.append(
             claim_doc(
@@ -471,6 +527,7 @@ def account_claims(
                 marker_count=len(ok_lines),
                 mismatch_marker_count=len(mismatch_lines),
                 diagnostic_lines=natural.get(str(claim["name"]), []),
+                diagnostic_output=diagnostic_claim_output(diagnostic_lines, natural.get(str(claim["name"]), [])),
             )
         )
     completion_lines = marker_lines[str(contract["completion_marker"]).encode("ascii")]
