@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from hol_workbench.hashing import short_sha256
+from hol_workbench.proof_diagnostics import print_proof_diagnostics
 
 REPLAY_SCHEMA = "hol-workbench.warm-vanilla-artifact.v1"
 
@@ -262,7 +263,7 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
     if not source_accepted:
         attribution = receipt.get("failing_binding") or (receipt.get("transcript_accounting") or {}).get("failing_binding")
         if isinstance(attribution, dict) and attribution.get("status") == "identified" and attribution.get("name"):
-            print(f"failing_binding: {attribution['name']}")
+            print(f"failing_binding: {attribution['name']} source={attribution.get('source')}:{attribution.get('source_line')}")
         else:
             reason = attribution.get("reason") if isinstance(attribution, dict) else None
             print("failing_binding: unknown" + (f" ({reason})" if reason else " (no reliable location recorded)"))
@@ -316,6 +317,7 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         print(f"transcript: {receipt.get('transcript') or 'unavailable'}")
         print(f"raw_transcript: {receipt.get('raw_transcript') or 'unavailable'}")
     _failure_details(receipt)
+    print_proof_diagnostics(receipt, verbose=args.verbose)
     _bounded_transcript(args, receipt)
     return 0 if succeeded and selection_ok else 1
 
