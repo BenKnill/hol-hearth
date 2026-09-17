@@ -246,6 +246,31 @@ class Reopening(unittest.TestCase):
         self.assertEqual(self.out.read_bytes(),b"other author")
         self.assertEqual(list(self.outdir.iterdir()),[self.out])
 
+    def test_interrupt_after_link_preserves_complete_published_scratch(self):
+        real_link = os.link
+
+        def linked_then_interrupted(source, destination):
+            real_link(source, destination)
+            raise KeyboardInterrupt("signal after successful publication")
+
+        with patch("hol_workbench.cli.reopen.os.link", side_effect=linked_then_interrupted):
+            with self.assertRaises(KeyboardInterrupt):
+                reopen(self.receipt, binding_name="TARGET", out=self.out)
+        bundle = self.out.with_name(self.out.name + ".reopen")
+        self.assertEqual(set(self.outdir.iterdir()), {self.out, bundle})
+        origin = json.loads((bundle / "origin.json").read_text())
+        self.assertEqual(sha256_bytes(self.out.read_bytes()), origin["scratch_sha256"])
+        prefix = Path(origin["prefix"]).read_bytes()
+        self.assertEqual(prefix[origin["prefix_header_byte_count"]:], self.prefix.encode())
+        for row in origin["copied_files"]:
+            if row["role"] != "entrypoint":
+                self.assertEqual(
+                    sha256_bytes((bundle / "inputs" / row["package_path"]).read_bytes()),
+                    row["sha256"],
+                )
+        self.assertEqual(self.command().returncode, 2, "a retained artifact cannot be overwritten")
+        self.assertEqual(sha256_bytes(self.out.read_bytes()), origin["scratch_sha256"])
+
     def test_missing_parent_and_unsupported_loader_leave_no_files(self):
         with self.assertRaises(OSError):
             reopen(self.receipt,binding_name="TARGET",out=self.outdir/"absent"/"debug.ml")

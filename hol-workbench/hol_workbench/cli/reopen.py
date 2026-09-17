@@ -188,6 +188,7 @@ def reopen(run: Path, *, binding_name: str, out: Path) -> dict[str, Any]:
             "profile": receipt.get("logical_profile") or receipt.get("physical_profile"),
         }
         (staging / "origin.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+        scratch_identity = scratch_path.stat()
         try:
             # mkdir reserves the companion without replacing an existing tree.
             # Link the complete scratch last with atomic no-replace semantics.
@@ -198,7 +199,15 @@ def reopen(run: Path, *, binding_name: str, out: Path) -> dict[str, Any]:
             os.link(scratch_path, out)
         except BaseException:
             if owned_bundle:
-                shutil.rmtree(bundle)
+                # A signal can arrive after link() publishes the scratch but
+                # before Python observes its return. Keep its complete companion
+                # in that case; never delete or follow another author's output.
+                try:
+                    published = os.path.samestat(scratch_identity, out.lstat())
+                except FileNotFoundError:
+                    published = False
+                if not published:
+                    shutil.rmtree(bundle)
             raise
     return metadata
 
