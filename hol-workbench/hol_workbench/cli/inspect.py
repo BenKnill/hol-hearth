@@ -78,6 +78,8 @@ def _bool(value: object) -> str:
 
 def _binding_card_label(row: dict[str, Any]) -> str:
     probe = str(row.get("status") or "unknown")
+    if probe == "printed_unprobed":
+        return "printed_unprobed (diagnostic only; no verified kernel probe)"
     if probe == "missing" and row.get("unverified_binding_like_text_observed") is True:
         return "missing (unverified binding-like text observed)"
     return probe
@@ -139,8 +141,12 @@ def _failure_details(receipt: dict[str, Any]) -> None:
         lines = Path(str(value)).read_text(encoding="utf-8", errors="replace").splitlines()
     except OSError:
         return
-    needle = str(receipt["first_failure"]).strip().removeprefix("# ").strip()
-    index = next((i for i, line in enumerate(lines) if needle and needle in line), None)
+    recorded_line = receipt.get("first_failure_transcript_line")
+    if type(recorded_line) is int and 0 < recorded_line <= len(lines):
+        index = recorded_line - 1
+    else:
+        needle = str(receipt["first_failure"]).strip().removeprefix("# ").strip()
+        index = next((i for i, line in enumerate(lines) if needle and needle in line), None)
     if index is None:
         return
     print("failure_details: diagnostic transcript; generated-file positions are not editable-source coordinates")
@@ -212,7 +218,13 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
             print(f"{name}: {receipt.get(name, 'missing')}")
     dict_rows = [row for row in binding_rows if isinstance(row, dict)]
     print(f"bindings: {len(binding_rows)}")
-    display_rows = selected if selected_names else dict_rows
+    # Keep this lightweight public front door independent of evaluator imports.
+    counts = dict.fromkeys(("proved", "failed", "printed_unprobed", "missing", "unknown"), 0)
+    for row in dict_rows:
+        binding_status = str(row.get("status") or "unknown")
+        counts[binding_status] = counts.get(binding_status, 0) + 1
+    print("binding_counts: " + " ".join(f"{name}={count}" for name, count in counts.items()))
+    display_rows = selected if selected_names else sorted(dict_rows, key=lambda row: row.get("status") == "proved")
     visible = display_rows if args.verbose or selected_names else display_rows[:12]
     accounting = (receipt.get("transcript_accounting") or {}).get("claim_accounting") or []
     claims = {row.get("theorem"): row for row in accounting if isinstance(row, dict)}
@@ -222,11 +234,24 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         span = claim.get("source_span")
         location = f" source_line={span[0]}" if isinstance(span, list) and span else ""
         print(f"  {name}: {_binding_card_label(row)}{location}")
+        if row.get("status") == "printed_unprobed":
+            printed = row.get("printed_output") or []
+            if isinstance(printed, list):
+                for item in printed[-1:]:
+                    if isinstance(item, dict) and item.get("printed_conclusion"):
+                        print("    printed_conclusion (unverified): " +
+                              " ".join(str(item["printed_conclusion"]).split())[:1600])
         if selected_names and claim.get("statement"):
             print("    source_statement: " + " ".join(str(claim["statement"]).split())[:1600])
             print("    statement_scope: source quotation; status is from the named kernel probe")
     if len(display_rows) > len(visible):
-        print(f"  ... {len(display_rows) - len(visible)} more; use --verbose or --binding NAME")
+        hidden = display_rows[len(visible):]
+        hidden_counts: dict[str, int] = {}
+        for row in hidden:
+            hidden_status = str(row.get("status") or "unknown")
+            hidden_counts[hidden_status] = hidden_counts.get(hidden_status, 0) + 1
+        summary = ", ".join(f"{count} {name}" for name, count in hidden_counts.items())
+        print(f"  ... {len(hidden)} more ({summary}); use --verbose or --binding NAME")
     for name in sorted(selected_names - {row.get("name") for row in selected}):
         print(f"  {name}: not recorded (not a claim of theorem absence)")
     _input_details(receipt, verbose=args.verbose)
@@ -234,12 +259,19 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         failure_line = receipt.get("first_failure_transcript_line")
         coordinate = f"transcript_line={failure_line} " if type(failure_line) is int else ""
         print(f"first_failure: {coordinate}{receipt['first_failure']}")
+    if not source_accepted:
+        attribution = receipt.get("failing_binding") or (receipt.get("transcript_accounting") or {}).get("failing_binding")
+        if isinstance(attribution, dict) and attribution.get("status") == "identified" and attribution.get("name"):
+            print(f"failing_binding: {attribution['name']}")
+        else:
+            reason = attribution.get("reason") if isinstance(attribution, dict) else None
+            print("failing_binding: unknown" + (f" ({reason})" if reason else " (no reliable location recorded)"))
     last_unverified = _last_unverified_binding(dict_rows)
     if last_unverified is not None and not source_accepted:
         name, line = last_unverified
         print(f"last_binding_like_text: {name} (unverified, transcript_line={line})")
     probe_unresolved = all(
-        str(row.get("status") or "unknown") in {"missing", "unknown"} for row in dict_rows
+        str(row.get("status") or "unknown") in {"missing", "unknown", "printed_unprobed"} for row in dict_rows
     )
     if dict_rows and not source_accepted and probe_unresolved:
         print("binding_note: probe missing; transcript text does not identify the residual binding")

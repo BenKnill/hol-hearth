@@ -9,6 +9,7 @@ from hol_workbench.vanilla_claims import (
     EVIDENCE_BOUNDARY,
     account_claims,
     build_claim_probe,
+    binding_status_counts,
     first_error,
 )
 
@@ -109,6 +110,7 @@ def analyze_vanilla_transcript(
         if diagnostic_lines:
             row["unverified_binding_like_text_observed"] = True
             row["unverified_binding_like_transcript_lines"] = diagnostic_lines
+            row["printed_output"] = doc.get("natural_output_diagnostic") or []
         bindings.append(row)
     result = {
         "source_status": source_status,
@@ -131,6 +133,12 @@ def analyze_vanilla_transcript(
         "failure_like_text_ignored_after_completed_source": source_completed and failure_like_line is not None,
         "observed_bindings": observed_probe_bindings,
         "bindings": bindings,
+        "binding_counts": binding_status_counts(bindings),
+        "failing_binding": None if source_completed else {
+            "status": "unknown",
+            "name": None,
+            "reason": "no reliable source binding location was recorded; preceding printed text is not attribution",
+        },
         "claim_accounting": claim_docs,
         "probe_contract": contract,
         "natural_output_is_evidence": False,
