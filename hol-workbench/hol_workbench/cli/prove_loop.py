@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import math
 import os
 import signal
 import subprocess
@@ -15,6 +16,7 @@ from hol_workbench.cli.inspect import _read_json, _replay_receipt
 from hol_workbench.cli.prove_replay import _profile
 from hol_workbench.cli.public_commands import public_command
 from hol_workbench.cli.published_profile import PublishedWarmProfile, resolve_published_warm_profile
+from hol_workbench.cli.replay_progress import add_progress_argument
 from hol_workbench.ids import run_id
 from hol_workbench.source_execution_plan import capture_source_dependency_closure
 
@@ -47,12 +49,15 @@ def _parse(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--run-root")
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--poll", type=float, default=1)
+    add_progress_argument(parser)
     result = parser.parse_args(args)
     if not (result.source or result.positional_source) or (result.positional_source and result.source):
         parser.error("specify SOURCE.ml once")
     result.source = result.source or result.positional_source
-    if result.timeout <= 0 or result.poll < 0.1:
-        parser.error("--timeout must be positive; --poll must be at least 0.1 seconds")
+    if not math.isfinite(result.timeout) or result.timeout <= 0:
+        parser.error("--timeout must be finite and positive")
+    if not math.isfinite(result.poll) or result.poll < 0.1:
+        parser.error("--poll must be finite and at least 0.1 seconds")
     return result
 
 
@@ -113,7 +118,8 @@ def main(args: list[str], *, script_dir: str | os.PathLike[str], cwd: str | os.P
                     print("CHECKING: source and transitive dependencies; previous result is not current.", flush=True)
                     process = subprocess.Popen(
                         [str(scripts / "prove"), str(source), "--profile", name,
-                         "--timeout", str(options.timeout), "--run-root", str(root)],
+                         "--timeout", str(options.timeout), "--run-root", str(root),
+                         "--progress-interval", str(options.progress_interval)],
                         cwd=working, start_new_session=True,
                     )
                 else:

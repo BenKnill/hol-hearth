@@ -319,7 +319,9 @@ def run(
     evidence_role: str = "warm_development_only",
     display_transcript: bool = True,
     expected_source_sha256: str | None = None,
+    on_phase: Callable[[str], None] | None = None,
 ) -> int:
+    report_phase = on_phase or (lambda phase: None)
     source = source.expanduser().resolve()
     if not source.is_file():
         print(f"warm vanilla HOL: source not found: {source}", file=sys.stderr)
@@ -595,7 +597,9 @@ def run(
             return restored_shelf_capacity(profile_root)
 
         admission_options["capacity_expander"] = expand_for_live_demand
+        report_phase("admission")
         with criu_shelf_admission(profile_root, **admission_options) as admission:
+            report_phase("restoring")
             effective_capacity = admission.capacity
             update_shelf_owner(profile_root, owner["attempt_id"], progress="restoring")
             restore_output = StringIO()
@@ -650,6 +654,7 @@ def run(
             semantic: dict = {}
             try:
                 try:
+                    report_phase("evaluation-request")
                     response = _send_vanilla_request(
                         session,
                         request,
@@ -659,6 +664,7 @@ def run(
                     interrupted = True
                     raise
             finally:
+                report_phase("cancelling" if interrupted else "recording")
                 if interrupted:
                     cleanup_status = wait_for_fork_attempt_cleanup(
                         read_json(session / "session.json"),
