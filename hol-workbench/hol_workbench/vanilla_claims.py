@@ -442,7 +442,7 @@ def claim_doc(
     marker_count: int,
     mismatch_marker_count: int,
     diagnostic_lines: list[int],
-    diagnostic_output: list[dict[str, Any]],
+    diagnostic_output: list[dict[str, Any]] | None = None,
 ) -> dict:
     return {
         "schema": VANILLA_CLAIM_SCHEMA,
@@ -470,7 +470,7 @@ def claim_doc(
         "first_error_line": first_error_line,
         "first_error_transcript_line": first_error_lineno,
         "natural_output_diagnostic_lines": diagnostic_lines,
-        "natural_output_diagnostic": diagnostic_output,
+        "natural_output_diagnostic": diagnostic_output or [],
         "natural_output_is_evidence": False,
         "raw_log_policy": RAW_LOG_POLICY,
     }
