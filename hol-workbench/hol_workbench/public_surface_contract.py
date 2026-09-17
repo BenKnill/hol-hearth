@@ -288,7 +288,8 @@ def main(argv: list[str]) -> int:
         assert "last_binding_like_text: U2_GOOD (unverified, transcript_line=13)" in residual_card.stdout
         assert "U2_REPAIR_ME: failed" not in residual_card.stdout
         assert "not_reached" not in residual_card.stdout
-        assert "binding_note: probe missing; transcript text does not identify the residual binding" in (
+        assert ("binding_note: named theorem probes are missing; unverified printed theorem text "
+                "does not establish which binding failed") in (
             residual_card.stdout
         )
         unattributed_card = _run([str(inspect), str(unattributed)], cwd=fixture)
@@ -297,7 +298,8 @@ def main(argv: list[str]) -> int:
         assert "U2_REPAIR_ME: missing" in unattributed_card.stdout
         assert "U2_LATER: missing" in unattributed_card.stdout
         assert "last_binding_like_text:" not in unattributed_card.stdout
-        assert "binding_note: probe missing; transcript text does not identify the residual binding" in (
+        assert ("binding_note: named theorem probes are missing; unverified printed theorem text "
+                "does not establish which binding failed") in (
             unattributed_card.stdout
         )
         bounded = _run([str(inspect), str(success_dir), "--grep", "Exception"], cwd=fixture)

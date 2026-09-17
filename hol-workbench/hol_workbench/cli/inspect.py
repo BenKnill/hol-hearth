@@ -275,7 +275,8 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         str(row.get("status") or "unknown") in {"missing", "unknown", "printed_unprobed"} for row in dict_rows
     )
     if dict_rows and not source_accepted and probe_unresolved:
-        print("binding_note: probe missing; transcript text does not identify the residual binding")
+        print("binding_note: named theorem probes are missing; unverified printed theorem text "
+              "does not establish which binding failed")
     foundation = receipt.get("foundation_delta")
     if isinstance(foundation, dict):
         deltas = foundation.get("deltas")
