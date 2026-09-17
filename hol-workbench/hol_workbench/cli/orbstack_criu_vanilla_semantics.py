@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import secrets
 from typing import Any
+
+from hol_workbench.proof_diagnostics import account_proof_diagnostics, diagnostic_prelude, identify_failed_binding
 
 from hol_workbench.foundation_delta import account_foundation_delta, foundation_probe_contract
 from hol_workbench.vanilla_claims import (
@@ -26,12 +29,21 @@ def instrumented_source_bytes(
     nonce: str | None = None,
     prefix_bytes: bytes = b"",
     include_foundation_delta: bool = False,
+    diagnostic_source_path: str | None = None,
 ) -> tuple[bytes, dict[str, Any]]:
     """Optionally add recorded-replay telemetry to the shared claim probe."""
 
+    if include_foundation_delta:
+        nonce = nonce or secrets.token_hex(16)
+        prefix_bytes += b"\n" + diagnostic_prelude(nonce)
     payload, contract = build_claim_probe(source_bytes, claims, nonce=nonce, prefix_bytes=prefix_bytes)
     if include_foundation_delta:
         contract["foundation_delta"] = foundation_probe_contract(str(contract["nonce"]))
+        contract["proof_diagnostics"] = {
+            "nonce": contract["nonce"], "authority": "diagnostic_only",
+            "packaged_entrypoint": diagnostic_source_path,
+            "source_line_offset": prefix_bytes.count(b"\n") + 1,
+        }
     return payload, contract
 
 
@@ -57,6 +69,7 @@ def displayed_transcript(transcript: bytes, contract: dict[str, Any]) -> str:
         line
         for line in transcript.splitlines()
         if line not in hidden and not (foundation_prefix and line.startswith(foundation_prefix))
+        and not line.startswith(("__HOL_PROOF_DIAGNOSTIC__:" + str(contract["nonce"]) + ":").encode())
     )
     if rendered and transcript.endswith((b"\n", b"\r")):
         rendered += b"\n"
@@ -146,6 +159,11 @@ def analyze_vanilla_transcript(
         "evidence_boundary": EVIDENCE_BOUNDARY,
     }
     if foundation_enabled:
+        result["proof_diagnostics"] = account_proof_diagnostics(transcript, contract)
+        if not source_completed:
+            attribution = identify_failed_binding(result["proof_diagnostics"], contract, claims, failure_like_lineno)
+            if attribution:
+                result["failing_binding"] = attribution
         foundation_delta = account_foundation_delta(transcript, contract)
         advisory_reasons = list(foundation_delta["advisory_reasons"])
         if not semantic_success:

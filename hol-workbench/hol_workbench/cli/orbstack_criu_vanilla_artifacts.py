@@ -107,6 +107,8 @@ def write_vanilla_artifacts(
             "source_completed": (semantic or {}).get("source_completed"),
             "semantic_exit_status": (semantic or {}).get("semantic_exit_status"),
             "claims_complete": (semantic or {}).get("claims_complete"),
+            "proof_diagnostics": (semantic or {}).get("proof_diagnostics"),
+            "failing_binding": (semantic or {}).get("failing_binding"),
             "first_failure": (semantic or {}).get("first_failure"),
             "first_failure_transcript_line": (semantic or {}).get("first_failure_transcript_line"),
             "observed_bindings": (semantic or {}).get("observed_bindings") or [],

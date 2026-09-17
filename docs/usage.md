@@ -97,8 +97,27 @@ For tactic diagnosis, use HOL's ordinary `g` and `e` commands in that scratch
 source and inspect the printed assumptions and residual goals. Then put the
 finished proof into a named `let TARGET = prove (...)` binding and check that
 binding. Successful execution of a scratch source does not mean its interactive
-goals are solved. Automatic residual capture from a failed `prove` is not
-currently implemented; Hearth does not invent that state.
+goals are solved.
+
+Recorded replay captures bounded residual goals (assumptions and conclusion)
+when a tactic returns unsolved subgoals to the existing `prove`. Read them with
+`hearth inspect RUN --verbose` or the structured `proof_diagnostics` field in
+`--json`. If a tactic raises before returning, the diagnostic instead labels
+its original input; intermediate subgoals are unavailable. These are diagnostic
+snapshots, never theorem probes. They do not change source acceptance.
+
+The disposable child compiles source with location information. A unique compiler
+call site can identify an entrypoint's failing literal `let NAME = prove (...)`
+without guessing from the previous printed theorem. Unsupported call sites,
+imported bindings, and caught failures followed by a different error remain
+unattributed. Exact source bytes are retained after the generated prefix.
+
+Diagnostics are bounded to eight failure events, eight goals per event, sixteen
+assumptions per goal, and about 2 KiB per term. The ordinary HOL parser and
+original `prove` still execute the source and validate the resulting theorem.
+Custom redefinitions of `prove` and closures captured before the diagnostic
+wrapper may bypass capture. A caught failure may have diagnostics even if the
+source subsequently completes; inspect labels that case.
 
 ## Reopen a failed binding as a scratch proof
 

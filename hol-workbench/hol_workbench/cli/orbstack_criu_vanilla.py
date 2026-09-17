@@ -180,6 +180,10 @@ def _print_semantic_summary(
         )
     if semantic.get("first_failure"):
         print(f"FIRST_FAILURE: {semantic['first_failure']}", file=sys.stderr)
+    attribution = semantic.get("failing_binding") or {}
+    if attribution.get("status") == "identified":
+        print(f"FAILED_BINDING: {attribution['name']} "
+              f"{attribution['source']}:{attribution['source_line']}", file=sys.stderr)
 
 
 def _active_shelf_owners(profile_root: Path) -> list[dict]:
@@ -479,6 +483,7 @@ def run(
         nonce=probe_nonce,
         prefix_bytes=source_prelude,
         include_foundation_delta=foundation_enabled,
+        diagnostic_source_path=str(expected_entrypoint),
     )
     try:
         snapshot, package = materialize_dependency_package(

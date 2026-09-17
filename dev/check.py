@@ -35,6 +35,7 @@ def main() -> int:
         [sys.executable, "-I", "-B", str(ROOT / "dev/reopen-selftest.py")],
         [sys.executable, "-I", "-B", str(WB / "dev/python_syntax_selftest.py"), str(WB)],
         [sys.executable, "-I", "-B", str(WB / "dev/python_import_selftest.py"), str(WB)],
+        [sys.executable, "-I", "-B", str(ROOT / "dev/proof-diagnostics-selftest.py")],
         [str(ROOT / "hearth"), "smoke"],
     ]
     for name in ("source_byte_identity", "source_dependency", "logical_source_roots",
