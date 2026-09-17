@@ -46,7 +46,8 @@ VANILLA_RUN_SCHEMA = "proof-run.vanilla-run.v1"
 VANILLA_CLAIM_SCHEMA = "proof-run.vanilla-claim.v1"
 FAILURE_LINE_RE = re.compile(
     r"^(?:Error:|Exception:|Exception raised:|Unbound value\b|Unbound constructor\b|Unbound module\b|"
-    r"Reference to undefined global\b|Tactic failed\b|Failure\b)"
+    r"Reference to undefined global\b|Tactic failed\b|Failure\b|"
+    r"Stack overflow during evaluation \(looping recursion\?\)\.$)"
 )
 HOL_CLAIM_NAME = r"[A-Za-z_][A-Za-z0-9_']*"
 HOL_CLAIM_NAME_RE = re.compile(rf"^{HOL_CLAIM_NAME}$")

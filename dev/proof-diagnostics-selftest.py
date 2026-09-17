@@ -84,3 +84,64 @@ with redirect_stdout(view):
                             "first_failure_transcript_line": 11}, verbose=False)
 assert "1 more recorded goals; use --verbose" in view.getvalue()
 print("proof-diagnostics display: caught, capped and hidden-goal boundaries passed")
+
+
+# OCaml reports Stack_overflow without an "Exception:" prefix. Recognition
+# must enable exact callsite diagnostics without treating printed text as proof.
+from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
+from hol_workbench.vanilla_claims import first_error
+
+overflow_message = "Stack overflow during evaluation (looping recursion?)."
+overflow_source = b"let STUCK = prove (`T`, fun _ -> raise Stack_overflow);;\n"
+overflow_claims = extract_hol_theorems_bytes(Path("/project/stack.ml"), overflow_source)
+_, overflow_contract = instrumented_source_bytes(
+    overflow_source, overflow_claims, nonce=nonce, include_foundation_delta=True,
+    diagnostic_source_path="/package/stack.ml")
+callsite_line = overflow_contract["proof_diagnostics"]["source_line_offset"] + 1
+overflow_records = [
+    f"1:BEGIN:tactic_input:1:1:{hx('T')}:{hx('Stack overflow')}",
+    f"1:GOAL:0:0:{hx('T')}",
+    f"1:LOCATION:{hx('/package/stack.ml')}:{hx('STUCK')}:{callsite_line}",
+    "1:END",
+]
+overflow_frame = ("\n".join(prefix + line for line in overflow_records) + "\n").encode()
+
+def analyze_overflow(transcript):
+    return analyze_vanilla_transcript(
+        claims=overflow_claims, transcript=transcript, contract=overflow_contract,
+        transport="completed", response={"exit_status": 0})
+
+assert first_error("noise\n# " + overflow_message + "\n") == (2, overflow_message)
+assert first_error("note: " + overflow_message + "\n") == (None, None)
+uncaught = analyze_overflow(overflow_frame + (overflow_message + "\n").encode())
+assert uncaught["source_status"] == "failed" and uncaught["effective_exit_status"] == 1
+assert uncaught["first_failure"] == overflow_message and uncaught["first_failure_transcript_line"] == 5
+assert uncaught["failing_binding"]["name"] == "STUCK"
+assert uncaught["failing_binding"]["source_line"] == 1
+assert uncaught["bindings"][0]["status"] == "missing"
+assert uncaught["claim_accounting"][0]["first_error_line"] is None  # no per-claim guess
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics(uncaught, verbose=False)
+assert "original tactic input" in view.getvalue()
+assert "earlier/caught proof context" not in view.getvalue()
+
+# A caught diagnostic cannot be attributed to a later, unrelated overflow.
+later = analyze_overflow(overflow_frame + ("continued after caught failure\n" + overflow_message + "\n").encode())
+assert later["first_failure_transcript_line"] == 6
+assert later["failing_binding"]["status"] == "unknown"
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics(later, verbose=False)
+assert "earlier/caught proof context" in view.getvalue()
+
+# Completion and verified probes still override merely printed error text.
+markers = "\n".join([overflow_contract["claims"][0]["ok_marker"], overflow_contract["completion_marker"]]) + "\n"
+caught = analyze_overflow(overflow_frame + (overflow_message + "\n" + markers).encode())
+assert caught["source_status"] == "succeeded" and caught["bindings"][0]["status"] == "proved"
+assert caught["first_failure"] is None and caught["failing_binding"] is None
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics(caught, verbose=False)
+assert "caught proof failures; the source continued to completion" in view.getvalue()
+print("proof-diagnostics overflow: exact callsite, unrelated failure and completed-source boundaries passed")
