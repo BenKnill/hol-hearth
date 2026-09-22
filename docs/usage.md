@@ -162,6 +162,12 @@ Custom redefinitions of `prove` and closures captured before the diagnostic
 wrapper may bypass capture. A caught failure may have diagnostics even if the
 source subsequently completes; inspect labels that case.
 
+After timeout or cancellation, inspection can identify the last entered `prove`
+call with no recorded return. This includes imported sources when their exact
+captured bytes and compiler location agree. `running_at_interruption` names
+where execution stopped; it does not declare that binding failed or was proved.
+Unsupported or ambiguous call sites remain unknown.
+
 ## Reopen a failed binding as a scratch proof
 
 Prepare the same prefix and the selected goal without running HOL:
