@@ -135,6 +135,73 @@ Basis identity includes the relevant backend code, so a changed backend must
 prepare a new basis; earlier measurements do not certify a later runtime
 revision without another recorded run.
 
+## Source-defined ELF loaders, September 22
+
+An actual `heavy` replay exposed a source-loading defect: the harness aliased
+`define_assert_from_elf` before the author's first import could define it. The
+P256 preparation therefore failed before its original source ran. Ordinary
+warm replay used the same premature alias. Exact relative ELF inputs now use
+the existing validated package working directory when the captured source
+closure has no directory-changing references or native declarations. Imports
+retain their original order; other inputs retain the mapped-loader transport.
+Basis preparation saves and restores only wrappers actually installed, and its
+admission checks the recorded transport identity.
+
+The [sanitized ELF bootstrap record](elf-bootstrap-evidence.json) contains the
+source, object, profile, transcript and receipt hashes for these completed runs:
+
+| Check | Result |
+| --- | --- |
+| Original P256 preparation on `heavy` | Rejected in **0.529 s**: missing ELF loader before original source execution; 12 missing targets; remaining leaf not run |
+| Complete 18-instruction `bignum_sub_p256.ml` on `s2n-arm-mlkem` after the fix | Accepted in **13.493 s**; both literal correctness targets matched their conclusions with empty hypotheses; zero observed new axioms |
+| One executable ELF byte changed, proof source unchanged | Rejected in **0.459 s** by `dest_cons4`'s instruction/literal mismatch; complete source rejected and neither target proved |
+| Exact original ELF restored | Accepted in **15.004 s** with the same source and object hashes as the positive run; both targets proved and zero observed new axioms |
+| Same complete subtraction source on `heavy` after the fix | Rejected in **152.684 s** after reaching original imports: `REAL_ARITH` failed in `common/misc.ml`, followed by further ARM support errors; neither target proved |
+| P256 preparation on `heavy` after the fix | Interrupted with exit 130 after nine imported-file errors; no target or remaining leaf accepted; cleanup verified a quiescent child and reusable seat |
+
+Existing `light` shelves directly exercised initially absent ARM ELF loaders.
+Ordinary imports defined them and the complete subtraction proof passed in
+**310.544 s**, with both literal targets checked and zero new axioms. Separately,
+the complete ARM base passed preparation in **300.505 s** with zero new axioms;
+it has no discovered entrypoint theorem targets and makes no ELF calls. Its
+source-defined loaders survived preparation transport, and the fresh subtraction
+leaf passed both literal targets in **28.719 s**, again with zero new axioms.
+The base receipt establishes complete-source execution and imported-error
+rejection, not independent probes of every imported theorem.
+
+The same runtime also repeated the substantial 256-cell ARM NTT layers 1–3
+functional source using the retained mapped-loader route. Dependency preparation
+passed in **230.263 s** with its two targets; the full functional leaf passed in
+**26.720 s** with all four targets. A repeat reused the same preparation receipt
+and passed those four targets in **33.679 s**. All three recorded zero new axioms.
+The exact source and object identities match the earlier functional campaign.
+These runs overlapped other proof work and are not a controlled speed comparison.
+
+The corrected runs use independently verified clean runtime commit
+`564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae`. Their receipt client metadata itself
+reports an unknown revision; the record preserves this distinction. Full
+`./hearth check` passed, including 32 focused transport, basis-identity and
+replay checks. This validates source loading and exact-object rejection on a
+real assembly routine; it does not replace the recorded P256 point-addition
+hard case. The later heavy failures expose an additional incompatibility while
+loading ARM infrastructure into that mathematical environment; removing the
+bootstrap error does not make `heavy` an accepted replacement for an ARM shelf.
+The interrupted receipt has no evaluation duration or foundation-delta marker;
+neither is inferred from progress output or the other attempts.
+
+Two ordinary HOL controls isolated the first heavy failure. Loading
+`Library/integer.ml` sets integer overload priority; the subsequent
+`needs "Library/floor.ml"` is skipped because heavy already contains it, so its
+real-priority side effect does not run. The diagnostic reported integer operands
+and the unchanged quoted arithmetic statement failed in **11.278 s**. Adding
+only `prioritize_real()` after the same imports produced real operands and
+acceptance of that statement in **11.326 s**, with its literal conclusion and
+empty hypotheses checked. This reduced control diagnoses load-order state;
+it is not assembly acceptance. An independent collision remains: heavy's topology
+theorem named `open_in` shadows the file-opening function expected by the ARM
+ELF reader, which was observed to fail with theorem type. A priority reset alone
+does not make the complete heavy environment compatible with these ARM sources.
+
 ## Hearth acceptance, September 16
 
 Real runs used existing compatible `light` profiles in Ubuntu 26.04 ARM64.
