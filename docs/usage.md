@@ -90,6 +90,15 @@ sources and their transitive ELF inputs, even when the selected profile was
 prepared in another checkout. A missing file inside a local directory such as
 `arm/` is refused before evaluation; another checkout cannot fill the gap.
 
+For exact relative ELF paths, Hearth can run from the captured package's
+working directory. This lets ordinary imports define their ELF loaders before
+the source uses them, including when those loaders were absent from the warm
+profile. The source order and object bytes stay unchanged. Hearth selects this
+transport only when every object resolves to its captured location and the
+exact source closure has no directory-changing function references or native
+declarations. Other cases retain the existing ELF path wrappers. Receipts record
+the selected `literal_elf_transport`; project-basis admission checks it too.
+
 The configured HOL source and declared logical roots supply remaining library
 imports, such as `Library/words.ml` when this checkout has no `Library/` tree.
 For a narrower package boundary or a source archive without Git metadata, place
@@ -239,6 +248,19 @@ Use `s2n-arm` for the ARM proof base, `s2n-arm-mlkem` for the shared NTT
 development, and `s2n-x86` for the x86 proof base. `s2n-arm-light` is a separate
 optional recipe adding arithmetic and ring theory; its absence does not prevent
 using an installed `s2n-arm` shelf.
+
+`doctor` checks whether a shelf is compatible with the selected runtime. Its
+loaded-source inventory determines which project imports are already present.
+For example, the examined ARM shelves contained the ARM base but lacked P256's
+ring and group theory; `heavy` contained that algebra but lacked the ARM base.
+Choose by the proof's dependencies and measured replay results. A larger recipe
+or a successful compatibility check alone does not establish better coverage.
+The recorded attempt to load ARM infrastructure on `heavy` failed in imported
+ARM support proofs, so use the validated ARM profiles for this assembly route.
+Warm state also includes overload priorities and global bindings: skipping an
+already-loaded import can skip its initialization effects, and unrelated theorem
+names can shadow functions. Source inventory is necessary but does not establish
+that independently built mathematical environments compose safely.
 
 Run the actual project leaf and inspect its intended theorem:
 

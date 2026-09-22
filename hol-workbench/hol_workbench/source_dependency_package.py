@@ -15,6 +15,7 @@ from hol_workbench.profile_satisfied_dependencies import (
     profile_runtime_fallback_record_indexes,
     profile_satisfied_record_indexes,
 )
+from hol_workbench.proofs.loader_scan import source_may_change_cwd
 from hol_workbench.secure_tree_read import read_regular_file_beneath
 from hol_workbench.source_dependency_closure import source_dependency_closure_identity_matches
 
@@ -313,6 +314,109 @@ def mounted_source_package_prelude(manifest: dict[str, Any] | None) -> list[str]
         "let loads path = proof_run_unmapped_loads (proof_run_mounted_source_path path);;",
         "",
     ]
+
+
+def literal_elf_artifact_runtime_cwd(
+    closure: dict[str, Any],
+    *,
+    original_cwd: Path,
+    package_root: Path,
+) -> Path | None:
+    """Mirror the caller cwd only when every relative ELF path stays exact."""
+
+    artifacts = [
+        artifact
+        for artifact in closure.get("artifacts") or []
+        if artifact.get("resolution") == "source_local"
+    ]
+    if not artifacts:
+        return None
+    cwd = original_cwd.expanduser().resolve(strict=True)
+    runtime_cwd: Path | None = None
+    for artifact in artifacts:
+        literal = Path(str(artifact.get("runtime_literal_path") or ""))
+        package_path = Path(str(artifact.get("package_path") or ""))
+        if literal.is_absolute() or not literal.parts or not package_path.parts:
+            raise DependencyPackageError(
+                "refused_artifact_runtime_path",
+                f"literal ELF path cannot be reproduced inside the cold package: {literal}",
+            )
+        project_root = Path(str(artifact.get("project_root") or "")).resolve(strict=True)
+        resolved_path = Path(str(artifact.get("resolved_path") or "")).resolve(strict=True)
+        try:
+            relative_cwd = cwd.relative_to(project_root)
+            project_artifact = resolved_path.relative_to(project_root)
+        except ValueError as exc:
+            raise DependencyPackageError(
+                "refused_artifact_runtime_cwd",
+                f"cold replay cwd or artifact is outside its source project root: {project_root}",
+            ) from exc
+        expected = (package_root / package_path).resolve()
+        packaged_project_root = expected
+        for _part in project_artifact.parts:
+            packaged_project_root = packaged_project_root.parent
+        candidate_cwd = packaged_project_root / relative_cwd
+        observed = (candidate_cwd / literal).resolve()
+        if (
+            observed != expected
+            or not expected.is_relative_to(package_root)
+            or not candidate_cwd.resolve().is_relative_to(package_root)
+        ):
+            raise DependencyPackageError(
+                "refused_artifact_runtime_path",
+                f"literal ELF path does not resolve to its captured package file: "
+                f"{literal} -> {observed}, expected {expected}",
+            )
+        if runtime_cwd is not None and candidate_cwd != runtime_cwd:
+            raise DependencyPackageError(
+                "refused_artifact_runtime_cwd",
+                "literal ELF artifacts require different packaged working directories",
+            )
+        runtime_cwd = candidate_cwd
+    assert runtime_cwd is not None
+    return runtime_cwd
+
+
+def elf_package_transport(closure: dict[str, Any]) -> dict[str, Any]:
+    """Select exact relative-object transport without looking up HOL bindings.
+
+    Reuse the standalone replay's coordinate validation, substituting the
+    captured project root for the eventual package root. Verify the relocated
+    coordinates again when the actual package location is known. An uncertain
+    path or directory-changing source keeps the existing mapped-loader route.
+    """
+    loaders = sorted({row.get("loader") for row in closure.get("artifacts") or []
+                      if row.get("loader") in {"define_from_elf", "define_assert_from_elf"}})
+    fallback = {"mode": "mapped_loaders" if loaders else "none",
+                "cwd_from_package_root": None, "wrapped_loaders": loaders}
+    if not loaders or not source_dependency_closure_identity_matches(closure):
+        return fallback
+    try:
+        project_root = Path(closure["project_input_context"]["project_root"]).resolve(strict=True)
+        candidate = literal_elf_artifact_runtime_cwd(
+            closure, original_cwd=project_root, package_root=project_root)
+        if candidate is None:
+            return fallback
+        relative = candidate.relative_to(project_root).as_posix()
+        entry = closure["entrypoint"]
+        sources = [(closure["root"], entry["path"], entry["sha256"])]
+        sources.extend((row.get("trusted_root_path"), row.get("resolved_path"), row.get("sha256"))
+                       for row in closure.get("records") or [])
+        checked: dict[str, str] = {}
+        for root, path, digest in sources:
+            if not all(isinstance(value, str) and value for value in (root, path, digest)):
+                return fallback
+            if path in checked:
+                if checked[path] != digest:
+                    return fallback
+                continue
+            data = read_regular_file_beneath(Path(root), Path(path)).data
+            if sha256_bytes(data) != digest or source_may_change_cwd(data):
+                return fallback
+            checked[path] = digest
+    except (OSError, KeyError, TypeError, ValueError, DependencyPackageError):
+        return fallback
+    return {"mode": "package_cwd", "cwd_from_package_root": relative, "wrapped_loaders": []}
 
 
 def literal_elf_artifact_package_prelude(manifest: dict[str, Any] | None) -> list[str]:

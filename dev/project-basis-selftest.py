@@ -41,6 +41,7 @@ class BasisContracts(unittest.TestCase):
         self.package.mkdir(parents=True)
         (self.package / "basis.ml").write_bytes(self.source.read_bytes() + b"(* instrumented *)\n")
         (self.package / "helper.ml").write_bytes(self.helper.read_bytes())
+        (self.package / "object.o").write_bytes(self.object.read_bytes())
 
     def make_plan(self) -> basis.BasisPlan:
         return basis.plan_basis(self.source, profile_root=self.profile, logical_profile="s2n-arm",
@@ -57,11 +58,14 @@ class BasisContracts(unittest.TestCase):
             "raw_transcript": str(self.raw), "raw_transcript_sha256": sha256_file(self.raw),
             "completion_marker_valid": True, "semantic_exit_status": 0, "worker_exit_status": 0,
             "preparation_package_root": str(self.package),
+            "literal_elf_transport": self.plan.identity["elf_transport"],
             "executed_source_sha256": sha256_file(self.package / "basis.ml"),
             "dependency_package_files": [
                 {"package_path": "basis.ml", "role": "entrypoint", "sha256": sha256_file(self.source)},
                 {"package_path": "helper.ml", "role": "dependency", "sha256": sha256_file(self.helper),
                  "size_bytes": self.helper.stat().st_size},
+                {"package_path": "object.o", "role": "literal_elf_artifact", "sha256": sha256_file(self.object),
+                 "size_bytes": self.object.stat().st_size},
             ],
         }
         result["transcript_accounting"] = {key: result[key] for key in (
@@ -80,6 +84,9 @@ class BasisContracts(unittest.TestCase):
                              ("included_file_error_observed", True), ("exit_status", 1),
                              ("transport_status", "timeout"), ("logical_profile", "light"),
                              ("source_dependency_closure_sha256", "b" * 64),
+                             ("literal_elf_transport", {"mode": "mapped_loaders",
+                                                        "cwd_from_package_root": None,
+                                                        "wrapped_loaders": ["define_assert_from_elf"]}),
                              ("source_completed", 1), ("exit_status", False)):
             with self.subTest(field=field):
                 row = self.good_receipt()
@@ -116,6 +123,16 @@ class BasisContracts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "retained preparation bytes"):
             self.validate(row)
 
+    def test_retained_object_is_checked_after_preparation(self) -> None:
+        row = self.good_receipt()
+        packaged_object = self.package / "object.o"
+        original = packaged_object.read_bytes()
+        packaged_object.write_bytes(bytes([original[0] ^ 1]) + original[1:])
+        with self.assertRaisesRegex(ValueError, "retained preparation bytes"):
+            self.validate(row)
+        packaged_object.write_bytes(original)
+        self.assertEqual(self.validate(row)["exit_status"], 0)
+
     def test_source_dependency_and_object_edits_invalidate_existing_plan(self) -> None:
         for path in (self.source, self.helper, self.object):
             with self.subTest(path=path.name):
@@ -126,10 +143,16 @@ class BasisContracts(unittest.TestCase):
                 path.write_bytes(original)
         self.assertIsNone(basis.lookup_basis(self.plan))
 
-    def test_recaptured_object_changes_content_address(self) -> None:
-        self.object.write_bytes(b"new object")
-        self.closure = build_source_dependency_closure(self.source, project_root=self.root)
-        self.assertNotEqual(self.make_plan().key, self.plan.key)
+    def test_recaptured_source_dependency_and_object_change_content_address(self) -> None:
+        for path in (self.source, self.helper, self.object):
+            with self.subTest(path=path.name):
+                original = path.read_bytes()
+                path.write_bytes(original + b"\n")
+                self.closure = build_source_dependency_closure(self.source, project_root=self.root)
+                self.assertNotEqual(self.make_plan().key, self.plan.key)
+                path.write_bytes(original)
+                self.closure = build_source_dependency_closure(self.source, project_root=self.root)
+                self.assertEqual(self.make_plan().key, self.plan.key)
 
     def test_manifest_and_backend_change_invalidate_existing_plan(self) -> None:
         manifest = self.profile / "snapshot-manifest.json"
@@ -183,12 +206,14 @@ class BasisContracts(unittest.TestCase):
         with patch.object(basis, "assert_live_basis"):
             expected = basis.validate_basis_use(handle, closure)
         self.assertEqual(expected["profile_basis_id"], "hearth.project." + self.plan.key)
-        original = self.helper.read_bytes()
-        self.helper.write_bytes(original + b"let ANOTHER_VALUE = 2;;\n")
-        changed_closure = build_source_dependency_closure(leaf, project_root=self.root)
-        self.helper.write_bytes(original)
-        with self.assertRaisesRegex(ValueError, "packaged leaf dependency"):
-            basis.validate_basis_use(handle, changed_closure)
+        for path in (self.helper, self.object):
+            with self.subTest(path=path.name):
+                original = path.read_bytes()
+                path.write_bytes(original + b"\n")
+                changed_closure = build_source_dependency_closure(leaf, project_root=self.root)
+                path.write_bytes(original)
+                with self.assertRaisesRegex(ValueError, "packaged leaf dependency"):
+                    basis.validate_basis_use(handle, changed_closure)
         leaf.write_text('loadt "basis.ml";;\n')
         with self.assertRaisesRegex(ValueError, "literal needs"):
             basis.validate_basis_use(handle, build_source_dependency_closure(leaf, project_root=self.root))

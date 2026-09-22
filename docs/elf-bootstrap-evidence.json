@@ -1,0 +1,1323 @@
+{
+  "schema": "hol-hearth.elf-bootstrap-validation.v1",
+  "checked_on": "2026-09-22",
+  "status": "completed_transport_regression_with_recorded_failure",
+  "environment": "Linux; existing heavy, s2n-arm-mlkem and light shelves; no shelf rebuilt",
+  "evidence_boundary": "Completed ELF source-loading and exact-object regression evidence plus a repeat of the 256-cell ARM NTT layers 1-3 functional source under its original premises. Accepted ARM subtraction has 18 instructions and explicit premises/frame. This record establishes neither a complete P256 point-addition certificate nor comparative profile performance. Heavy replays after bootstrap repair failed in imported ARM infrastructure; interrupted P256 preparation supplies no acceptance result.",
+  "runtime_identity_note": "Receipt client metadata reports unknown revision and is not authoritative; its clean=false field is preserved below. Runtime commit identities are supplied by independent clean Git-worktree checks, not inferred from receipt metadata. Post-fix runtime: 564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae.",
+  "external_source_distribution": "External proof sources, ELF objects, runtime images, machine configuration, logs and original receipts remain outside the public repository.",
+  "change": "Exact relative ELF inputs use an existing validated package working directory when all captured source bytes agree and the existing lexer finds no directory-changing reference or native declaration. Ordinary source imports can define their ELF loaders before use. Unsupported paths retain mapped wrappers; basis preparation saves/restores only wrappers actually installed and checks the receipt transport against its identity.",
+  "attempts": [
+    {
+      "name": "pre_fix_heavy_bootstrap",
+      "role": "P256 preparation rejected before original source execution",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "7c5304c0ed04e15c159211de9b9735d4d0d49f91fb0f54fd92295e6239180fd8",
+      "logical_profile": "heavy",
+      "profile_basis_id": "hol.heavy.realanalysis.v2",
+      "profile_sha256": "d7eaa073a132787bf15374864e77cb42635e459ca5094466958a793059f05aed",
+      "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+      "source_dependency_closure_sha256": "2863074ff439fe0c6f30be371dc0848f8cbebd58e9526e4d09f430a76a04e142",
+      "transcript_sha256": "e1870dbdc26f8e1d71d21e3aee872852a8064b44d7da8f144ace78ded33a93e4",
+      "raw_transcript_sha256": "90d42c346ac6a9ba03403e99c7358ec46be147054349e031e8fb1428236b6fae",
+      "eval_elapsed_seconds": 0.529,
+      "requested_timeout_seconds": 7200.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "failed",
+      "exit_status": 1,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 12,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "literal_elf_transport": null,
+      "bindings": [
+        {
+          "name": "unilemma0",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unilemma1",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "lemont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "demont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "pumont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "dismont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unmont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unreplemma",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "weierstrass_of_jacobian_p256_add",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_EQUIV",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "failure_summary": "Unbound define_assert_from_elf in generated preparation bootstrap before original source",
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      }
+    },
+    {
+      "name": "arm_subtraction_after_fix",
+      "role": "Complete 18-instruction ARM subtraction source",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "daef7e1b8e6a52648ea2007d49e27bc56efdbabd9b2ecd947fe89c9bbf494453",
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+      "source_dependency_closure_sha256": "4bd862ce510f995d0e44979056ecc7b2df2b9a8da0c24d19d3ee3171028e20ad",
+      "transcript_sha256": "7e77e1def59232a651ca0f29eae8c497c3eb576350bb7236843b2b8f0a209935",
+      "raw_transcript_sha256": "2e4318cae1ea85fee5103b1cb8b88ec1b5edf968f95b9e0e91fc1e26e6b74a3e",
+      "eval_elapsed_seconds": 13.493,
+      "requested_timeout_seconds": 120.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 2,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "BIGNUM_SUB_P256_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "failure_summary": null,
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      }
+    },
+    {
+      "name": "changed_elf_instruction",
+      "role": "Negative control: one executable object byte changed at file offset 64",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "43ed23142a3cccf9d2db94a32c2f5ced7c744b9930ae158453a1c6e820eb70a4",
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+      "source_dependency_closure_sha256": "8fc56dbcce6d4bd52697b2302fcabf2fc42ea93ebee190c38da1c0dd5f33e825",
+      "transcript_sha256": "a7262ce34c3cf62660f48ec0b7fb1ccaeaa853356a506c8650adfc0419be5708",
+      "raw_transcript_sha256": "ca2b8ec74fb69e6158e6fc62d01626ed236eacc689dad6012404ecac02fd0076",
+      "eval_elapsed_seconds": 0.459,
+      "requested_timeout_seconds": 120.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "failed",
+      "exit_status": 1,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 2,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "BIGNUM_SUB_P256_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "5926c4e73e52f5615e8e57404ea5acfbc83fec558cd6f189295ba75f39fa37f4",
+          "size_bytes": 1160
+        }
+      ],
+      "failure_summary": "dest_cons4 rejects executable instruction bytes that disagree with the source literal assertion",
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      }
+    },
+    {
+      "name": "restored_elf_instruction",
+      "role": "Exact original object restored with unchanged proof source",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "0570afe46fc798c2da41d3eac7ae097a0495ace24a51442ce73b95c98780568a",
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+      "source_dependency_closure_sha256": "4bd862ce510f995d0e44979056ecc7b2df2b9a8da0c24d19d3ee3171028e20ad",
+      "transcript_sha256": "6a4f4648ada58f42028e2a9dc35c6fd820593a433fe1117850d5009e4626dca2",
+      "raw_transcript_sha256": "3a748ae30d8914d6a739bcee1c7e17f8e1345745ac0e3f965dd390f5b0f83190",
+      "eval_elapsed_seconds": 15.004,
+      "requested_timeout_seconds": 120.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 2,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "BIGNUM_SUB_P256_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "failure_summary": null,
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      }
+    },
+    {
+      "name": "heavy_subtraction_after_fix",
+      "role": "Complete ARM subtraction replay on heavy reaches original source but is rejected by imported ARM infrastructure",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "e7fa0789814c334b595ef4c7a6cf2128ab21616efc4798e48a18720e06ae3f20",
+      "logical_profile": "heavy",
+      "profile_basis_id": "hol.heavy.realanalysis.v2",
+      "profile_sha256": "d7eaa073a132787bf15374864e77cb42635e459ca5094466958a793059f05aed",
+      "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+      "source_dependency_closure_sha256": "58a882d3bd0857683c65e38cd6922159c5b65a4dd221056edaba1450064d69aa",
+      "transcript_sha256": "8dd195d6c2382ddf846baf5bd6056b508512573d66593ebe2999ada174ac1b72",
+      "raw_transcript_sha256": "5f6ad8374f1e04c0f2ffb6f0b61d661b96ffe3f7f5b560de3319c5853061723a",
+      "eval_elapsed_seconds": 152.684,
+      "requested_timeout_seconds": 600.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "failed",
+      "exit_status": 1,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 2,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "BIGNUM_SUB_P256_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "failure_summary": "First imported failure: REAL_ARITH cannot derive a linear-inequality contradiction in common/misc.ml; subsequent ARM support imports also fail. The loader-bootstrap fix does not establish heavy/ARM semantic compatibility.",
+      "included_file_error_count": 9,
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      }
+    },
+    {
+      "name": "heavy_p256_after_fix_interrupted",
+      "role": "P256 preparation on heavy is interrupted after nine imported-file errors; no remaining leaf evaluated",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "d5648c06b2643e2b123d6b890e84510bd3652454bf7b7b08015c5840ac2a4a3a",
+      "logical_profile": "heavy",
+      "profile_basis_id": "hol.heavy.realanalysis.v2",
+      "profile_sha256": "d7eaa073a132787bf15374864e77cb42635e459ca5094466958a793059f05aed",
+      "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+      "source_dependency_closure_sha256": "2863074ff439fe0c6f30be371dc0848f8cbebd58e9526e4d09f430a76a04e142",
+      "transcript_sha256": "6b6c3e2efd57526cb7f78fb3a3b28b6fa04699f0011b1e2e16f70b50c7048f39",
+      "raw_transcript_sha256": "bdee209807f0acd2d3e57481d8366b3a5cb4e946ed6d64d9fc08daf73c4b663e",
+      "eval_elapsed_seconds": null,
+      "requested_timeout_seconds": null,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "interrupted",
+      "worker_status": null,
+      "semantic_source_status": "not_completed",
+      "exit_status": 130,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": null,
+      "broker_seat_reusable": null,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 12,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "unilemma0",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unilemma1",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "lemont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "demont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "pumont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "dismont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unmont",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unreplemma",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "weierstrass_of_jacobian_p256_add",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_EQUIV",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "foundation_delta": {
+        "status": "missing",
+        "new_axiom_count": null
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "failure_summary": "First imported failure: REAL_ARITH cannot derive a linear-inequality contradiction in common/misc.ml; subsequent ARM support imports also fail. The loader-bootstrap fix does not establish heavy/ARM semantic compatibility.",
+      "included_file_error_count": 9,
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "cleanup": {
+        "scope": "one exact disposable fork child",
+        "status": "quiescent",
+        "verified_quiescent": true,
+        "seat_reusable": true
+      }
+    },
+    {
+      "name": "ntt_mapped_transport_functional",
+      "role": "Same complete 256-cell ARM NTT layers 1-3 functional source, with retained checked dependencies",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "004e58099a4832b15429b6efac2496ddfceea570a35c90227bfee7ee4301506a",
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+      "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+      "transcript_sha256": "9cf0d2ea5ad22edb93290b9afa1dc290b42efd2cad17465bfd6ae39906ec2c09",
+      "raw_transcript_sha256": "833b5482ca5617c50c7301b6d123a7a0e9a7254e407b553a79116e7906e33d08",
+      "eval_elapsed_seconds": 26.72,
+      "requested_timeout_seconds": 1500.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 4,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": null,
+        "mode": "mapped_loaders",
+        "wrapped_loaders": [
+          "define_assert_from_elf"
+        ]
+      },
+      "bindings": [
+        {
+          "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_ENSURES_PRECONDITION",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "mlkem_ntt_clean_manual_st4_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+          "size_bytes": 1296
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null,
+      "inherited_project_basis": {
+        "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+        "backend_sha256": "62fc0641f71fb477e4e1010f42eabb1c706c4c67d2cfbedabb14ddb3e7f67f31",
+        "preparation_receipt_sha256": "6fb72fe1cf943177831a5db32e3719ee9bfa58b911b73c74df6da5ff11e51268",
+        "preparation_eval_elapsed_seconds": 230.263
+      }
+    },
+    {
+      "name": "ntt_mapped_transport_preparation",
+      "role": "Completed dependency preparation for the same 256-cell ARM NTT layers 1-3 functional source",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "6fb72fe1cf943177831a5db32e3719ee9bfa58b911b73c74df6da5ff11e51268",
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+      "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+      "transcript_sha256": "91b84a5ada8117b7712b0b010b586e3d97aa5717cb4cafcea1e2fc3c21216c9c",
+      "raw_transcript_sha256": "bbcebb3ca029e1f244d7e9e678e62b13405591eddd6cabbbb532aa1e63633de5",
+      "eval_elapsed_seconds": 230.263,
+      "requested_timeout_seconds": 1500.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 2,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": null,
+        "mode": "mapped_loaders",
+        "wrapped_loaders": [
+          "define_assert_from_elf"
+        ]
+      },
+      "bindings": [
+        {
+          "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "mlkem_ntt_clean_manual_st4_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+          "size_bytes": 1296
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null
+    },
+    {
+      "name": "ntt_mapped_transport_reuse",
+      "role": "Repeated complete functional replay reusing the same checked project basis",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "6fc9126d3d8cedd01cbd2e0760609e6a749a3e04cb804781f1697c1e9a51cb2c",
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+      "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+      "transcript_sha256": "7e77f269850b4752ecbc593a189a588a2a3b95fb8aa722b1b631789372ade71e",
+      "raw_transcript_sha256": "1c81f6094c1f67d5d11d6601b60323890be68cf4494e91393411e10e8dd9cdf1",
+      "eval_elapsed_seconds": 33.679,
+      "requested_timeout_seconds": 1500.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 4,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": null,
+        "mode": "mapped_loaders",
+        "wrapped_loaders": [
+          "define_assert_from_elf"
+        ]
+      },
+      "bindings": [
+        {
+          "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_ENSURES_PRECONDITION",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "mlkem_ntt_clean_manual_st4_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+          "size_bytes": 1296
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null,
+      "inherited_project_basis": {
+        "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+        "backend_sha256": "62fc0641f71fb477e4e1010f42eabb1c706c4c67d2cfbedabb14ddb3e7f67f31",
+        "preparation_receipt_sha256": "6fb72fe1cf943177831a5db32e3719ee9bfa58b911b73c74df6da5ff11e51268",
+        "preparation_eval_elapsed_seconds": 230.263
+      }
+    },
+    {
+      "name": "heavy_skipped_priority",
+      "role": "Ordinary HOL diagnostic control of load-order-dependent numeric overloading; not assembly acceptance",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "db52662181d4c8d8544594f5751ea46418bf6241887500819d1082924e9dbb83",
+      "logical_profile": "heavy",
+      "profile_basis_id": "hol.heavy.realanalysis.v2",
+      "profile_sha256": "d7eaa073a132787bf15374864e77cb42635e459ca5094466958a793059f05aed",
+      "source_sha256": "13e44ca51c0c5213c42956a1edc9885f68b1ef92e65bea1233cfe00ec8c8038e",
+      "source_dependency_closure_sha256": "5db660b36ae05c820b7f1fa10f262c190ed4e37352873e18f831639c8d1771bd",
+      "transcript_sha256": "30fdb1a9efec814ff277a08226f4af030469ff754e54fbf5295083669042d12c",
+      "raw_transcript_sha256": "5cc2eee1d6736acab0077f44ae96effad475fee3a5085fc11c705dc5ff1c3fc1",
+      "eval_elapsed_seconds": 11.278,
+      "requested_timeout_seconds": 300.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "failed",
+      "exit_status": 1,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 1,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": null,
+        "mode": "none",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "HEARTH_ARITH_ORDER_DIAGNOSTIC",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": "REAL_ARITH rejects the unchanged quoted proposition after operands resolve to int",
+      "diagnostic_operand_type": {
+        "observed": "int",
+        "evidence": "ordinary source print; diagnostic only"
+      },
+      "floor_load_status": "already_loaded_observed_in_transcript"
+    },
+    {
+      "name": "heavy_restored_priority",
+      "role": "Ordinary HOL diagnostic control of load-order-dependent numeric overloading; not assembly acceptance",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "d945a93d1605b17d055647646872aa631db10bb01c41fd6c699153a9ee04f11f",
+      "logical_profile": "heavy",
+      "profile_basis_id": "hol.heavy.realanalysis.v2",
+      "profile_sha256": "d7eaa073a132787bf15374864e77cb42635e459ca5094466958a793059f05aed",
+      "source_sha256": "8c7037b41d6fc8073313bee55100bdee01461be41d7e7622b923b4887d8556fa",
+      "source_dependency_closure_sha256": "768d765550ef37f4f361f576633bad615ad83e6302fa3ff2d78a261473cba4bd",
+      "transcript_sha256": "5cd5cf7faea67cd00ee95c66945dcb02a5725093fc31812616ea01dda122d855",
+      "raw_transcript_sha256": "45f8fc0416206baa508d12040202687f328c5035468fc68874ebad268a59860d",
+      "eval_elapsed_seconds": 11.326,
+      "requested_timeout_seconds": 300.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": null,
+        "mode": "none",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "HEARTH_ARITH_ORDER_DIAGNOSTIC",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null,
+      "diagnostic_operand_type": {
+        "observed": "real",
+        "evidence": "ordinary source print; diagnostic only"
+      },
+      "floor_load_status": "already_loaded_observed_in_transcript"
+    },
+    {
+      "name": "light_arm_base_preparation",
+      "role": "Complete ARM base preparation on light; no statically discovered entrypoint theorem targets and no ELF calls in the base source",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "d6192a149a1ad146b222da2a4674a0d32b1bcea0b621ee5bc6a5fe9144dee4f0",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "4e08e32c6aa3afe27c89a500a9ef5b0d4e357d5d44ad525c9a82abaebaa0a5d0",
+      "source_dependency_closure_sha256": "f776ab2edabf818adfaf5934b636c8651a71ffa4dce3310ab4a25e7c195403e0",
+      "transcript_sha256": "07343f223c2d91872b59493b2a53d762848142d0480bfd1a503d49ffb59f7ac0",
+      "raw_transcript_sha256": "3dda8f67c3fc2275387dfd8b88ab72db0b05c2e9cecea1a2dca5d564daa88355",
+      "eval_elapsed_seconds": 300.505,
+      "requested_timeout_seconds": 600.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": null,
+        "mode": "none",
+        "wrapped_loaders": []
+      },
+      "bindings": [],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null
+    },
+    {
+      "name": "light_leaf_after_source_defined_loaders",
+      "role": "Fresh subtraction leaf uses ELF loaders defined during the admitted ARM-base preparation",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "f2081a2713cdf93d02d6a0d241a3663697af2d419f19e9194eb2cdcb9afc88ad",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+      "source_dependency_closure_sha256": "58a882d3bd0857683c65e38cd6922159c5b65a4dd221056edaba1450064d69aa",
+      "transcript_sha256": "6d26f66193ff1f64b4f98f9d91253fb404858896db2e1aa947fbbd448b3d5800",
+      "raw_transcript_sha256": "638b060ce3cef0d6c6c79cad71e59cbbec17204e4532810301e2556825906a41",
+      "eval_elapsed_seconds": 28.719,
+      "requested_timeout_seconds": 600.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 2,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "BIGNUM_SUB_P256_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null,
+      "inherited_project_basis": {
+        "source_sha256": "4e08e32c6aa3afe27c89a500a9ef5b0d4e357d5d44ad525c9a82abaebaa0a5d0",
+        "backend_sha256": "62fc0641f71fb477e4e1010f42eabb1c706c4c67d2cfbedabb14ddb3e7f67f31",
+        "preparation_receipt_sha256": "d6192a149a1ad146b222da2a4674a0d32b1bcea0b621ee5bc6a5fe9144dee4f0",
+        "preparation_eval_elapsed_seconds": 300.505
+      }
+    },
+    {
+      "name": "light_source_defined_elf_loaders",
+      "role": "Complete ARM subtraction source defines initially absent ELF loaders through its ordinary imports",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "72282efead08a40fd7bbb4df5b80e56c1f8bfb355e671abb90c64cef54dfa937",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+      "source_dependency_closure_sha256": "58a882d3bd0857683c65e38cd6922159c5b65a4dd221056edaba1450064d69aa",
+      "transcript_sha256": "be4e3df28d4c926a1fcf07b06a953941de76cbe95ea22cea2e8e1632393f22dd",
+      "raw_transcript_sha256": "626a0783b1d78adbe7f49ee6a54c02be6c9596623c230571ad4c466e274109f1",
+      "eval_elapsed_seconds": 310.544,
+      "requested_timeout_seconds": 600.0,
+      "effective_capacity": 2,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 2,
+        "unknown": 0
+      },
+      "literal_elf_transport": {
+        "cwd_from_package_root": ".",
+        "mode": "package_cwd",
+        "wrapped_loaders": []
+      },
+      "bindings": [
+        {
+          "name": "BIGNUM_SUB_P256_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "failure_summary": null
+    }
+  ],
+  "profile_inventory_comparison": {
+    "evidence": "Static admitted loaded-source inventories matched to exact dependency content; not recipe-text comparison and not elapsed-time prediction",
+    "input_basis_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+    "source_dependency_edges": 101,
+    "distinct_source_dependencies": 59,
+    "elf_inputs": 7,
+    "profiles": [
+      {
+        "logical_profile": "s2n-arm",
+        "profile_basis_id": "hol.s2n.arm.base.v2",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "matching_distinct_files": 34,
+        "attested_edges": 68,
+        "arm_base_present": true
+      },
+      {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "snapshot_manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+        "loaded_closure_sha256": "5740737531e7c9f2d3fac73125fc6711aac53ed20986b148227e3e16cc72797f",
+        "matching_distinct_files": 35,
+        "attested_edges": 69,
+        "arm_base_present": true,
+        "additional_relevant_file": "Library/isum.ml",
+        "additional_file_sha256": "af6e11b99dacb12148d9e41267cd2a05cf7a34e6505d164d3b316dd16b3f03b1"
+      },
+      {
+        "logical_profile": "heavy",
+        "profile_basis_id": "hol.heavy.realanalysis.v2",
+        "profile_sha256": "d7eaa073a132787bf15374864e77cb42635e459ca5094466958a793059f05aed",
+        "snapshot_manifest_sha256": "017b2ca1347b0fb0f15c861425a137513e780088db3236ed666c7998478f74fc",
+        "loaded_closure_sha256": "20527e13cc0d623027519d98f5013690cd82a2726bd5f188b7453b5335851086",
+        "matching_distinct_files": 11,
+        "attested_edges": 26,
+        "arm_base_present": false,
+        "algebra_sources_present": true
+      }
+    ],
+    "arm_profiles_missing": [
+      "Library/ringtheory.ml",
+      "Library/grouptheory.ml",
+      "Library/card.ml",
+      "Library/wo.ml",
+      "Library/products.ml",
+      "Library/frag.ml",
+      "Library/binomial.ml",
+      "six required EC source files"
+    ],
+    "conclusion": "The ARM shelves include the ARM base; MLKEM adds only Library/isum.ml relevant to this closure. Heavy supplies the required ring/group theory and related algebra but lacks the ARM base. Compatibility alone does not establish which project imports a shelf already contains. Subsequent real heavy replays failed in ARM support imports, so its additional algebra is not evidence that it can replace the ARM shelf."
+  },
+  "harness_checks": {
+    "command": "./hearth check",
+    "result": "passed",
+    "evidence": "harness checks; no HOL or CRIU launched by this command",
+    "log_sha256": "67035af0c309320f4523d88b5f9cf002d1a8f5d564e9f859495e4c94a75d6bf4",
+    "focused_review_tests": {
+      "total": 32,
+      "project_basis_identity_and_admission": 14,
+      "elf_bootstrap_transport": 9,
+      "project_basis_replay": 9
+    },
+    "covered_controls": [
+      "source-defined ELF loaders remain after their original import",
+      "relative object bytes retain exact packaged identity",
+      "absolute and inconsistent paths keep mapped transport or are refused",
+      "directory-changing references, aliases and native declarations keep mapped transport",
+      "captured source changes cannot reuse a prior fixed-directory decision",
+      "retained object corruption and changed transitive sources invalidate basis reuse",
+      "receipt transport mismatch rejects preparation admission"
+    ]
+  },
+  "timing_scope": "Measurements were taken alongside other proof work; they are individual recorded evaluation times, not a controlled comparison of profile or runtime speed. Preparation and leaf costs are separate.",
+  "heavy_state_conflicts": {
+    "evidence_scope": "Source inspection and ordinary recorded HOL diagnostic controls; these reduced controls do not establish whole ARM compatibility.",
+    "priority_cause": "Library/integer.ml applies integer overload priority. The heavy shelf already contains Library/floor.ml, so its following needs is skipped and does not restore real overload priority. The unchanged quoted arithmetic statement consequently resolves to int and REAL_ARITH rejects it.",
+    "controlled_intervention": "The two source byte sequences differ only by one inserted prioritize_real() declaration after the same imports. It changes the printed operand type from int to real and the same quoted statement is then proved with empty hypotheses.",
+    "namespace_collision": "The heavy environment also binds open_in to a topology theorem. The independent observed common/elf.ml call expects a file-opening function and fails with theorem type; restoring real priority alone does not repair this collision.",
+    "source_anchors": [
+      {
+        "source": "Library/integer.ml",
+        "sha256": "d58b730cd0deceb77ba19d452afe7b05f1c8505a1d76a4862515979587786e87",
+        "line": 7,
+        "role": "integer overload priority"
+      },
+      {
+        "source": "Library/floor.ml",
+        "sha256": "ae30e4c5a5086a19feb3da85bbcbe94957340b542c38fa0e8b91ae1ce319deb0",
+        "line": 5,
+        "role": "real overload priority skipped by already-loaded needs"
+      },
+      {
+        "source": "Multivariate/topology.ml",
+        "sha256": "f27aa7b6330983867b6d4e2f5d3c505a1e67fb49b70a5bde8d526dd57c734204",
+        "line": 751,
+        "role": "theorem binding named open_in"
+      },
+      {
+        "source": "common/elf.ml",
+        "sha256": "f7ac6cebccde5931e86b0087d0d9a2ea6d27f9e22b1f763b0eb682ded13ff782",
+        "line": 23,
+        "role": "function application of open_in observed to have theorem type"
+      }
+    ],
+    "conclusion": "Do not treat a priority reset as whole-environment repair or recommend heavy for these ARM sources."
+  },
+  "source_defined_loader_acceptance": "Actual light-profile runs start without ARM ELF loaders. Ordinary source imports define them before the complete subtraction proof succeeds. Separately, the complete ARM base is admitted with zero discovered entrypoint theorem targets and no ELF calls; its defined loaders survive retained-basis transport and the fresh subtraction leaf passes both literal correctness probes."
+}

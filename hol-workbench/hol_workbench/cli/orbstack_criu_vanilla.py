@@ -55,6 +55,7 @@ from hol_workbench.source_dependency_closure import SourceDependencyInferenceErr
 from hol_workbench.source_dependency_package import (
     DependencyPackageError,
     dependency_package_entrypoint,
+    elf_package_transport,
     materialize_dependency_package,
 )
 from hol_workbench.source_execution_plan import (
@@ -503,11 +504,13 @@ def run(
     # Keep preparation inputs in the owned generation beyond this attempt.
     package_root = preparation_package_root or (root / "source-package")
     expected_entrypoint = dependency_package_entrypoint(package_root, closure)
+    elf_transport = elf_package_transport(closure)
     source_prelude = source_execution_prelude(
         package_root=package_root,
         virtual_entrypoint=expected_entrypoint,
         closure=closure,
         profile_satisfaction=profile_satisfaction,
+        elf_transport=elf_transport,
     )
     source_prelude = preparation_prefix + source_prelude
     instrumented, probe_contract = instrumented_source_bytes(
@@ -553,6 +556,7 @@ def run(
             file=sys.stderr,
         )
         return 2
+    package["literal_elf_transport"] = elf_transport
     if profile_satisfaction is not None:
         try:
             revalidate_profile_satisfaction(

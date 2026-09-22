@@ -19,7 +19,9 @@ from hol_workbench.source_analysis_cache import source_analysis_cache_root
 from hol_workbench.source_dependency_closure import build_source_dependency_closure
 from hol_workbench.source_dependency_package import (
     dependency_transport_status,
+    elf_package_transport,
     literal_elf_artifact_package_prelude,
+    literal_elf_artifact_runtime_cwd,
     mounted_source_package_prelude,
 )
 from hol_workbench.source_load_transport import source_local_needs_prelude, source_package_runtime_prelude
@@ -127,8 +129,22 @@ def source_execution_prelude(
     closure: dict[str, Any],
     profile_satisfaction: dict[str, Any] | None,
     literal_elf_runtime_cwd: Path | None = None,
+    elf_transport: dict[str, Any] | None = None,
 ) -> bytes:
     """Build the one shared path/ELF prelude for replay or a disposable loop child."""
+
+    if literal_elf_runtime_cwd is None:
+        selected = elf_package_transport(closure) if elf_transport is None else elf_transport
+        if selected.get("mode") == "package_cwd":
+            literal_elf_runtime_cwd = literal_elf_artifact_runtime_cwd(
+                closure,
+                original_cwd=Path(closure["project_input_context"]["project_root"]),
+                package_root=package_root,
+            )
+            if (literal_elf_runtime_cwd is None or
+                    literal_elf_runtime_cwd.relative_to(package_root.resolve()).as_posix()
+                    != selected.get("cwd_from_package_root")):
+                raise ValueError("ELF package working directory differs from its captured transport")
 
     root_loads = tuple(dict.fromkeys(
         ((package_root / (closure["entrypoint"]["package_path"] if record["declaring_file"] == "<entrypoint>"

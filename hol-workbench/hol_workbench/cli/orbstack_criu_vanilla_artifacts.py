@@ -79,6 +79,7 @@ def write_vanilla_artifacts(
         "project_basis": package.get("project_basis"),
         "preparation_package_root": package.get("preparation_package_root"),
             "dependency_package_files": package.get("files") or [],
+            "literal_elf_transport": package.get("literal_elf_transport"),
             "profile_satisfaction": package.get("profile_satisfaction"),
             "profile_satisfied_dependencies": package.get("profile_satisfied_dependencies") or [],
             "transcript": str(transcript),

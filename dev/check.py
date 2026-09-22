@@ -39,6 +39,7 @@ def main() -> int:
         [sys.executable, "-I", "-B", str(ROOT / "dev/proof-diagnostics-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/clone-satisfaction-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/project-basis-selftest.py")],
+        [sys.executable, "-I", "-B", str(ROOT / "dev/elf-bootstrap-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/project-basis-replay-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/source-analysis-cache-selftest.py")],
         [str(ROOT / "hearth"), "smoke"],
