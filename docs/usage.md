@@ -257,6 +257,19 @@ development, and `s2n-x86` for the x86 proof base. `s2n-arm-light` is a separate
 optional recipe adding arithmetic and ring theory; its absence does not prevent
 using an installed `s2n-arm` shelf.
 
+`doctor` checks whether a shelf is compatible with the selected runtime. Its
+loaded-source inventory determines which project imports are already present.
+For example, the examined ARM shelves contained the ARM base but lacked P256's
+ring and group theory; `heavy` contained that algebra but lacked the ARM base.
+Choose by the proof's dependencies and measured replay results. A larger recipe
+or a successful compatibility check alone does not establish better coverage.
+The recorded attempt to load ARM infrastructure on `heavy` failed in imported
+ARM support proofs, so use the validated ARM profiles for this assembly route.
+Warm state also includes overload priorities and global bindings: skipping an
+already-loaded import can skip its initialization effects, and unrelated theorem
+names can shadow functions. Source inventory is necessary but does not establish
+that independently built mathematical environments compose safely.
+
 Run the actual project leaf and inspect its intended theorem:
 
 ```sh
