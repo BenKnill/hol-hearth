@@ -163,7 +163,7 @@ def print_report(report: dict[str, Any]) -> None:
     print(f"PROFILE RECIPE: {report['recipe']} sha={report['recipe_sha256'][:12]} "
           f"cwd_policy={report['recipe_cwd_policy']}")
     for root in report["recipe_source_roots"]:
-        print(f"  recipe paths resolve in {root['alias']} @ {str(root['revision'])[:12]}")
+        print(f"  pinned recipe root, not resolved here: {root['alias']} @ {str(root['revision'])[:12]}")
     print(f"EVIDENCE: {report['evidence_class']}")
     print(f"BOUNDARY: {report['boundary']}")
     _rows("needs named by recipe", report["needs_named_by_recipe"], "literal text match with a recipe load")

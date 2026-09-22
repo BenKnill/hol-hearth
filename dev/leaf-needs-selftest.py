@@ -118,6 +118,8 @@ class LeafNeeds(unittest.TestCase):
         result = run("leaf.ml", "--profile", "s2n-arm")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("EVIDENCE: static_recipe_text_comparison", result.stdout)
+        self.assertIn("pinned recipe root, not resolved here:", result.stdout)
+        self.assertNotIn("paths resolve", result.stdout)
         self.assertIn("needs not in recipe: 1", result.stdout)
         self.assertIn("  line 3: needs project/helper.ml", result.stdout)
         self.assertIn("receipt: none", result.stdout)
