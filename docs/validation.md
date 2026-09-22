@@ -32,6 +32,64 @@ independently of receipt client metadata, which reports an unknown revision.
 Earlier integration results do not certify later runtime code. The installation
 checks are [listed separately](#historical-clean-installation-evidence).
 
+## Review follow-up: input identity and assembly handoffs
+
+The [review follow-up evidence](review-followup-evidence.json) records the
+September 22 reproductions, refinements and final checks. Existing warm profiles
+worked throughout; failures were in input tracking and authoring handoffs.
+No published shelf was rebuilt. Validation ran locally with
+`./dev/check-all --offline`, including compiled OCaml diagnostic checks and
+pinned Ruff 0.15.7; no GitHub CI was used.
+
+Two successful replays consumed different helper bytes through `Toploop.use_file`
+while recording the same dependency hash. A watcher also missed a helper-only
+edit. The corrected path refuses uncaptured loaders before HOL, with the source
+location and guidance to use captured literal imports. Real watcher checks then
+preserved refusal, acceptance, helper-only failure and repair. Further testing
+found the same omission through standard HOL loader helpers; those before/after
+receipts are retained separately. The guard now also covers `use_file`,
+`file_loader`, `load_on_path`, and module exports that can hide known loaders.
+This bounded contract does not cover arbitrary OCaml I/O or generated-code effects.
+
+The final runtime, `e2df28477895`, checked the substantial ML-KEM NTT layers 1–3
+functional source on `s2n-arm-mlkem`:
+
+| Case | HOL time (s) | Literal conclusion/empty-hypothesis probes | Receipt SHA-256 prefix |
+| --- | ---: | ---: | --- |
+| Project dependency preparation | 160.915 | 2 | `941c816bd57b` |
+| Complete functional leaf | 18.350 | 4 | `67efb302a7bf` |
+| Unchanged leaf through the supplied authoring command | 18.520 | 4 | `6a196fe150b2` |
+
+All observed zero new axioms relative to their restored basis. Both leaf attempts
+used the same preparation receipt, source hash and dependency identity. Two
+earlier combined-controller cycles rejected a false import despite four successful
+target probes, then accepted the unchanged repaired leaf using the same prepared
+basis. Their actual controller identities remain separate; the final runtime did
+not repeat that NTT negative control. Final loader and watcher controls passed.
+
+Inspection now labels computed-goal bindings as
+`thm bound (conclusion and hypotheses not checked)` and counts probe strengths
+separately. Assembly `reopen` verifies recorded source/object bytes, places scratch
+beside the original source and retains the basis, run root and budget. A real ARM
+subtraction cycle recorded expected failure in 4.683 seconds, diagnostic scratch
+completion with no named theorem in 4.808 seconds, and the completed literal
+theorem in 8.595 seconds. These intermediate development runs are not attributed
+to the final clean runtime.
+
+Final read-only preflight captured 106 source edges and seven ELF inputs for
+P256, and 20 edges and one ELF input for NTT. NTT's four unresolved disk imports
+were satisfied by separately verified published warm inventory. Historical P256
+failure handoff preserved its exact prefix and object bytes without replaying the
+long proof. Warm execution and these static checks do not establish an independent
+ISA, ABI, alignment-premise or caller-contract audit.
+
+Integration also exposed two recoverability defects. Display-only branding no
+longer invalidates historical receipt identities; substantive metadata still
+does. A matching HOL timing line no longer hides the recorded failing binding.
+Re-accounting the saved ARM failure identifies `BIGNUM_SUB_P256_CORRECT` at source
+line 45, with acceptance unchanged and no HOL replay. External proof sources,
+objects and raw logs remain outside the public repository.
+
 ## Soundness controls
 
 **A real warm-cache identity bug incorrectly accepted a source containing an
