@@ -49,6 +49,7 @@ def smoke_subprocess_environment(environ: dict[str, str] | None = None) -> dict[
 
     env = dict(os.environ if environ is None else environ)
     env["PATH"] = SYSTEM_PATH
+    env["HOL_WORKBENCH_PYTHON"] = sys.executable
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     for variable in ("PYTHONHOME", "PYTHONPATH", "PYTHONPYCACHEPREFIX"):
         env.pop(variable, None)

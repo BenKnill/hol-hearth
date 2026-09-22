@@ -15,6 +15,7 @@ def run_broker_capture_request(
     request: dict,
     *,
     timeout_seconds: float | None,
+    expected: dict | None = None,
 ) -> dict:
     """Run one policy-free build capture through the mechanical broker."""
 
@@ -43,6 +44,7 @@ def run_broker_capture_request(
         spawn=spawn,
         transcript=transcript,
         response_timeout_seconds=float(timeout_seconds or 120.0),
+        expected=expected,
     )
     output = transcript.read_bytes()
     broker_bytes = broker_output.read_bytes()

@@ -10,6 +10,10 @@ from collections.abc import Callable
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from hol_workbench.project_basis import BasisHandle
 
 from hol_workbench.cli.hol_syntax_preflight import hol_syntax_preflight as _hol_syntax_preflight
 from hol_workbench.cli.orbstack_criu_vanilla_artifacts import (
@@ -112,7 +116,10 @@ def _transport_label(response: dict | None, *, interrupted: bool) -> str:
     return "completed" if response.get("status") == "ok" else str(response.get("status") or "unknown")
 
 
-def _send_vanilla_request(session: Path, request: dict, *, timeout_seconds: float | None) -> dict:
+def _send_vanilla_request(
+    session: Path, request: dict, *, timeout_seconds: float | None,
+    expected: dict | None = None,
+) -> dict:
     session_path = session / "session.json"
     session_metadata = read_json(session_path) if session_path.is_file() else {}
     if session_metadata.get("execution_topology") == RestoredExecutionTopology.MECHANICAL_BASIS_BROKER_V3:
@@ -120,7 +127,10 @@ def _send_vanilla_request(session: Path, request: dict, *, timeout_seconds: floa
             session,
             request,
             timeout_seconds=timeout_seconds,
+            expected=expected,
         )
+    if expected is not None:
+        raise RuntimeError("project basis requires the mechanical fork broker")
     return warm_send_request(
         session,
         request,
@@ -204,6 +214,7 @@ def _write_pre_eval_dependency_artifact(
     package: dict,
     profile_restore_requested: bool = False,
     evidence_role: str = "warm_development_only",
+    refusal_stage: str = "dependency transport",
 ) -> None:
     if transcript_output is None:
         return
@@ -221,11 +232,11 @@ def _write_pre_eval_dependency_artifact(
         "effective_exit_status": 2,
         "transport_status": "not_started",
         "process_exit_status": None,
-        "first_failure": f"dependency transport: {reason}",
+        "first_failure": f"{refusal_stage}: {reason}",
         "observed_bindings": [],
         "bindings": [],
         "evidence": "pre_eval_dependency_transport_refusal",
-        "authoritative_result": "dependency policy refused before HOL source evaluation",
+        "authoritative_result": f"{refusal_stage} refused before HOL source evaluation",
         "evidence_boundary": boundary,
     }
     metadata = write_vanilla_artifacts(
@@ -324,6 +335,10 @@ def run(
     display_transcript: bool = True,
     expected_source_sha256: str | None = None,
     on_phase: Callable[[str], None] | None = None,
+    preparation_prefix: bytes = b"",
+    preparation_postlude: bytes = b"",
+    preparation_package_root: Path | None = None,
+    project_basis_handle: BasisHandle | None = None,
 ) -> int:
     report_phase = on_phase or (lambda phase: None)
     source = source.expanduser().resolve()
@@ -338,12 +353,25 @@ def run(
     logical_profile = logical_profile or profile_root.name
     source_bytes = source.read_bytes()
     source_sha256 = sha256_bytes(source_bytes)
-    pin_refusal = _pinned_source_refusal(expected_source_sha256, source_sha256)
-    if pin_refusal is not None:
-        print(pin_refusal, file=sys.stderr)
-        return 2
     probe_nonce = secrets.token_hex(16)
     foundation_enabled = evidence_role == "recorded_warm_replay"
+
+    def record_source_refusal(stage: str, reason: str) -> None:
+        _write_pre_eval_dependency_artifact(
+            transcript_output=transcript_output, source=source, source_sha256=source_sha256,
+            profile_root=profile_root, logical_profile=logical_profile, closure={},
+            package={"dependency_transport_status": "not_checked",
+                     "dependency_transport_reason": reason,
+                     "source_preflight_status": stage},
+            evidence_role=evidence_role, refusal_stage=stage,
+        )
+
+    pin_refusal = _pinned_source_refusal(expected_source_sha256, source_sha256)
+    if pin_refusal is not None:
+        record_source_refusal("source_pin_refused", pin_refusal)
+        print(pin_refusal, file=sys.stderr)
+        return 2
+
     try:
         claims = [claim for claim in extract_hol_theorems_bytes(source, source_bytes) if claim.get("name")]
         # Validate UTF-8, names, duplicates, and literal quotation hashes before
@@ -355,6 +383,7 @@ def run(
             include_foundation_delta=foundation_enabled,
         )
     except (UnicodeDecodeError, ValueError) as exc:
+        record_source_refusal("claim_probe_contract_refused", str(exc))
         print(
             f"warm vanilla HOL: claim_probe_contract=refused; {exc}; HOL evaluation and profile restore not started",
             file=sys.stderr,
@@ -362,6 +391,7 @@ def run(
         return 2
     syntax_problem = _hol_syntax_preflight(source)
     if syntax_problem:
+        record_source_refusal("syntax_preflight_failed", syntax_problem)
         print(
             f"warm vanilla HOL: syntax_preflight=failed; {syntax_problem}; "
             "HOL evaluation and profile restore not started",
@@ -469,7 +499,9 @@ def run(
     temporary = tempfile.TemporaryDirectory(prefix="hol-warm-vanilla-")
     root = Path(temporary.name)
     transcript = root / "transcript.log"
-    package_root = root / "source-package"
+    # Basis-defined closures can retain loaders bound to this exact package.
+    # Keep preparation inputs in the owned generation beyond this attempt.
+    package_root = preparation_package_root or (root / "source-package")
     expected_entrypoint = dependency_package_entrypoint(package_root, closure)
     source_prelude = source_execution_prelude(
         package_root=package_root,
@@ -477,6 +509,7 @@ def run(
         closure=closure,
         profile_satisfaction=profile_satisfaction,
     )
+    source_prelude = preparation_prefix + source_prelude
     instrumented, probe_contract = instrumented_source_bytes(
         source_bytes,
         claims,
@@ -485,6 +518,10 @@ def run(
         include_foundation_delta=foundation_enabled,
         diagnostic_source_path=str(expected_entrypoint),
     )
+    if preparation_postlude:
+        instrumented += b"\n" + preparation_postlude
+        probe_contract["project_basis_postlude_sha256"] = sha256_bytes(preparation_postlude)
+        probe_contract["executed_payload_sha256"] = sha256_bytes(instrumented)
     try:
         snapshot, package = materialize_dependency_package(
             source=source,
@@ -545,6 +582,8 @@ def run(
             file=sys.stderr,
         )
         return 2
+    if preparation_package_root is not None:
+        package["preparation_package_root"] = str(preparation_package_root)
     effective_capacity = restored_shelf_capacity(profile_root)
     if logical_capacity is not None and effective_capacity < logical_capacity:
         from hol_workbench.fork_pool_capacity import ensure_profile_logical_capacity
@@ -644,6 +683,9 @@ def run(
                         evidence_role=evidence_role,
                     )
             response: dict | None = None
+            evaluation_session = (
+                project_basis_handle.session if project_basis_handle is not None else session
+            )
             interrupted = False
             request = {
                 "action": "eval",
@@ -660,10 +702,17 @@ def run(
             try:
                 try:
                     report_phase("evaluation-request")
+                    basis_expected = None
+                    if project_basis_handle is not None:
+                        from hol_workbench.project_basis import validate_basis_use
+                        basis_expected = validate_basis_use(
+                            project_basis_handle, closure, profile_satisfaction,
+                        )
                     response = _send_vanilla_request(
-                        session,
+                        evaluation_session,
                         request,
                         timeout_seconds=warm_eval_response_timeout(timeout),
+                        expected=basis_expected,
                     )
                 except (KeyboardInterrupt, ShelfAdmissionInterrupted):
                     interrupted = True
@@ -672,7 +721,7 @@ def run(
                 report_phase("cancelling" if interrupted else "recording")
                 if interrupted:
                     cleanup_status = wait_for_fork_attempt_cleanup(
-                        read_json(session / "session.json"),
+                        read_json(evaluation_session / "session.json"),
                         attempt_id=str(request["attempt_id"]),
                         transcript=transcript,
                     )
@@ -685,6 +734,14 @@ def run(
                 clean = response is not None and response.get("status") in {"ok", "timeout", "cancelled"}
                 if cleanup_receipt is not None:
                     clean = bool(cleanup_receipt["verified_quiescent"])
+                if project_basis_handle is not None:
+                    package["project_basis"] = project_basis_handle.record
+                    if not clean:
+                        from hol_workbench.project_basis import retire_basis
+                        retire_basis(project_basis_handle)
+                    # The global profile child was never used for this evaluation.
+                    # Only the project-owned child can require retirement.
+                    clean = True
                 released = _release(
                     pool,
                     session,
@@ -709,6 +766,12 @@ def run(
                     if display_transcript:
                         sys.stdout.write(displayed)
                         sys.stdout.flush()
+                # Map only compiler call sites actually needed by the recorded
+                # diagnostics, while this attempt's exact package still exists.
+                from hol_workbench.proof_diagnostics import attach_dependency_diagnostic_sources
+                attach_dependency_diagnostic_sources(
+                    probe_contract, closure, package_root, transcript=raw_transcript_bytes,
+                )
                 semantic = analyze_vanilla_transcript(
                     claims=claims,
                     transcript=raw_transcript_bytes,

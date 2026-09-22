@@ -15,6 +15,7 @@ from hol_workbench.profile_satisfied_dependencies import (
     profile_satisfied_needs_prelude,
 )
 from hol_workbench.runtime_config import RuntimeConfigError, load_runtime_config
+from hol_workbench.source_analysis_cache import source_analysis_cache_root
 from hol_workbench.source_dependency_closure import build_source_dependency_closure
 from hol_workbench.source_dependency_package import (
     dependency_transport_status,
@@ -25,10 +26,10 @@ from hol_workbench.source_load_transport import source_local_needs_prelude, sour
 
 
 def machine_holdir_authority() -> Path | None:
-    """Return the machine-configured Linux HOL root, never a caller mapping."""
+    """Return the selected host runtime's Linux HOL root, never a caller mapping."""
 
     try:
-        holdir = load_runtime_config({}).hol_light_dir
+        holdir = load_runtime_config().hol_light_dir
     except RuntimeConfigError:
         return None
     try:
@@ -75,6 +76,9 @@ def capture_source_dependency_closure(
         logical_source_root_declarations=logical_source_root_declarations,
         logical_source_roots=logical_source_roots,
         logical_project_roots=logical_project_roots,
+        # Reuse only content-keyed lexical facts. Source bytes, path resolution,
+        # object identities and profile satisfaction are checked on every capture.
+        analysis_cache_root=source_analysis_cache_root(),
     )
     return closure, holdir_root
 
@@ -94,7 +98,9 @@ def decide_profile_satisfaction(
     has_profile_needs_candidate = any(
         isinstance(record, dict)
         and record.get("loader") == "needs"
-        and record.get("resolution") in {"external_resolved", "mounted_source", "unresolved"}
+        and record.get("resolution") in {
+            "external_resolved", "mounted_source", "unresolved", "source_local", "source_overlay", "holdir_source",
+        }
         for record in closure.get("records") or []
     )
     if (holdir_root is not None or profile_cwd is not None) and has_profile_needs_candidate:
@@ -105,7 +111,7 @@ def decide_profile_satisfaction(
             host_holdir=holdir_root,
             host_profile_cwd=profile_cwd,
         )
-        if candidate.get("edges"):
+        if candidate.get("edges") or candidate.get("captured_warm_sources"):
             profile_satisfaction = candidate
             transport_status, transport_reason = dependency_transport_status(
                 closure,
@@ -124,6 +130,13 @@ def source_execution_prelude(
 ) -> bytes:
     """Build the one shared path/ELF prelude for replay or a disposable loop child."""
 
+    root_loads = tuple(dict.fromkeys(
+        ((package_root / (closure["entrypoint"]["package_path"] if record["declaring_file"] == "<entrypoint>"
+                          else record["declaring_file"])).parent,
+         str(record["declared_path"]), package_root / record["package_path"])
+        for record in closure.get("records") or []
+        if record.get("resolution") == "source_local" and record.get("resolution_base") == "source_package_root"
+    ))
     lines = [
         *source_package_runtime_prelude(
             literal_elf_runtime_cwd
@@ -132,7 +145,8 @@ def source_execution_prelude(
             if closure.get("literal_artifact_count")
             else None
         ),
-        *source_local_needs_prelude(virtual_entrypoint, source_context=virtual_entrypoint),
+        *source_local_needs_prelude(virtual_entrypoint, source_context=virtual_entrypoint,
+                                    source_root_loads=root_loads),
         *mounted_source_package_prelude(
             {
                 "package_root": str(package_root),

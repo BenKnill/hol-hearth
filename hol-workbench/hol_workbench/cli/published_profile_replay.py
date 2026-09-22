@@ -18,16 +18,18 @@ def run_published_warm_replay(
     display_transcript: bool = False,
     expected_source_sha256: str | None = None,
     on_phase: Callable[[str], None] | None = None,
+    basis_source: Path | None = None,
+    run_root: Path | None = None,
+    basis_cache_root: Path | None = None,
 ) -> int:
     """Evaluate once in a fresh child; persist only when a transcript is requested."""
 
     from hol_workbench.cli import orbstack_criu_restore, orbstack_criu_vanilla
     from hol_workbench.orbstack_idle_retirement import schedule_profile_retirement
 
-    try:
-        return orbstack_criu_vanilla.run(
+    def replay(selected_source: Path, **overrides: object) -> int:
+        options = dict(
             profile_root=profile.root,
-            source=source,
             timeout=timeout,
             idle_timeout=None,
             restore=lambda: orbstack_criu_restore.main(
@@ -45,6 +47,20 @@ def run_published_warm_replay(
             expected_source_sha256=expected_source_sha256,
             on_phase=on_phase,
         )
+        options.update(overrides)
+        return orbstack_criu_vanilla.run(source=selected_source, **options)
+
+    try:
+        if basis_source is not None:
+            from hol_workbench.cli.project_basis_replay import run_project_basis_replay
+            if run_root is None or transcript is None or evidence_role != "recorded_warm_replay":
+                raise ValueError("project basis reuse requires a recorded replay and an explicit run root")
+            return run_project_basis_replay(
+                profile, source, basis_source=basis_source, run_root=run_root,
+                replay=replay, timeout=timeout, on_phase=on_phase, transcript=transcript,
+                cache_root=basis_cache_root, expected_source_sha256=expected_source_sha256,
+            )
+        return replay(source)
     finally:
         if (profile.root / "pool").is_dir():
             schedule_profile_retirement(profile.root, logical_profile=profile.name)

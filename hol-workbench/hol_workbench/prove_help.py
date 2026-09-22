@@ -20,6 +20,13 @@ Recorded replay:
   Ctrl-C cancels the owned child and releases admission; the warm seat stays.
   Timeout is an incomplete check, not a disproof. Inspect its recorded attempt.
 
+Project dependency reuse:
+  --basis FILE.ml prepares a completed literal needs dependency once on the
+  selected warm profile. Reuse requires identical source, dependency and ELF
+  bytes. Preparation and full leaf replay each retain a receipt and use the
+  explicit timeout separately. Each leaf runs in a fresh child; --loop uses
+  this same route. Keep the same --run-root to reuse a prepared basis.
+
 Authoring loop:
   --loop watches source and transitive dependencies and runs the same recorded
   check after stable edits. It keeps a receipt for every attempt, including failures.

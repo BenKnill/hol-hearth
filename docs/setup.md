@@ -73,9 +73,20 @@ capabilities. Use `./hearth setup --help` for all options.
 ## Existing HOL and CRIU environment
 
 The proof route needs a working HOL Light checkout and compatible published
-CRIU profile on the same host. Configure their locations:
+CRIU profile on the same host. If an existing Workbench configuration already
+names that environment, select it directly:
 
 ```sh
+export HOL_WORKBENCH_RUNTIME_CONFIG=/ABS/existing/runtime.toml
+./hearth prove /ABS/project/leaf.ml --profile s2n-arm --timeout 300 \
+  --run-root /ABS/project/runs
+```
+
+Hearth reads the selected configuration. No setup or profile rebuild is needed.
+Alternatively, configure a separate Hearth file with the same runtime locations:
+
+```sh
+export HOL_WORKBENCH_RUNTIME_CONFIG=/ABS/hearth/runtime.toml
 ./hearth configure \
   --hol-light-dir /ABS/hol-light \
   --criu-shelf-root /ABS/warm-shelves \
@@ -84,9 +95,13 @@ CRIU profile on the same host. Configure their locations:
 ./hearth doctor --profile light
 ```
 
-Configuration is stored in `~/.config/hol-hearth/runtime.toml`.
-`HOL_WORKBENCH_RUNTIME_CONFIG` can name a separate configuration file.
-Hearth does not alter another Workbench installation's configuration.
+Without an override, configuration is stored in `~/.config/hol-hearth/runtime.toml`.
+`configure` writes the selected file, so use a new path when preserving another
+installation's configuration. `prove` and `doctor` only read that file.
+
+`doctor` is an optional read-only check of configuration, profile compatibility
+and queue state. It does not run the source or validate its object files. A
+missing optional profile does not make another compatible profile unavailable.
 
 A CRIU snapshot is tied to its runtime, libraries, paths, architecture and
 kernel environment. Installing a CRIU package does not create a compatible

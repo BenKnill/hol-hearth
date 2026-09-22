@@ -10,7 +10,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
@@ -18,15 +18,112 @@ from hol_workbench.cli.prove_loop import project_revision
 from hol_workbench.public_surface_contract import _receipt
 from hol_workbench.cli.orbstack_criu_vanilla_semantics import analyze_vanilla_transcript
 from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
+from hol_workbench.runtime_config import write_runtime_config
+from hol_workbench.source_execution_plan import capture_source_dependency_closure
 from hol_workbench.vanilla_claims import (
-    build_claim_probe, first_error, account_claims, target_pack_status, diagnostic_claim_output,
+    ClaimProbeContractError, build_claim_probe, first_error, account_claims,
+    target_pack_status, diagnostic_claim_output,
 )
 
 
 class AuthoringRegression(unittest.TestCase):
+    def test_inspection_exposes_inherited_preparation_scope(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt = Path(temporary) / "transcript.log.json"
+            _receipt(receipt, succeeded=True, recorded_exit_status=0, bindings=[])
+            row = json.loads(receipt.read_text())
+            row["project_basis"] = {
+                "identity": {"source": "/project/basis.ml", "source_sha256": "a" * 64},
+                "preparation_receipt": "/runs/prepared/transcript.log.json",
+            }
+            receipt.write_text(json.dumps(row))
+            result = self.inspect(receipt.parent)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("inherited_project_basis: /project/basis.ml sha=aaaaaaaaaaaa", result.stdout)
+            self.assertIn("basis_preparation_receipt: /runs/prepared/transcript.log.json", result.stdout)
+            self.assertIn("preparation was checked separately", result.stdout)
+
+    def test_source_preflight_refusals_leave_receipts_without_restore(self):
+        from hol_workbench.cli.orbstack_criu_vanilla import run
+        for source_bytes in (
+            b"let DUP = prove (`T`, REWRITE_TAC[]);;\n" * 2,
+            b"let BROKEN = prove (`T`, REWRITE_TAC[]);; (* unfinished",
+        ):
+            with self.subTest(source=source_bytes), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                source, transcript = root / "leaf.ml", root / "run" / "transcript.log"
+                source.write_bytes(source_bytes)
+                restore = Mock(side_effect=AssertionError("preflight must not restore"))
+                status = run(profile_root=root / "profile", source=source, timeout=30,
+                             idle_timeout=None, restore=restore, transcript_output=transcript,
+                             logical_profile="light", display_transcript=False)
+                self.assertEqual(status, 2)
+                restore.assert_not_called()
+                receipt = json.loads(Path(f"{transcript}.json").read_text())
+                self.assertEqual(receipt["transport_status"], "not_started")
+                self.assertEqual(receipt["source_preflight_status"], "claim_probe_contract_refused")
+                self.assertFalse(receipt["source_completed"])
+                self.assertEqual(receipt["exit_status"], 2)
+
     def inspect(self, path, *args):
         return subprocess.run([str(ROOT / "hearth"), "inspect", str(path), *args],
                               cwd="/tmp", capture_output=True, text=True, timeout=10)
+
+    def test_claim_inventory_uses_global_phrase_scope(self):
+        source = '''(* Unicode λ keeps byte offsets distinct from characters. *)
+let FIRST =
+  let lemma = prove (`T`, REWRITE_TAC[]) in lemma;;
+let SECOND =
+  let lemma = prove (`T`, REWRITE_TAC[]) in lemma;;
+module Hidden = struct
+  let lemma = prove (`T`, REWRITE_TAC[]);;
+end;;
+let lemma = prove (`T`, REWRITE_TAC[]) in ignore lemma;;
+let text = {|let FAKE = prove (`F`, ALL_TAC);;|};;
+let VISIBLE = time prove
+ (`!x:bool. x = x`,
+  let lemma = prove (`T`, REWRITE_TAC[]) in REWRITE_TAC[]);;
+let COMPUTED = prove (derived_goal, REWRITE_TAC[]);;
+let DIRECT = ARITH_RULE `2 + 3 = 5`;;
+'''.encode()
+        claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source)
+        self.assertEqual([claim["name"] for claim in claims], ["VISIBLE", "COMPUTED", "DIRECT"])
+        self.assertEqual(claims[0]["source_line"], 11)
+        self.assertEqual(claims[0]["statement_quote"], "`!x:bool. x = x`")
+        self.assertFalse(claims[1]["statement_extractable"])
+        self.assertEqual(claims[1]["prove_argument_preview"], "derived_goal")
+        self.assertEqual(claims[2]["proof_constructor"], "ARITH_RULE")
+        payload, contract = build_claim_probe(source, claims, nonce="3" * 32)
+        self.assertEqual([row["verification_kind"] for row in contract["claims"]], [
+            "kernel_conclusion_and_empty_hypotheses",
+            "binding_and_thm_type_only_nonliteral_statement",
+            "kernel_conclusion_and_empty_hypotheses",
+        ])
+        self.assertTrue(payload.startswith(source))
+        self.assertNotIn(b"= lemma in", payload[len(source):])
+
+    def test_duplicate_global_claims_are_still_rejected(self):
+        source = (b"let DUP = prove (`T`, REWRITE_TAC[]);;\n"
+                  b"let helper = let DUP = prove (`F`, ALL_TAC) in DUP;;\n"
+                  b"let DUP = prove (`T`, REWRITE_TAC[]);;\n")
+        claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source)
+        self.assertEqual([claim["source_line"] for claim in claims], [1, 3])
+        with self.assertRaisesRegex(ClaimProbeContractError, "duplicate static theorem names: DUP"):
+            build_claim_probe(source, claims)
+
+    def test_claim_scope_refuses_malformed_input_and_omits_unsupported_forms(self):
+        source = b"let GLOBAL = prove (`T`, REWRITE_TAC[]);;\n"
+        for suffix in (b"(* unfinished", b"(", b"module M = struct", b"end;;"):
+            with self.subTest(suffix=suffix), self.assertRaises(ValueError):
+                extract_hol_theorems_bytes(Path("/work/proof.ml"), source + suffix)
+        for body in (
+            b"let LOCAL = prove (`T`, REWRITE_TAC[]) in LOCAL;;",
+            b"let A = prove (`T`, REWRITE_TAC[]) and B = prove (`T`, REWRITE_TAC[]);;",
+            b"module M = struct let HIDDEN = prove (`T`, REWRITE_TAC[]);; end;;",
+        ):
+            with self.subTest(body=body):
+                claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source + body)
+                self.assertEqual([claim["name"] for claim in claims], ["GLOBAL"])
 
     def test_transitive_bytes_and_missing_dependency(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -47,6 +144,42 @@ class AuthoringRegression(unittest.TestCase):
                 self.assertNotEqual(edited, project_revision(source, profile))
                 leaf.write_text("let n = 1;;\n")
                 self.assertEqual(original, project_revision(source, profile))
+
+    def test_selected_runtime_config_binds_hol_dependencies_and_watch_revision(self):
+        for selector in ("HOL_WORKBENCH_RUNTIME_CONFIG", "XDG_CONFIG_HOME"):
+            with self.subTest(selector=selector), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                holdir = root / "selected-hol"
+                library = holdir / "Library"
+                library.mkdir(parents=True)
+                helper, dependency = library / "helper.ml", library / "dependency.ml"
+                helper.write_text('needs "dependency.ml";;\n')
+                dependency.write_text("let n = 1;;\n")
+                project = root / "project"
+                project.mkdir()
+                source = project / "leaf.ml"
+                source.write_text('needs "Library/helper.ml";;\n')
+                environment = {"HOME": str(root / "home"), selector: str(root / "config")}
+                if selector == "HOL_WORKBENCH_RUNTIME_CONFIG":
+                    environment[selector] = str(root / "config" / "custom-runtime.toml")
+                write_runtime_config(hol_light_dir=holdir, criu_shelf_root=root / "shelves",
+                                     criu_bin=Path("/usr/sbin/criu"), environment=environment)
+                profile = SimpleNamespace(cwd=holdir, legacy_holdir_roots=(), logical_source_roots=())
+                with patch.dict(os.environ, environment, clear=True):
+                    closure, captured_holdir = capture_source_dependency_closure(
+                        source, profile_cwd=profile.cwd, legacy_holdir_roots=(),
+                        logical_source_root_declarations=())
+                    self.assertEqual(captured_holdir, holdir)
+                    self.assertEqual({record["resolved_path"] for record in closure["records"]},
+                                     {str(helper), str(dependency)})
+                    self.assertTrue(closure["semantic_identity_complete"])
+                    original = project_revision(source, profile)
+                    self.assertEqual(original, closure["strict_sha256"])
+                    stamp = dependency.stat()
+                    dependency.write_text("let n = 2;;\n")
+                    os.utime(dependency, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                    self.assertNotEqual(original, project_revision(source, profile),
+                                        "an imported HOL dependency edit must invalidate the watched result")
 
     def test_target_after_default_limit_json_and_whole_source_failure(self):
         with tempfile.TemporaryDirectory() as temporary:

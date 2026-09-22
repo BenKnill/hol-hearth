@@ -1237,6 +1237,79 @@ class ProveBindingScanResult:
     refusal: LoaderScanRefusal | None = None
 
 
+def _top_level_phrases(tokens: list[_Token]) -> list[list[_Token]] | None:
+    """Share the existing lexical phrase boundary contract with claim inventory."""
+    phrases: list[list[_Token]] = []
+    phrase: list[_Token] = []
+    blocks: list[str] = []
+    delimiters: list[str] = []
+    for token in tokens:
+        if token.kind == "IDENT":
+            if token.value in {"begin", "struct", "sig", "object"}:
+                blocks.append(token.value)
+            elif token.value == "end":
+                if not blocks:
+                    return None
+                blocks.pop()
+        if token.kind in _OPEN_TO_CLOSE:
+            delimiters.append(_OPEN_TO_CLOSE[token.kind])
+        elif token.kind in _CLOSE_KINDS:
+            delimiters.pop()  # already checked by the shared lexer
+        phrase.append(token)
+        if token.kind == "SEMISEMI" and not blocks and not delimiters:
+            phrases.append(phrase)
+            phrase = []
+    return None if blocks else phrases
+
+
+def scan_claim_binding_starts(source: bytes) -> frozenset[int]:
+    """Byte starts of standalone simple let phrases eligible for named probes.
+
+    This is a scope filter for the existing theorem inventory, not an OCaml
+    parser or a claim that the RHS has theorem type. Keep duplicates for the
+    probe contract to reject. Module declarations and local let expressions
+    cannot supply names to a probe appended outside their scope. Unsupported
+    unseparated declarations and mutually bound forms are omitted together.
+    """
+    checked = scan_ocaml_loaders(source)
+    if checked.status != "ok":
+        assert checked.refusal is not None
+        raise ValueError(f"claim inventory lexical refusal: {checked.refusal.reason}")
+    tokens = _Lexer(source, source.decode("utf-8")).tokenize()
+    phrases = _top_level_phrases(tokens)
+    if phrases is None:
+        raise ValueError("claim inventory cannot delimit top-level source blocks")
+    starts: set[int] = set()
+    for phrase in phrases:
+        if len(phrase) < 5 or not (
+            phrase[0].kind == "IDENT" and phrase[0].value == "let"
+            and phrase[1].kind == "IDENT" and phrase[2].value == "="
+        ):
+            continue
+        # An outer `in` makes the entire phrase a local expression, even when
+        # the first tokens look exactly like a global theorem declaration.
+        # Delimited tactic-local bindings remain inside the theorem RHS.
+        depth = 0
+        blocks = 0
+        standalone = True
+        for token in phrase[3:]:
+            if token.kind in _OPEN_TO_CLOSE:
+                depth += 1
+            elif token.kind in _CLOSE_KINDS:
+                depth -= 1
+            elif token.kind == "IDENT":
+                if token.value in {"begin", "struct", "sig", "object"}:
+                    blocks += 1
+                elif token.value == "end":
+                    blocks -= 1
+                elif not depth and not blocks and token.value in {"let", "in", "and"}:
+                    standalone = False
+                    break
+        if standalone:
+            starts.add(phrase[0].span.start)
+    return frozenset(starts)
+
+
 def scan_prove_bindings(source: bytes) -> ProveBindingScanResult:
     """Locate only unambiguous, complete top-level let NAME = [time] prove phrases.
 
@@ -1266,27 +1339,11 @@ def scan_prove_bindings(source: bytes) -> ProveBindingScanResult:
             elif token.kind == "IDENT":
                 header_names.add(token.value)
 
+    phrases = _top_level_phrases(tokens)
+    if phrases is None:
+        return ProveBindingScanResult("ok", checked.source_sha256, ())
     candidates: list[ProveBinding] = []
-    phrase: list[_Token] = []
-    blocks: list[str] = []
-    delimiters: list[str] = []
-    for token in tokens:
-        if token.kind == "IDENT":
-            if token.value in {"begin", "struct", "sig", "object"}:
-                blocks.append(token.value)
-            elif token.value == "end":
-                if not blocks:
-                    # Unsupported/malformed block syntax: no reliable suffix.
-                    return ProveBindingScanResult("ok", checked.source_sha256, ())
-                blocks.pop()
-        if token.kind in _OPEN_TO_CLOSE:
-            delimiters.append(_OPEN_TO_CLOSE[token.kind])
-        elif token.kind in _CLOSE_KINDS:
-            delimiters.pop()  # already checked by the shared lexer
-        phrase.append(token)
-        if token.kind != "SEMISEMI" or blocks or delimiters:
-            continue
-        current, phrase = phrase, []
+    for current in phrases:
         if len(current) < 10:
             continue
         if not (current[0].value == "let" and current[0].kind == "IDENT"
@@ -1341,6 +1398,4 @@ def scan_prove_bindings(source: bytes) -> ProveBindingScanResult:
             tactic_span=ByteSpan(comma.span.end, current[close_index].span.start),
             source_line=lexer.line_for_byte(current[0].span.start),
         ))
-    if blocks:
-        return ProveBindingScanResult("ok", checked.source_sha256, ())
     return ProveBindingScanResult("ok", checked.source_sha256, tuple(candidates))

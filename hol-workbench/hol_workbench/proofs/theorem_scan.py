@@ -9,6 +9,7 @@ from hol_workbench.hashing import (
     sha256_bytes,
     sha256_text,
 )
+from hol_workbench.proofs.loader_scan import scan_claim_binding_starts
 from hol_workbench.hashing import (
     sha256_file_strict as sha256,
 )
@@ -72,12 +73,18 @@ def extract_hol_theorems_bytes(source: Path, source_bytes: bytes) -> list[dict[s
 def extract_hol_theorems_text(source: Path, text: str, *, source_hash: str | None) -> list[dict[str, Any]]:
     """Shared current scanner over caller-owned text and source identity."""
 
+    binding_starts = scan_claim_binding_starts(text.encode("utf-8"))
     masked = mask_ocaml_comments_and_strings(text)
     search_masked = mask_hol_backquote_interiors(masked)
     claims: list[dict[str, Any]] = []
     matches = [("prove", match.start(), match) for match in THEOREM_RE.finditer(search_masked)]
     matches.extend(("direct_rule", match.start(), match) for match in DIRECT_THEOREM_RE.finditer(search_masked))
-    for kind, _start, match in sorted(matches, key=lambda item: item[1]):
+    byte_offset = character_offset = 0
+    for kind, start, match in sorted(matches, key=lambda item: item[1]):
+        byte_offset += len(text[character_offset:start].encode("utf-8"))
+        character_offset = start
+        if byte_offset not in binding_starts:
+            continue
         qpos = match.end() if kind == "prove" else match.end() - 1
         while qpos < len(search_masked) and search_masked[qpos].isspace():
             qpos += 1

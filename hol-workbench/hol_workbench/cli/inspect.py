@@ -256,11 +256,23 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
     for name in sorted(selected_names - {row.get("name") for row in selected}):
         print(f"  {name}: not recorded (not a claim of theorem absence)")
     _input_details(receipt, verbose=args.verbose)
+    basis = receipt.get("project_basis")
+    if isinstance(basis, dict):
+        identity = basis.get("identity") or {}
+        print(f"inherited_project_basis: {identity.get('source')} sha={short_sha256(identity.get('source_sha256'))}")
+        print(f"basis_preparation_receipt: {basis.get('preparation_receipt')}")
+        print("basis_scope: preparation was checked separately; this attempt checks the full leaf in a fresh child")
     if receipt.get("first_failure"):
         failure_line = receipt.get("first_failure_transcript_line")
         coordinate = f"transcript_line={failure_line} " if type(failure_line) is int else ""
         print(f"first_failure: {coordinate}{receipt['first_failure']}")
     if not source_accepted:
+        running = receipt.get("running_binding") or (receipt.get("transcript_accounting") or {}).get("running_binding")
+        if isinstance(running, dict):
+            if running.get("status") == "running_at_interruption" and running.get("name"):
+                print(f"running_at_interruption: {running['name']} source={running.get('source')}:{running.get('source_line')} (diagnostic only)")
+            else:
+                print("running_at_interruption: unknown (" + str(running.get("reason") or "no reliable location recorded") + ")")
         attribution = receipt.get("failing_binding") or (receipt.get("transcript_accounting") or {}).get("failing_binding")
         if isinstance(attribution, dict) and attribution.get("status") == "identified" and attribution.get("name"):
             print(f"failing_binding: {attribution['name']} source={attribution.get('source')}:{attribution.get('source_line')}")
@@ -275,7 +287,8 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         str(row.get("status") or "unknown") in {"missing", "unknown", "printed_unprobed"} for row in dict_rows
     )
     if dict_rows and not source_accepted and probe_unresolved:
-        print("binding_note: probe missing; transcript text does not identify the residual binding")
+        print("binding_note: named theorem probes are missing; unverified printed theorem text "
+              "does not establish which binding failed")
     foundation = receipt.get("foundation_delta")
     if isinstance(foundation, dict):
         deltas = foundation.get("deltas")

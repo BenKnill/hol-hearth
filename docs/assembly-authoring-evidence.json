@@ -1,0 +1,2357 @@
+{
+  "schema": "hol-hearth.assembly-authoring-validation.v1",
+  "checked_on": "2026-09-22",
+  "status": "complete_with_recorded_limitations",
+  "environment": "Linux; existing compatible s2n-arm-mlkem, s2n-arm and light shelves; no shelf rebuilt",
+  "code_scope": "Early receipts were measured during integration and report an uncommitted client with unknown revision. The final functional repeat was independently checked against clean runtime commit 00861a3df70fb677e8e64e8861ab0247b0a19d8b; its prepared basis also records an exact backend digest.",
+  "external_source_distribution": "External proof sources, objects, runtime images, local configuration, logs and original receipts remain outside the public repository.",
+  "evidence_boundary": "Warm authoring acceptance of an ARM ML-KEM NTT layers 1-3 functional proof over 256 cells with explicit premises and frame; not an entire ML-KEM implementation or an independent publication audit.",
+  "iterations": [
+    {
+      "iteration": 1,
+      "focus": "Source scope and runtime identity",
+      "feedback": "Local theorem helpers must not become duplicate global claims; captured dependency bytes must use the selected runtime root.",
+      "refinement": "Use existing lexical scope scanner, configured runtime authority and exact warm dependency identity.",
+      "functional_baseline": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+        "raw_transcript_sha256": "19906e4cfcb9c10bb642822bae5e0cb20545f659d1b86c6030f60c444fa9651a",
+        "eval_elapsed_seconds": 336.679,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "0f598abf97f949d967b745aed0d4094faad6dc3e2812af5355878a1695c718fc",
+        "targets": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": null
+      },
+      "queued_absolute_library_control": {
+        "logical_profile": "s2n-arm",
+        "profile_basis_id": "hol.s2n.arm.base.v2",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "source_sha256": "a2c92c3fc030e0ce28330498778fcd00e0568a175d22d2278fa1dad4b4c72309",
+        "source_dependency_closure_sha256": "91a7f1680048200e79f4c0ebbdc5df27634fabd6a0f3f7b26522a4506e221f1a",
+        "raw_transcript_sha256": "46e01191fe7da5fb1811d00a56ccafdd9b9f19029f483ea43f6e155abd459bc9",
+        "eval_elapsed_seconds": 1.935,
+        "requested_timeout_seconds": 120.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 1595.173,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "840ba9b7b059c82117b2c38121bc06aacc8fbbd9c8dc5ada594ac63096f55c2a",
+        "targets": [
+          {
+            "name": "HEARTH_WORD_ASSOC",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        },
+        "exact_objects": [],
+        "running_binding": null,
+        "role": "exact absolute warm dependency and admission control; not assembly usefulness acceptance"
+      }
+    },
+    {
+      "iteration": 2,
+      "focus": "Timeout feedback on the same substantial source",
+      "initial_timeout": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+        "raw_transcript_sha256": "e06e004a03c69aa3081301478dfd63dacd6ccdc3fd0a8ef9e37d5f8ff9dd2fce",
+        "eval_elapsed_seconds": 35.252,
+        "requested_timeout_seconds": 20.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "timeout",
+        "source_completed": false,
+        "claims_complete": false,
+        "completion_marker_valid": false,
+        "exit_status": 124,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "1fc1e9408d942c618dd1ffca32fb3ac36ce802545626b3a9703edfbc47175e17",
+        "targets": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "missing"
+          }
+        ],
+        "foundation_delta": {
+          "status": "missing",
+          "new_axiom_count": null
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": {
+          "name": null,
+          "source_line": null,
+          "status": "unknown",
+          "authority": "diagnostic_only"
+        }
+      },
+      "feedback": "Active imported proof calls had compiler frames but no named running binding.",
+      "refinement": "Map exact captured and packaged imports with the existing theorem scanner; normalize compiler paths; attribution is diagnostic only.",
+      "refined_timeout": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+        "raw_transcript_sha256": "dca8f90c25b12c5b8ad972c72f4966407bece3e82ac04530d77ea8a991804538",
+        "eval_elapsed_seconds": 35.29,
+        "requested_timeout_seconds": 20.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "timeout",
+        "source_completed": false,
+        "claims_complete": false,
+        "completion_marker_valid": false,
+        "exit_status": 124,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "f324d3cdc36b68c8a27343ede9b5d1970b608938396d5ca517d8330b281f0162",
+        "targets": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "missing"
+          }
+        ],
+        "foundation_delta": {
+          "status": "missing",
+          "new_axiom_count": null
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": {
+          "name": "MLKEM_ZETA_56_RESIDUAL_BOUND",
+          "source_line": 136,
+          "status": "running_at_interruption",
+          "authority": "diagnostic_only"
+        }
+      },
+      "budget_boundary": "The requested 20-second proof budget has a 15-second controller response allowance. Recorded evaluation timing includes transport and cleanup; no timed-out theorem is accepted."
+    },
+    {
+      "iteration": 3,
+      "focus": "Explicit project-basis reuse and negative controls",
+      "status": "completed",
+      "preparation": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+        "source_dependency_closure_sha256": "d9fc387ae6d296a6b6d705080e9d252ef0004b7318c9d071f7141f690651304d",
+        "raw_transcript_sha256": "8b706e79d25142c7926fdff1d20947dd169032db2e1d87659ce6600aa2b69519",
+        "eval_elapsed_seconds": 272.413,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+        "targets": [
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": null
+      },
+      "first_leaf": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+        "raw_transcript_sha256": "3dcb128c34b697147a01513f475ef7cc3abead65844701b0cfec28f7d657d524",
+        "eval_elapsed_seconds": 18.01,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "380dda61434d50ca5e550cb60960a12c18a9de386d26e463c4c276954a637758",
+        "targets": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": null,
+        "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d"
+      },
+      "repeated_leaf": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+        "raw_transcript_sha256": "3dcb128c34b697147a01513f475ef7cc3abead65844701b0cfec28f7d657d524",
+        "eval_elapsed_seconds": 18.01,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "receipt_sha256": "380dda61434d50ca5e550cb60960a12c18a9de386d26e463c4c276954a637758",
+        "targets": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": null,
+        "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+        "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597"
+      },
+      "retained_interrupted_preparation": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+        "source_dependency_closure_sha256": "d9fc387ae6d296a6b6d705080e9d252ef0004b7318c9d071f7141f690651304d",
+        "raw_transcript_sha256": "0206af7a1eef83198226c22226eccf27f15e011fdf63b3a54a85114b9b26b7b8",
+        "eval_elapsed_seconds": null,
+        "requested_timeout_seconds": null,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 11.489,
+        "transport_status": "interrupted",
+        "source_completed": false,
+        "claims_complete": false,
+        "completion_marker_valid": false,
+        "exit_status": 130,
+        "broker_child_quiescent": null,
+        "broker_seat_reusable": null,
+        "receipt_sha256": "b0bdf66b6b370f26beb8d9979ad5d2bfd605c9d642a5d4de2a305ec395d18b7f",
+        "targets": [
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+            "status": "missing"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+            "status": "missing"
+          }
+        ],
+        "foundation_delta": {
+          "status": "missing",
+          "new_axiom_count": null
+        },
+        "exact_objects": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "running_binding": {
+          "name": "MLKEM_NTT_CLEAN_LAYER2_BLOCK",
+          "source_line": 543,
+          "status": "running_at_interruption",
+          "authority": "diagnostic_only"
+        }
+      },
+      "small_controls": [
+        {
+          "case": "cache-baseline",
+          "role": "small lifecycle control; not assembly usefulness acceptance",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "434c4667f2623edf5b2690a3e1c77d8701968d1ffc0c8155b390a92f43dd13a7",
+              "source_dependency_closure_sha256": "0a6e02e06ad338b952781c8e7e9583afcddb720bff83fa9ef07285760d0dd47a",
+              "raw_transcript_sha256": "7b3b07b6eabe4179d093676e2c46f51a09a21884e3e63649f8002475347506c7",
+              "eval_elapsed_seconds": 0.493,
+              "requested_timeout_seconds": 60.0,
+              "effective_capacity": 2,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "d935bb6a38cac50c685fe42e47ef9355e38a6362f1a88d9b2e86001170b98349",
+              "targets": [
+                {
+                  "name": "BASIS_ID",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [],
+              "running_binding": null
+            },
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "b2fee2c32ae018de0b7d72cf7eb34686834be5673a5b601d5c504b36fdf44524",
+              "source_dependency_closure_sha256": "908c22525231a67edfcac2624c4749c086a3ee894a48e4fad27a6653239df302",
+              "raw_transcript_sha256": "09d5e9a2a9e28ed7a2b7c82127c0a8981c17be734b3274fafd5f74abc895e37c",
+              "eval_elapsed_seconds": 0.316,
+              "requested_timeout_seconds": 60.0,
+              "effective_capacity": 2,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "cb606b5fd40fb74135d8c2792d8ae45e26960fef5899e5c3f08a29d30e0bd548",
+              "targets": [
+                {
+                  "name": "LEAF_ID",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "unused-import-failure",
+          "role": "small lifecycle control; not assembly usefulness acceptance",
+          "observed_exit_status": 1,
+          "expected_exit_status": 1,
+          "receipts": [
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "d38d5bfa3b25f10d149e6820867dd32b501a4041edaae035b4598dbc6db01b21",
+              "source_dependency_closure_sha256": "1ee68399abb4fecc232dae1d4c8f337c148cd3900902a30729b69f6b8db8f39b",
+              "raw_transcript_sha256": "8caef3d69e1ec6449bbf3df3ce7c019df463dd1a049db1b9c80e91dabdad6275",
+              "eval_elapsed_seconds": 0.384,
+              "requested_timeout_seconds": 60.0,
+              "effective_capacity": 2,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": true,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "49da6259fc2f55512c8c722831ad5ae011a3bf08a1d3b50ab94b24aa3f53d86a",
+              "targets": [
+                {
+                  "name": "LEAF_ID",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "unused-import-repaired",
+          "role": "small lifecycle control; not assembly usefulness acceptance",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "b2fee2c32ae018de0b7d72cf7eb34686834be5673a5b601d5c504b36fdf44524",
+              "source_dependency_closure_sha256": "908c22525231a67edfcac2624c4749c086a3ee894a48e4fad27a6653239df302",
+              "raw_transcript_sha256": "70e9aa257f406bfcc1859289d90d22ab9964866fe305eecf5d3c52363f0ce9dd",
+              "eval_elapsed_seconds": 0.313,
+              "requested_timeout_seconds": 60.0,
+              "effective_capacity": 2,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "12a8e3fe150585d5d1499cbfa9f6314908086b8e5c12f23799d358431a00e985",
+              "targets": [
+                {
+                  "name": "LEAF_ID",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "malformed-leaf",
+          "role": "small lifecycle control; not assembly usefulness acceptance",
+          "observed_exit_status": 2,
+          "expected_exit_status": 2,
+          "receipts": [
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "c993ea8577ce1d1cb0ee95a964790f71b3151b9926653e2504e8421b7383f24b",
+              "source_dependency_closure_sha256": "4b7571f2a368581709dee787bc91fbc7a3b94b11fee2bb71bd90412f92864961",
+              "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "eval_elapsed_seconds": null,
+              "requested_timeout_seconds": null,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "not_started",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": null,
+              "exit_status": 2,
+              "broker_child_quiescent": null,
+              "broker_seat_reusable": null,
+              "receipt_sha256": "34817c6223fe4c1343f1e805add35b0ee45ca011bc34305e5ffc61d7e3efc01f",
+              "targets": [],
+              "foundation_delta": {
+                "status": null,
+                "new_axiom_count": null
+              },
+              "exact_objects": [],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "basis-failure",
+          "role": "small lifecycle control; not assembly usefulness acceptance",
+          "observed_exit_status": 1,
+          "expected_exit_status": 1,
+          "receipts": [
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "4c750329a5cfe49af034fb011770510b11f43467831d6ee0d2b776cb78333a34",
+              "source_dependency_closure_sha256": "0183766b1e3810b1d32af395e9ad5a55d7b632839504943725877a0fd1fe0432",
+              "raw_transcript_sha256": "56df2b14cc2dc54bfdfd191a3afbddc416279d33c4a02cb2136e31322f68a511",
+              "eval_elapsed_seconds": 0.391,
+              "requested_timeout_seconds": 60.0,
+              "effective_capacity": 2,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "3eb6e1f9914d5ca4df5c7f37112c2fd30d9393ad8d1563161593788dbff572c3",
+              "targets": [
+                {
+                  "name": "BASIS_ID",
+                  "status": "printed_unprobed"
+                },
+                {
+                  "name": "FALSE_BASIS",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "basis-repaired",
+          "role": "small lifecycle control; not assembly usefulness acceptance",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "light",
+              "profile_basis_id": "hol.light.default.v3",
+              "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+              "source_sha256": "b2fee2c32ae018de0b7d72cf7eb34686834be5673a5b601d5c504b36fdf44524",
+              "source_dependency_closure_sha256": "908c22525231a67edfcac2624c4749c086a3ee894a48e4fad27a6653239df302",
+              "raw_transcript_sha256": "41e51e5b5926ccbff12d71d6a81b3ee2a03f2a11b6b89d93439324c8d896a1d6",
+              "eval_elapsed_seconds": 0.319,
+              "requested_timeout_seconds": 60.0,
+              "effective_capacity": 2,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "495267972e5189fd8a8db2983aa6ede3e3b6c7685ef925703973dd3657a6845b",
+              "targets": [
+                {
+                  "name": "LEAF_ID",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [],
+              "running_binding": null
+            }
+          ]
+        }
+      ],
+      "object_mutation_control": {
+        "original_sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+        "mutated_sha256": "d6f9bfd2071c69de7e237912d51510fd6fd32b2eba06a95b4826c5c58b177b4e",
+        "mutation": "One byte in the actual admitted ELF executable text section; repaired to its original hash after refusal."
+      },
+      "serious_controls": [
+        {
+          "case": "cache-hit",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+              "raw_transcript_sha256": "3dcb128c34b697147a01513f475ef7cc3abead65844701b0cfec28f7d657d524",
+              "eval_elapsed_seconds": 18.01,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "380dda61434d50ca5e550cb60960a12c18a9de386d26e463c4c276954a637758",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null,
+              "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+              "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597"
+            }
+          ]
+        },
+        {
+          "case": "unused-import-failure",
+          "observed_exit_status": 1,
+          "expected_exit_status": 1,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "9eb62ce0f64a9c01b9dcb71614209b2d9e204082374cd85b872f51bd5c4a5946",
+              "source_dependency_closure_sha256": "fb5e973725a921cd35ceb6f917f9e6971494738cf6d48dd0d84a9baac41dfe57",
+              "raw_transcript_sha256": "2ca2175624282aee628992dce49f52899a97d214273f120722a0f8125d206476",
+              "eval_elapsed_seconds": 17.073,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": true,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "b3c6922c8763a1519c8f2c9a02bc8a2e519ad00c4d3305a81bccc11b698ab1d3",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null,
+              "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+              "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597"
+            }
+          ]
+        },
+        {
+          "case": "dependency-failure",
+          "observed_exit_status": 1,
+          "expected_exit_status": 1,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+              "source_dependency_closure_sha256": "cd4d1fc42db3bb2a8c6012dc3403e9a6cec26de147e88e025c8255a2ed34f191",
+              "raw_transcript_sha256": "ee8910bbfb31fb1f13cbc35cdd81f4e6fb8dfa513ceb5ec69b631f183e95729f",
+              "eval_elapsed_seconds": 14.653,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "edb48c0c5c8a372c02b41929e48f8c9ff41e16628c017e07528765ceb2f481a1",
+              "targets": [
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "dependency-repaired",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+              "raw_transcript_sha256": "a3139334f387c7d323a7e67bdbe291805d981eac714d9a073d91732c4a319142",
+              "eval_elapsed_seconds": 16.827,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "6e65afcaf73cda4a0da1ffa86d7cbaf1299a0857e21ac5af5d23849b3f4e0e5f",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null,
+              "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+              "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597"
+            }
+          ]
+        },
+        {
+          "case": "object-failure",
+          "observed_exit_status": 1,
+          "expected_exit_status": 1,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+              "source_dependency_closure_sha256": "493d769b7392ea4be175c1a284d3aa892dc215592c71b222bde44de30b4e8fbe",
+              "raw_transcript_sha256": "db30e0ec1b2527bf7774029cb770d84801924c652ce68b30b7b53904070f67b1",
+              "eval_elapsed_seconds": 19.414,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "1f6236f19e6edc4605dc0c75cf21b9f5a132df467987743b6ef18b9918a288d1",
+              "targets": [
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "d6f9bfd2071c69de7e237912d51510fd6fd32b2eba06a95b4826c5c58b177b4e",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null
+            }
+          ]
+        },
+        {
+          "case": "object-repaired",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+              "raw_transcript_sha256": "45cc9682f9e412ebcb8a49138b31a8de395d85c0626613124446c993e4f0e8fa",
+              "eval_elapsed_seconds": 17.274,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "2002db9c9fe5e48d4b5729a3980859e224069e957427ec73afe3e6c9ea47b930",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null,
+              "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+              "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597"
+            }
+          ]
+        },
+        {
+          "case": "cancel",
+          "observed_exit_status": 130,
+          "expected_exit_status": 130,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+              "raw_transcript_sha256": "1dbe16bef47e50054dce06396e78b0de7818253da77f596623c6543c186f93e1",
+              "eval_elapsed_seconds": null,
+              "requested_timeout_seconds": null,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "interrupted",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 130,
+              "broker_child_quiescent": null,
+              "broker_seat_reusable": null,
+              "receipt_sha256": "bd3289f9744075b46568dc45cbeb35193c48878baf78580a93f43cba15baa754",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "missing",
+                "new_axiom_count": null
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": {
+                "name": null,
+                "source_line": null,
+                "status": "unknown",
+                "authority": "diagnostic_only"
+              },
+              "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+              "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597",
+              "cleanup": {
+                "status": "quiescent",
+                "verified_quiescent": true,
+                "seat_reusable": true
+              }
+            }
+          ]
+        },
+        {
+          "case": "cancel-repaired",
+          "observed_exit_status": 0,
+          "expected_exit_status": 0,
+          "receipts": [
+            {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "87d5dd06e07c72e16dd3c9880a5b1157157b624843a2c7f1e9d2d6486aad95c9",
+              "raw_transcript_sha256": "5886cb42cb38e1826bd2161c7779114d594efd1b47bb9568586cfc75fe307690",
+              "eval_elapsed_seconds": 18.277,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "receipt_sha256": "effc0bd15840d6eb760186bb239fa6b6cdc4f24e1219dd075b618f34d778a9b2",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "exact_objects": [
+                {
+                  "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+                  "size_bytes": 1296
+                }
+              ],
+              "running_binding": null,
+              "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+              "project_basis_identity_sha256": "e650ca0c586536a7410017308545872ce586a4dfe76a704ad32000862c860597"
+            }
+          ]
+        }
+      ],
+      "runtime_refinement_limit": "These results precede the later P256 project-root capture correction. Exact backend identity invalidates older project bases after that correction; a final-code repeat is recorded separately when available.",
+      "project_watch": {
+        "scope": "Same substantial functional leaf with an additional scratch import; only the imported file changes during watching.",
+        "summary": {
+          "exit_status": 130,
+          "accepted": 2,
+          "rejected": 1,
+          "basis_reused": 3,
+          "basis_prepared": 0
+        },
+        "source_sha256_unchanged": true,
+        "admitted_basis_process_unchanged": true,
+        "events": [
+          "accepted",
+          "dependency_only_false_theorem_rejected",
+          "dependency_only_repair_accepted"
+        ],
+        "receipts": [
+          {
+            "source_sha256": "1a001502eb0248d0495aeaf74df5efd5e44424c7f08a1cf776f0851f5caec9f5",
+            "source_dependency_closure_sha256": "43a71477c0e7e12cea40f7c71e0b53c9ea854aa6be5a82cd6bee55695eb0b878",
+            "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+            "raw_transcript_sha256": "53f78e385555a9a93630d13ae2e5ffa717e4252e20f67e11c9f3a0dfa4293617",
+            "eval_elapsed_seconds": 18.632,
+            "source_completed": true,
+            "claims_complete": true,
+            "exit_status": 0,
+            "broker_child_quiescent": true,
+            "broker_seat_reusable": true,
+            "receipt_sha256": "1a61cd55964351c0bb269458384935ea8e03ff6c601506a9a6cc9dfb9f695da7",
+            "targets": [
+              {
+                "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_ENSURES_PRECONDITION",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                "status": "proved"
+              }
+            ],
+            "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0
+            }
+          },
+          {
+            "source_sha256": "1a001502eb0248d0495aeaf74df5efd5e44424c7f08a1cf776f0851f5caec9f5",
+            "source_dependency_closure_sha256": "66c03ccd2dc8b7b7c0685ce9a89705eb0cc349194d8c6686e6f9e34bec8cc9f7",
+            "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+            "raw_transcript_sha256": "6bb5a10be8d2a0db2faaeefb6fd6776edb7fcd2cdf157ab7a942ffd9a4b4f8a2",
+            "eval_elapsed_seconds": 18.281,
+            "source_completed": false,
+            "claims_complete": true,
+            "exit_status": 1,
+            "broker_child_quiescent": true,
+            "broker_seat_reusable": true,
+            "receipt_sha256": "3b42f3b4920373462c27ac9f9393b09daa3b6b501f0b3905c9c83a64cf43291c",
+            "targets": [
+              {
+                "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_ENSURES_PRECONDITION",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                "status": "proved"
+              }
+            ],
+            "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0
+            }
+          },
+          {
+            "source_sha256": "1a001502eb0248d0495aeaf74df5efd5e44424c7f08a1cf776f0851f5caec9f5",
+            "source_dependency_closure_sha256": "43a71477c0e7e12cea40f7c71e0b53c9ea854aa6be5a82cd6bee55695eb0b878",
+            "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+            "raw_transcript_sha256": "a85f3191d5f258092783de0c13289ca6fa3535af2c8e59cccf99ca95cf5568b2",
+            "eval_elapsed_seconds": 18.377,
+            "source_completed": true,
+            "claims_complete": true,
+            "exit_status": 0,
+            "broker_child_quiescent": true,
+            "broker_seat_reusable": true,
+            "receipt_sha256": "7c4a9c9159199b53ecda6b809cf446ce87790f9d1868fa23e43f1cad5eef8935",
+            "targets": [
+              {
+                "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_ENSURES_PRECONDITION",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                "status": "proved"
+              },
+              {
+                "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                "status": "proved"
+              }
+            ],
+            "project_basis_preparation_receipt_sha256": "9c7acedc6cf62fd2edd32b56cce06ecbf9857510177aa4bab114130a112d6a4d",
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0
+            }
+          }
+        ],
+        "stop": "SIGINT while idle; exit 130; no new preparation during the three attempts."
+      }
+    },
+    {
+      "iteration": 4,
+      "focus": "Selected project root and hidden warm-source drift",
+      "feedback": "The failed long P256 attempt resolved nested imports in the ambient profile checkout. Capturing the selected clone then exposed a separate HOL needs-cache seam: an unchanged warm base hid an edited transitive helper.",
+      "refinement": "Bound repo-relative imports and seven object inputs to the selected clone; attest exact captured warm source subtrees against the admitted shelf inventory, including loadt descendants and unambiguous HOL-relative inputs. Never accept a basename match alone.",
+      "p256_missing_objects_before_hol": {
+        "logical_profile": "s2n-arm",
+        "profile_basis_id": "hol.s2n.arm.base.v2",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "source_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+        "source_dependency_closure_sha256": "3306fdcbd514e63e5d7b5348f214d2ef0e0c42c693d44443169a0b42d85d65fc",
+        "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "eval_elapsed_seconds": null,
+        "requested_timeout_seconds": null,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "not_started",
+        "source_completed": false,
+        "claims_complete": false,
+        "completion_marker_valid": null,
+        "exit_status": 2,
+        "broker_child_quiescent": null,
+        "broker_seat_reusable": null,
+        "dependency_transport_status": "project_input_missing",
+        "receipt_sha256": "9b8a32aad80e62de1ab8302d5df8c408deb7bf73bc277187a06044598dfe03b3",
+        "targets": []
+      },
+      "captured_p256_counts": {
+        "literal_source_edges": 106,
+        "literal_elf_objects": 7,
+        "missing_objects": 2,
+        "ambient_profile_source_edges": 0
+      },
+      "hidden_false_import_before": {
+        "expected": "reject edited source",
+        "observed": "incorrect complete-source acceptance; the unchanged base was skipped by the warm needs cache",
+        "receipt": {
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "source_sha256": "7637687c301f2c57d35ccb440369b02f98f56ed6575ff067f6c35e73a311b2e1",
+          "source_dependency_closure_sha256": "d464a582a9cefdf8efe79e4f89f21e35a5a0c25c08bbd3eca8937a4d477d6287",
+          "raw_transcript_sha256": "6c41b9e7cbe8f6775f800edb06cbd0b049b4300b3be2c8533f6608abe3510ec8",
+          "eval_elapsed_seconds": 0.345,
+          "requested_timeout_seconds": 120.0,
+          "effective_capacity": 1,
+          "admission_wait_seconds": 0.0,
+          "transport_status": "completed",
+          "source_completed": true,
+          "claims_complete": true,
+          "completion_marker_valid": true,
+          "exit_status": 0,
+          "broker_child_quiescent": true,
+          "broker_seat_reusable": true,
+          "dependency_transport_status": "packaged",
+          "receipt_sha256": "47c59722bec24dac1cec4a952866c94bf9b85e3c305d324ecebcf4d0aa272120",
+          "targets": [
+            {
+              "name": "HEARTH_BASE_IDENTITY_CHECK",
+              "status": "proved"
+            }
+          ]
+        }
+      },
+      "hidden_false_import_after": {
+        "expected": "reject edited source before HOL",
+        "observed": "refused_profile_satisfaction_dependency_changed with identical leaf and dependency closure hashes",
+        "receipt": {
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "source_sha256": "7637687c301f2c57d35ccb440369b02f98f56ed6575ff067f6c35e73a311b2e1",
+          "source_dependency_closure_sha256": "d464a582a9cefdf8efe79e4f89f21e35a5a0c25c08bbd3eca8937a4d477d6287",
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "eval_elapsed_seconds": null,
+          "requested_timeout_seconds": null,
+          "effective_capacity": 1,
+          "admission_wait_seconds": 0.0,
+          "transport_status": "not_started",
+          "source_completed": false,
+          "claims_complete": false,
+          "completion_marker_valid": null,
+          "exit_status": 2,
+          "broker_child_quiescent": null,
+          "broker_seat_reusable": null,
+          "dependency_transport_status": "refused_profile_satisfaction_dependency_changed",
+          "receipt_sha256": "514582868e4eab4f883752b0bb0b31957dd77eaf882ad21bdff528c5d18dfba0",
+          "targets": []
+        }
+      },
+      "limits": [
+        "The positive leaf theorem from the counterexample did not establish execution of the edited imported source.",
+        "Loaded-source inventory attests source identity only; an ELF input under a skipped warmed source needs separate shelf object evidence and is refused without it."
+      ],
+      "exact_input_repair": {
+        "status": "passed",
+        "meaning": "Supplementary small identity/recovery control, not substantial proof or latency benchmark.",
+        "attempts": [
+          {
+            "wall_seconds": 3.172,
+            "receipt": {
+              "logical_profile": "s2n-arm",
+              "profile_basis_id": "hol.s2n.arm.base.v2",
+              "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+              "source_sha256": "7637687c301f2c57d35ccb440369b02f98f56ed6575ff067f6c35e73a311b2e1",
+              "source_dependency_closure_sha256": "7cc34890286b9c120d7c27d8c5513d8a48450420b2a426ebe2bffd8012643fd5",
+              "raw_transcript_sha256": "f970de9dc8251ff51e4350a45c029eb6cabf383976648956a8208f5670b77b9b",
+              "eval_elapsed_seconds": 0.341,
+              "requested_timeout_seconds": 120.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged",
+              "receipt_sha256": "b5a5c6287915439ff4a3e9834f13f10a6ed04a7e82e1b34c99a4d2a7d506dbf5",
+              "targets": [
+                {
+                  "name": "HEARTH_BASE_IDENTITY_CHECK",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              }
+            }
+          },
+          {
+            "wall_seconds": 1.417,
+            "receipt": {
+              "logical_profile": "s2n-arm",
+              "profile_basis_id": "hol.s2n.arm.base.v2",
+              "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+              "source_sha256": "7637687c301f2c57d35ccb440369b02f98f56ed6575ff067f6c35e73a311b2e1",
+              "source_dependency_closure_sha256": "7cc34890286b9c120d7c27d8c5513d8a48450420b2a426ebe2bffd8012643fd5",
+              "raw_transcript_sha256": "a05c0f54c305972d7b790b4a328f537c2c4df274af19880671725da5d373ab89",
+              "eval_elapsed_seconds": 0.341,
+              "requested_timeout_seconds": 120.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged",
+              "receipt_sha256": "d1c4085ba74705baa2283807caf89cc5da1558313fdffda45c2b9290fb087af5",
+              "targets": [
+                {
+                  "name": "HEARTH_BASE_IDENTITY_CHECK",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "iteration": 5,
+      "focus": "Repeat substantial acceptance after identity corrections; reduce repeated preflight analysis",
+      "status": "completed",
+      "refinement": "Reuse the existing content-keyed lexical analysis cache while rehashing captured bytes on every attempt. Build diagnostic theorem mappings only for exact packaged compiler call sites present in the recorded transcript; do not eagerly rescan every imported source.",
+      "measured_code_scope": "These receipts include selected-root capture, captured warm-source attestation, lexical-cache integration and on-demand diagnostic mapping. They precede the narrow invalid-UTF-8 cache fallback refinement. Backend digest is recorded for the prepared basis.",
+      "project_basis_preparation": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+        "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+        "raw_transcript_sha256": "d2f32bbbf7ed1f5f8835b064022cb46056a685247e87e89bce926459f749fa49",
+        "eval_elapsed_seconds": 174.532,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "dependency_transport_status": "packaged_with_profile_satisfaction",
+        "receipt_sha256": "1217a579808f4e4a58f5f88ecb768a7e88569939358710873c93576291ef3724",
+        "targets": [
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        }
+      },
+      "functional_leaf": {
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+        "raw_transcript_sha256": "adaea841bce81f84acfed98e36c88af60d746af9f8e5e03dc6161d7d1524b088",
+        "eval_elapsed_seconds": 22.08,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 0.0,
+        "transport_status": "completed",
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "exit_status": 0,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "dependency_transport_status": "packaged_with_profile_satisfaction",
+        "receipt_sha256": "9f23d6a5fa9f412609134984ff76796317dfba6b8d568e1d03699b4aee540181",
+        "targets": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "proved"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "proved"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0
+        },
+        "backend_sha256": "a436bef488b671151bef3af3dad2cc026e229c128e5558250772aaf171c997d8"
+      },
+      "portable_check": "Full hearth check passed before the recorded proof; harness evidence only, no HOL or CRIU started by check.",
+      "clean_checkout": {
+        "runtime_git_revision": "00861a3df70fb677e8e64e8861ab0247b0a19d8b",
+        "runtime_checkout_status": "clean HEAD verified before proof",
+        "portable_check": "Full hearth check passed; harness evidence only.",
+        "project_basis_preparation": {
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+          "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+          "raw_transcript_sha256": "d50438ed30acdb7b6a47a3106f053694f163e2217cfb89a1fa4f894724385e23",
+          "eval_elapsed_seconds": 174.404,
+          "requested_timeout_seconds": 1500.0,
+          "effective_capacity": 1,
+          "admission_wait_seconds": 0.0,
+          "transport_status": "completed",
+          "source_completed": true,
+          "claims_complete": true,
+          "completion_marker_valid": true,
+          "exit_status": 0,
+          "broker_child_quiescent": true,
+          "broker_seat_reusable": true,
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68",
+          "targets": [
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+              "status": "proved"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0
+          }
+        },
+        "functional_leaf": {
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "raw_transcript_sha256": "ad1706d03490e55327001cc7c249264ad5f094890a90cdd3024852af0182d02e",
+          "eval_elapsed_seconds": 20.909,
+          "requested_timeout_seconds": 1500.0,
+          "effective_capacity": 1,
+          "admission_wait_seconds": 0.0,
+          "transport_status": "completed",
+          "source_completed": true,
+          "claims_complete": true,
+          "completion_marker_valid": true,
+          "exit_status": 0,
+          "broker_child_quiescent": true,
+          "broker_seat_reusable": true,
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "receipt_sha256": "59e81581d1713180e42a093cf9e8b08881d6ce5102542bf8cc3342c5e952a988",
+          "targets": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0
+          },
+          "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d"
+        },
+        "controls_status": "passed",
+        "controls": [
+          {
+            "name": "serious-cache-hit",
+            "expected_exit_status": 0,
+            "observed_exit_status": 0,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+              "raw_transcript_sha256": "ad1706d03490e55327001cc7c249264ad5f094890a90cdd3024852af0182d02e",
+              "eval_elapsed_seconds": 20.909,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "59e81581d1713180e42a093cf9e8b08881d6ce5102542bf8cc3342c5e952a988",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+              "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+            }
+          },
+          {
+            "name": "serious-unused-import-failure",
+            "expected_exit_status": 1,
+            "observed_exit_status": 1,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "9eb62ce0f64a9c01b9dcb71614209b2d9e204082374cd85b872f51bd5c4a5946",
+              "source_dependency_closure_sha256": "2aea6da2b657795fd991af47dfb0fa6859371d72c27bf4767c9126273de9eee3",
+              "raw_transcript_sha256": "720df0362a770325f7bbb877bfcc4f8412e48c7495dbd75830aebb0fef012092",
+              "eval_elapsed_seconds": 21.915,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": true,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "ae5219e7295fca490e64c790ec542f9db4adc41acb739ea5e650700c73f64f80",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+              "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+            }
+          },
+          {
+            "name": "serious-dependency-failure",
+            "expected_exit_status": 1,
+            "observed_exit_status": 1,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+              "source_dependency_closure_sha256": "0c62527f7274a84091ce41874fccb2282ac3a483382141a1eb4fa01c91af607b",
+              "raw_transcript_sha256": "0a0c3d624469355f5e4b191a72fcaf76c364cc8a0693f5167a94955d171a1d88",
+              "eval_elapsed_seconds": 16.154,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "607c52ff8e8f0be6e99d536ae6402752827aa2446d063ce6d25255e9d126c070",
+              "targets": [
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              }
+            }
+          },
+          {
+            "name": "serious-dependency-repaired",
+            "expected_exit_status": 0,
+            "observed_exit_status": 0,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+              "raw_transcript_sha256": "393c981384d6da51e581a6674ad8b6d22ca5f69f600746e45d1a0c8c49d83844",
+              "eval_elapsed_seconds": 19.868,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "5b0092a18a323bf5a557ff494509df912a2d544f8b721cad6f47a7883650f131",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+              "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+            }
+          },
+          {
+            "name": "object-mutation",
+            "offset": 64,
+            "original_sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "mutated_sha256": "d6f9bfd2071c69de7e237912d51510fd6fd32b2eba06a95b4826c5c58b177b4e"
+          },
+          {
+            "name": "serious-object-failure",
+            "expected_exit_status": 1,
+            "observed_exit_status": 1,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+              "source_dependency_closure_sha256": "0ef978d5b398a791102409e225513c8d5cf411c91ec7748bbe6e79a675bbc70f",
+              "raw_transcript_sha256": "0182e53d922510ad93a5708728edafd614278c3031b517f4422e890e324e9e71",
+              "eval_elapsed_seconds": 21.317,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 1,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "5dc070b9a6b3941febc592a0776e659787bd530aeeb8cf367dc85d50fa29d0dd",
+              "targets": [
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              }
+            }
+          },
+          {
+            "name": "serious-object-repaired",
+            "expected_exit_status": 0,
+            "observed_exit_status": 0,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+              "raw_transcript_sha256": "9b40fd49e49c01d602dcf99458bf30a02fdf3bcb7c472917cfe979d9449ec8ca",
+              "eval_elapsed_seconds": 19.144,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "1c30f369d547250660286e891430a03659ccfea0299e61fb6afd3d8516568d11",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+              "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+            }
+          },
+          {
+            "name": "serious-cancel",
+            "expected_exit_status": 130,
+            "observed_exit_status": 130,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+              "raw_transcript_sha256": "8e040ffbe99cc9663abbfddf273fa2766ddccab219d52e4d8fe562ca82cf248b",
+              "eval_elapsed_seconds": null,
+              "requested_timeout_seconds": null,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "interrupted",
+              "source_completed": false,
+              "claims_complete": false,
+              "completion_marker_valid": false,
+              "exit_status": 130,
+              "broker_child_quiescent": null,
+              "broker_seat_reusable": null,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "c5a07b86fb715df62c2113ec25d3a62188e2610865aae54699c20e9e35a196a9",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "missing"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "missing"
+                }
+              ],
+              "foundation_delta": {
+                "status": "missing",
+                "new_axiom_count": null
+              },
+              "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+              "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+            }
+          },
+          {
+            "name": "serious-cancel-repaired",
+            "expected_exit_status": 0,
+            "observed_exit_status": 0,
+            "receipt": {
+              "logical_profile": "s2n-arm-mlkem",
+              "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+              "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+              "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+              "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+              "raw_transcript_sha256": "6a6e833fff1804fa28dea3f1a282622f071295f3c57220e7df4cd4cf0d7c5fe2",
+              "eval_elapsed_seconds": 18.075,
+              "requested_timeout_seconds": 1500.0,
+              "effective_capacity": 1,
+              "admission_wait_seconds": 0.0,
+              "transport_status": "completed",
+              "source_completed": true,
+              "claims_complete": true,
+              "completion_marker_valid": true,
+              "exit_status": 0,
+              "broker_child_quiescent": true,
+              "broker_seat_reusable": true,
+              "dependency_transport_status": "packaged_with_profile_satisfaction",
+              "receipt_sha256": "4737c41b30bef1ae77dd5aa3c51db846913ad4ec901a887e24528f6135dccd63",
+              "targets": [
+                {
+                  "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_ENSURES_PRECONDITION",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+                  "status": "proved"
+                },
+                {
+                  "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+                  "status": "proved"
+                }
+              ],
+              "foundation_delta": {
+                "status": "observed",
+                "new_axiom_count": 0
+              },
+              "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+              "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+            }
+          }
+        ],
+        "imported_timeout": {
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "raw_transcript_sha256": "40a8909709dd1a9f068f89478d3ca17eda704d90f63b60721f2c6f6a80bcc64e",
+          "eval_elapsed_seconds": 35.231,
+          "requested_timeout_seconds": 20.0,
+          "effective_capacity": 1,
+          "admission_wait_seconds": 0.0,
+          "transport_status": "timeout",
+          "source_completed": false,
+          "claims_complete": false,
+          "completion_marker_valid": false,
+          "exit_status": 124,
+          "broker_child_quiescent": true,
+          "broker_seat_reusable": true,
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "receipt_sha256": "e39a02465d1581ac4d6cb22b31286cb9fd7c3c216becb83538e9ea5780438180",
+          "targets": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "missing"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "missing"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "missing"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "missing"
+            }
+          ],
+          "foundation_delta": {
+            "status": "missing",
+            "new_axiom_count": null
+          },
+          "running_binding": {
+            "name": "MLKEM_NTT_CLEAN_LAYER2_BLOCK",
+            "source_line": 543,
+            "status": "running_at_interruption",
+            "authority": "diagnostic_only",
+            "verification_kind": "compiler_callsite_diagnostic"
+          }
+        }
+      },
+      "delivered_launcher": {
+        "status": "passed",
+        "launch_context": "Outside the checkout, using the selected runtime and existing admitted project basis.",
+        "receipt": {
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "raw_transcript_sha256": "343e640df237d51d8cadf0b77d997711adbf565089412b6c18444a614f88419b",
+          "eval_elapsed_seconds": 17.193,
+          "requested_timeout_seconds": 1500.0,
+          "effective_capacity": 1,
+          "admission_wait_seconds": 35.347,
+          "transport_status": "completed",
+          "source_completed": true,
+          "claims_complete": true,
+          "completion_marker_valid": true,
+          "exit_status": 0,
+          "broker_child_quiescent": true,
+          "broker_seat_reusable": true,
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "receipt_sha256": "0fd0739fbe601082a3b6780521dfa7a91952b904a60dd8076bf4762fb8cdc131",
+          "targets": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0
+          },
+          "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+          "project_basis_preparation_receipt_sha256": "c69a670da2cf30045348d6327d89ff5c838bd4146fcfa34896b449c9505fac68"
+        }
+      }
+    }
+  ],
+  "separate_p256_acceptance": {
+    "status": "not_accepted",
+    "logical_profile": "s2n-arm",
+    "source_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+    "requested_timeout_seconds": 1800,
+    "receipt": {
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+      "source_dependency_closure_sha256": "69ff597c0f422a57e863f3801abfe482020c151391d19ab9281d8c7a6e9e0e01",
+      "raw_transcript_sha256": "db0dd14d9a5d543dc33325667e306b644de5d058608a0101e8a3c8e104cb9207",
+      "eval_elapsed_seconds": 1733.717,
+      "requested_timeout_seconds": 1800.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "exit_status": 1,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "receipt_sha256": "524d5c28f8922e45406a9ca177c6f8a2216e1688facf40b90c04cf4bd9fb8cdc",
+      "targets": [
+        {
+          "name": "unilemma0",
+          "status": "missing"
+        },
+        {
+          "name": "unilemma1",
+          "status": "missing"
+        },
+        {
+          "name": "lemont",
+          "status": "missing"
+        },
+        {
+          "name": "demont",
+          "status": "missing"
+        },
+        {
+          "name": "pumont",
+          "status": "missing"
+        },
+        {
+          "name": "dismont",
+          "status": "missing"
+        },
+        {
+          "name": "unmont",
+          "status": "missing"
+        },
+        {
+          "name": "unreplemma",
+          "status": "missing"
+        },
+        {
+          "name": "weierstrass_of_jacobian_p256_add",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORRECT",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_EQUIV",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_CORRECT",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_SAFE",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_SAFE",
+          "status": "missing"
+        }
+      ],
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "exact_objects": [
+        {
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        }
+      ],
+      "running_binding": null
+    },
+    "limit": "The initial full attempt failed through ambient dependency routing. Corrected project-root capture rejected two missing objects before HOL. After their isolated build, full replay reached the entrypoint equivalence proof but timed out at P256_MONTJADD_EQUIV after 1815.268 seconds (1800-second requested budget plus controller allowance and cleanup). No target was nonce-probed as proved; 11 printed values remain unverified and six target bindings are missing. No theorem falsity follows from this timeout.",
+    "retry_status": "timeout",
+    "retry_receipt": {
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+      "source_dependency_closure_sha256": "5746d03a50f9d08652a8547756249e365c49f62ac007eb1b5045237fe30e8c37",
+      "raw_transcript_sha256": "2e3b0e3b72d372c72a179eb10d4b2029692a8b7391584d4a759d735798b7bc19",
+      "eval_elapsed_seconds": 1815.268,
+      "requested_timeout_seconds": 1800.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "timeout",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "exit_status": 124,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "dependency_transport_status": "packaged",
+      "receipt_sha256": "eecbdcee11fbe9d9c7d3e36007bf2ac3601036dd90c31a2c243acb908813cd47",
+      "targets": [
+        {
+          "name": "unilemma0",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "unilemma1",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "lemont",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "demont",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "pumont",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "dismont",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "unmont",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "unreplemma",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "weierstrass_of_jacobian_p256_add",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORRECT",
+          "status": "printed_unprobed"
+        },
+        {
+          "name": "P256_MONTJADD_EQUIV",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_CORRECT",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_SAFE",
+          "status": "missing"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_SAFE",
+          "status": "missing"
+        }
+      ],
+      "foundation_delta": {
+        "status": "missing",
+        "new_axiom_count": null
+      },
+      "exact_objects": [
+        {
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "binding_counts": {
+        "failed": 0,
+        "missing": 6,
+        "printed_unprobed": 11,
+        "proved": 0,
+        "unknown": 0
+      },
+      "running_binding": {
+        "name": "P256_MONTJADD_EQUIV",
+        "source_line": 1188,
+        "status": "running_at_interruption",
+        "authority": "diagnostic_only",
+        "verification_kind": "compiler_callsite_diagnostic"
+      }
+    }
+  },
+  "limits": [
+    "The full functional target retains alignment, range, memory-separation and machine-state premises.",
+    "A completed explicit basis can be reused only with its exact source, dependency, ELF, shelf and backend identities; every target replay still starts in a fresh child.",
+    "Zero new axioms is a delta from the admitted warm basis, not an inventory or audit of pre-existing axioms.",
+    "Small lifecycle controls validate refusals and cache behavior; they do not replace substantial assembly acceptance.",
+    "Installer smoke tests are installation checks, not evidence that substantial assembly authoring succeeds."
+  ]
+}

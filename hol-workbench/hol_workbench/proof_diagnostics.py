@@ -2,14 +2,111 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Any
 
 PREFIX = "__HOL_PROOF_DIAGNOSTIC__"
+ACTIVITY_PREFIX = "__HOL_PROOF_ACTIVITY__"
+ACTIVITY_PROTOCOL = "hol-hearth.proof-activity.v1"
 NONCE = re.compile(r"^[0-9a-f]{32}$")
 MAX_EVENTS = 8
+MAX_ACTIVITY_CALLS = 8192
 MAX_GOALS = 8
 MAX_ASSUMPTIONS = 16
 MAX_TEXT_BYTES = 2048
+
+
+def attach_dependency_diagnostic_sources(
+    contract: dict[str, Any], closure: dict[str, Any], package_root: Path,
+    *, transcript: bytes | None = None,
+) -> None:
+    """Map exact imports requested by bounded diagnostics, never verified claims."""
+    from hol_workbench.hashing import sha256_bytes
+    from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
+    from hol_workbench.secure_tree_read import read_regular_file_beneath
+    from hol_workbench.source_dependency_closure import source_dependency_closure_identity_matches
+
+    descriptor = contract.get("proof_diagnostics")
+    if not isinstance(descriptor, dict):
+        return
+    descriptor["dependency_sources"] = []
+    descriptor["dependency_sources_status"] = "invalid_closure"
+    try:
+        if not source_dependency_closure_identity_matches(closure):
+            return
+        root = package_root.resolve(strict=True)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return
+    requested: set[Path] | None = None
+    if transcript is not None:
+        requested = set()
+        activity = account_proof_activity(transcript, contract)
+        diagnostics = account_proof_diagnostics(transcript, contract)
+        contexts = []
+        if activity.get("status") == "recorded":
+            contexts.extend(activity["active_calls"])
+        if diagnostics.get("status") == "recorded":
+            contexts.extend(diagnostics["events"])
+        for context in contexts:
+            for location in context["locations"]:
+                try:
+                    path = Path(location["file"])
+                    if not path.is_absolute():
+                        continue
+                    path = path.resolve(strict=False)
+                    if path.is_relative_to(root):
+                        requested.add(path)
+                except (OSError, RuntimeError, TypeError, ValueError):
+                    continue
+        if not requested:
+            descriptor["dependency_sources_status"] = "not_needed"
+            return
+    mappings: dict[str, dict[str, Any]] = {}
+    claims_by_source: dict[tuple[Path, str], list[dict[str, Any]]] = {}
+    rejected: set[str] = set()
+    for row in closure["records"]:
+        if row.get("resolution") not in {"source_local", "source_overlay", "holdir_source", "mounted_source"}:
+            continue
+        if row.get("traversal") not in {"followed", "already_seen", "cycle"}:
+            continue
+        portable = str(row.get("package_path") or "")
+        try:
+            relative = Path(portable)
+            if (not relative.parts or relative.is_absolute() or relative.as_posix() != portable
+                    or ".." in relative.parts or row.get("symlinked") is not False):
+                raise ValueError("unsafe diagnostic source path")
+            packaged = root / relative
+            if requested is not None and packaged not in requested:
+                continue
+            source = Path(str(row.get("resolved_path") or ""))
+            trusted_root = Path(str(row.get("trusted_root_path") or ""))
+            if not source.is_absolute() or not trusted_root.is_absolute():
+                raise ValueError("missing diagnostic source authority")
+            original = read_regular_file_beneath(trusted_root, source).data
+            captured = read_regular_file_beneath(root, packaged).data
+            if (sha256_bytes(original) != row.get("sha256") or captured != original
+                    or type(row.get("size_bytes")) is not int or len(captured) != row["size_bytes"]):
+                raise ValueError("diagnostic source bytes changed")
+            claim_key = (source, row["sha256"])
+            if claim_key not in claims_by_source:
+                claims_by_source[claim_key] = [
+                    {key: claim[key] for key in ("name", "source", "source_line", "statement_line")}
+                    for claim in extract_hol_theorems_bytes(source, captured)
+                    if claim.get("proof_constructor") == "prove"
+                ]
+            claims = claims_by_source[claim_key]
+            mapping = {
+                "source": str(source), "packaged_source": str(packaged),
+                "source_sha256": row["sha256"], "source_line_offset": 0,
+                "claims": claims, "authority": "diagnostic_only",
+            }
+            if portable in mappings and mappings[portable] != mapping:
+                raise ValueError("ambiguous diagnostic source mapping")
+            mappings[portable] = mapping
+        except (OSError, RuntimeError, TypeError, ValueError, UnicodeError):
+            rejected.add(portable)
+    descriptor["dependency_sources"] = [value for key, value in mappings.items() if key not in rejected]
+    descriptor["dependency_sources_status"] = "partial" if rejected else "recorded"
 
 
 def diagnostic_prelude(nonce: str) -> bytes:
@@ -26,6 +123,7 @@ let prove =
   let original_concl = concl in
   let original_term_printer = pp_print_term in
   let events = ref 0 in
+  let calls = ref 0 in
   let bound = 2048 in
   let bounded s = if String.length s <= bound then s else
     String.sub s 0 bound ^ "... [truncated]" in
@@ -45,6 +143,26 @@ let prove =
     if String.length s = bound then s ^ "... [truncated]" else s in
   let rec take n xs = match xs with
     [] -> [] | _ when n = 0 -> [] | x::rest -> x::take (n-1) rest in
+  let enter locations =
+    incr calls;
+    let call = !calls in
+    (try
+       if call <= @MAX_ACTIVITY_CALLS@ then
+         (original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:ENTER" call;
+          List.iter (fun slot -> match Printexc.Slot.location slot with
+            None -> () | Some loc ->
+              let name = match Printexc.Slot.name slot with None -> "" | Some n -> n in
+              original_print ":%s:%s:%d" (hex (bounded loc.Printexc.filename))
+                (hex (bounded name)) loc.Printexc.line_number) locations;
+          original_print "\n%!")
+       else if call = @MAX_ACTIVITY_CALLS@ + 1 then
+         original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:TRUNCATED\n%!" call
+     with _ -> ());
+    call in
+  let leave call =
+    try if !calls <= @MAX_ACTIVITY_CALLS@ then
+      original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:LEAVE\n%!" call
+    with _ -> () in
   let emit kind tm error goals locations =
     if !events < 8 then
       (incr events;
@@ -72,12 +190,14 @@ let prove =
   fun (tm,tac) ->
     let locations = try match Printexc.backtrace_slots (Printexc.get_callstack 32) with
       None -> [] | Some slots -> Array.to_list slots with _ -> [] in
+    let call = enter locations in
     let returned_goals = ref None in
     let observe goal =
       let ((_,goals,_) as result) = tac goal in
       returned_goals := Some goals;
       result in
-    try original_prove (tm,observe) with error ->
+    try let theorem = original_prove (tm,observe) in leave call; theorem with error ->
+      leave call;
       (try
          (match !returned_goals with
             Some (_::_ as goals) -> emit "residual_goals" tm error goals locations
@@ -85,7 +205,7 @@ let prove =
        with _ -> ());
       raise error;;
 '''
-    return source.replace("@NONCE@", nonce).encode("utf-8")
+    return source.replace("@NONCE@", nonce).replace("@MAX_ACTIVITY_CALLS@", str(MAX_ACTIVITY_CALLS)).encode("utf-8")
 
 
 def _text(value: str) -> str:
@@ -179,6 +299,65 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
     return {**empty, "status": "recorded", "events": events, "capture_truncated": truncated}
 
 
+def account_proof_activity(transcript: bytes, contract: dict[str, Any]) -> dict[str, Any]:
+    """Track entered/returned prove calls without treating either as proof evidence."""
+    descriptor = contract.get("proof_diagnostics")
+    available = isinstance(descriptor, dict) and descriptor.get("activity_protocol") == ACTIVITY_PROTOCOL
+    empty: dict[str, Any] = {
+        "schema": ACTIVITY_PROTOCOL, "status": "none" if available else "unavailable",
+        "active_calls": [], "authority": "diagnostic_only",
+        "boundary": "An entered prove call without a recorded return; neither failure nor theorem evidence.",
+    }
+    if not available:
+        return empty
+    nonce = str(contract.get("nonce") or "")
+    if not NONCE.fullmatch(nonce) or descriptor.get("nonce") != nonce:
+        return {**empty, "status": "invalid_contract"}
+    prefix = f"{ACTIVITY_PREFIX}:{nonce}:".encode()
+    active: list[dict[str, Any]] = []
+    entered = records = 0
+    try:
+        for lineno, raw in enumerate(transcript.splitlines(keepends=True), 1):
+            if not raw.startswith(prefix):
+                # A cut-off ENTER must not leave an earlier call looking current.
+                if raw.startswith(ACTIVITY_PREFIX.encode()) and prefix.startswith(raw):
+                    return {**empty, "status": "incomplete"}
+                continue
+            if not raw.endswith(b"\n"):
+                return {**empty, "status": "incomplete"}
+            records += 1
+            if records > MAX_ACTIVITY_CALLS * 2 + 1 or len(raw) > 32 * (MAX_TEXT_BYTES + 32) * 4 + 256:
+                raise ValueError("proof activity record limit exceeded")
+            parts = raw[len(prefix):].rstrip(b"\r\n").decode("ascii").split(":")
+            call = int(parts[0])
+            op = parts[1]
+            if op == "TRUNCATED":
+                if len(parts) != 2 or call != MAX_ACTIVITY_CALLS + 1 or entered != MAX_ACTIVITY_CALLS:
+                    raise ValueError("invalid proof activity truncation")
+                return {**empty, "status": "truncated", "entered_call_count": entered}
+            if op == "ENTER":
+                if call != entered + 1 or call > MAX_ACTIVITY_CALLS or (len(parts) - 2) % 3 or len(parts) > 98:
+                    raise ValueError("invalid proof activity entry")
+                locations = []
+                for pos in range(2, len(parts), 3):
+                    line = int(parts[pos + 2])
+                    if line < 1:
+                        raise ValueError("invalid proof activity location")
+                    locations.append({"file": _text(parts[pos]), "name": _text(parts[pos + 1]), "line": line})
+                active.append({"call": call, "locations": locations, "entered_transcript_line": lineno})
+                entered = call
+            elif op == "LEAVE":
+                if len(parts) != 2 or not active or active[-1]["call"] != call:
+                    raise ValueError("unmatched proof activity return")
+                active.pop()
+            else:
+                raise ValueError("unknown proof activity operation")
+    except (ValueError, UnicodeError, IndexError):
+        return {**empty, "status": "malformed"}
+    return {**empty, "status": "recorded" if records else "none", "active_calls": active,
+            "entered_call_count": entered}
+
+
 def print_proof_diagnostics(receipt: dict[str, Any], *, verbose: bool) -> None:
     data = receipt.get("proof_diagnostics") or (receipt.get("transcript_accounting") or {}).get("proof_diagnostics")
     if not isinstance(data, dict) or data.get("status") != "recorded":
@@ -210,37 +389,95 @@ def print_proof_diagnostics(receipt: dict[str, Any], *, verbose: bool) -> None:
             print(f"    ... {len(event['goals']) - len(goals)} more recorded goals; use --verbose")
 
 
+def _binding_at_locations(
+    locations: list[dict[str, Any]], contract: dict[str, Any], claims: list[dict[str, Any]],
+    *, include_dependencies: bool = False,
+) -> tuple[str, str, int] | None:
+    """Map only a unique named call site in an exactly captured source."""
+    descriptor = contract.get("proof_diagnostics")
+    if not isinstance(descriptor, dict):
+        return None
+    entry = descriptor.get("packaged_entrypoint")
+    offset = descriptor.get("source_line_offset")
+    sources = [(entry, offset, claims)]
+    if include_dependencies:
+        dependencies = descriptor.get("dependency_sources") or []
+        if not isinstance(dependencies, list):
+            return None
+        for mapping in dependencies:
+            if (not isinstance(mapping, dict) or mapping.get("authority") != "diagnostic_only"
+                    or type(mapping.get("source_line_offset")) is not int
+                    or mapping["source_line_offset"] != 0 or not isinstance(mapping.get("claims"), list)):
+                return None
+            sources.append((mapping.get("packaged_source"), 0, mapping["claims"]))
+    candidates: list[tuple[str, str, int]] = []
+    for loc in locations:
+        if not isinstance(loc, dict) or type(loc.get("line")) is not int:
+            continue
+        for packaged, line_offset, source_claims in sources:
+            try:
+                if (not isinstance(packaged, str) or not isinstance(loc.get("file"), str)
+                        or type(line_offset) is not int or not Path(packaged).is_absolute()
+                        or not Path(loc["file"]).is_absolute()
+                        or Path(loc["file"]).resolve(strict=False) != Path(packaged).resolve(strict=False)):
+                    continue
+            except (OSError, RuntimeError, ValueError):
+                continue
+            line = loc["line"] - line_offset
+            for claim in source_claims:
+                if not isinstance(claim, dict):
+                    return None
+                start = claim.get("source_line")
+                quote = claim.get("statement_line") or start
+                if (loc.get("name") == claim.get("name") and type(start) is int and type(quote) is int
+                        and isinstance(claim.get("source"), str) and start <= line <= quote):
+                    candidates.append((claim["name"], claim["source"], start))
+    candidates = list(dict.fromkeys(candidates))
+    return candidates[0] if len(candidates) == 1 else None
+
+
 def identify_failed_binding(
     diagnostics: dict[str, Any], contract: dict[str, Any],
     claims: list[dict[str, Any]], failure_line: int | None,
 ) -> dict[str, Any] | None:
     """Map a compiler-reported direct call site, never a preceding printed val."""
-    descriptor = contract.get("proof_diagnostics") or {}
-    entry = descriptor.get("packaged_entrypoint")
-    offset = descriptor.get("source_line_offset")
     events = diagnostics.get("events") or []
-    if diagnostics.get("capture_truncated") or not entry or type(offset) is not int or not events:
+    if diagnostics.get("capture_truncated") or not events:
         return None
     event = events[-1]
     # A caught failure followed by another error is not attribution. The
     # diagnostic must be immediately followed by HOL's uncaught exception.
     if type(failure_line) is not int or event.get("end_transcript_line") != failure_line - 1:
         return None
-    candidates = []
-    for loc in event.get("locations") or []:
-        if loc.get("file") != entry:
-            continue
-        line = loc["line"] - offset
-        for claim in claims:
-            start, quote = claim.get("source_line"), claim.get("statement_line")
-            if (loc.get("name") == claim.get("name") and type(start) is int and type(quote) is int
-                    and start <= line <= quote):
-                candidates.append((claim["name"], claim["source"], start))
-    candidates = list(dict.fromkeys(candidates))
-    if len(candidates) != 1:
+    candidate = _binding_at_locations(event.get("locations") or [], contract, claims)
+    if candidate is None:
         return None
-    name, source, line = candidates[0]
+    name, source, line = candidate
     return {"status": "identified", "name": name, "source": source, "source_line": line,
             "verification_kind": "compiler_callsite_diagnostic",
             "reason": "unique compiler call site in the exact packaged entrypoint, immediately before the uncaught failure",
             "authority": "diagnostic_only"}
+
+
+def identify_running_binding(
+    activity: dict[str, Any], contract: dict[str, Any], claims: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Attribute an interrupted active call; a return never means a proved binding."""
+    unknown: dict[str, Any] = {
+        "status": "unknown", "name": None, "authority": "diagnostic_only",
+        "reason": "no complete, unambiguous active prove call was recorded at interruption",
+    }
+    active = activity.get("active_calls") or []
+    if activity.get("status") != "recorded" or not active:
+        return unknown
+    call = active[-1]
+    candidate = _binding_at_locations(call.get("locations") or [], contract, claims, include_dependencies=True)
+    if candidate is None:
+        return {**unknown, "reason": "active prove call is unsupported or has no unique exactly captured call site"}
+    name, source, line = candidate
+    return {
+        "status": "running_at_interruption", "name": name, "source": source, "source_line": line,
+        "verification_kind": "compiler_callsite_diagnostic", "authority": "diagnostic_only",
+        "entered_transcript_line": call["entered_transcript_line"],
+        "reason": "unique exactly captured prove call entered without a recorded return before interruption; not failure or proof evidence",
+    }

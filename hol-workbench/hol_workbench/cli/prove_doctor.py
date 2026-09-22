@@ -140,7 +140,9 @@ def _layer(report: dict[str, Any], name: str) -> dict[str, Any]:
     return next(layer for layer in report["layers"] if layer["layer"] == name)
 
 
-def render_doctor(report: dict[str, Any]) -> list[str]:
+def render_doctor(
+    report: dict[str, Any], *, profile: str | None = "light", stalled_after: float = 120.0
+) -> list[str]:
     runtime = report["runtime"]["summary"]
     config = _layer(report, "config")
     profiles = _layer(report, "profiles")
@@ -149,11 +151,13 @@ def render_doctor(report: dict[str, Any]) -> list[str]:
     if report["status"] == "healthy":
         next_step = "rerun the same prove command"
     elif config["status"] == "blocked":
-        next_step = "./hearth setup --check (first-time setup); see docs/setup.md"
+        next_step = ("select an existing runtime with HOL_WORKBENCH_RUNTIME_CONFIG or hearth configure; "
+                     "use hearth setup only for a new environment; see docs/setup.md")
     elif queue["status"] in {"saturated", "waiting"} and lifecycle["status"] == "clean":
-        next_step = public_command("prove", "status", "--watch")
+        next_step = public_command("prove", "status", *(["--profile", profile] if profile else []), "--watch")
     else:
         next_step = "inspect DETAILS and profile build logs; see docs/setup.md before changing an existing runtime"
+    selection = ["--profile", profile] if profile is not None else ["--all-profiles"]
     return [
         f"DOCTOR: {report['status']}",
         "OS: ready (Linux)",
@@ -163,7 +167,7 @@ def render_doctor(report: dict[str, Any]) -> list[str]:
         f"QUEUE: {queue['status']} ({queue['detail']})",
         f"LIFECYCLE: {lifecycle['status']} ({lifecycle['detail']})",
         f"NEXT: {next_step}",
-        f"DETAILS: {public_command('prove', 'doctor', '--json')}",
+        f"DETAILS: {public_command('prove', 'doctor', *selection, '--stalled-after', str(stalled_after), '--json')}",
     ]
 
 
@@ -189,5 +193,7 @@ def main(args: list[str], *, script_dir: str | Path) -> int:
     except (OSError, RuntimeError, SystemExit, ValueError) as exc:
         print(f"prove doctor: {exc}", file=sys.stderr)
         return 2
-    print(json.dumps(report, sort_keys=True) if options.json else "\n".join(render_doctor(report)))
+    print(json.dumps(report, sort_keys=True) if options.json else "\n".join(render_doctor(
+        report, profile=None if options.all_profiles else options.profile, stalled_after=options.stalled_after
+    )))
     return 0 if report["status"] == "healthy" else 1

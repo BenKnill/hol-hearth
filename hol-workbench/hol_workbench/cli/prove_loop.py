@@ -46,6 +46,8 @@ def _parse(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--source")
     parser.add_argument("--loop", action="store_true")
     parser.add_argument("--profile")
+    parser.add_argument("--basis", metavar="FILE.ml",
+                        help="reuse a checked imported project basis across watched leaf attempts")
     parser.add_argument("--run-root")
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--poll", type=float, default=1)
@@ -68,12 +70,14 @@ def main(args: list[str], *, script_dir: str | os.PathLike[str], cwd: str | os.P
     try:
         resolution = resolve_authoring_source(options.source, legacy_cwd=working)
         source = resolution.source
+        basis = resolve_authoring_source(options.basis, legacy_cwd=working).source if options.basis else None
         if not source.is_file():
             raise ValueError(f"source is not a file: {source}")
         name = _profile(source, options.profile, scripts)
         profile = resolve_published_warm_profile(scripts, name)
-        root = resolve_authoring_run_root(options.run_root, legacy_cwd=working,
-                                         source_resolution=resolution) / run_id("watch")
+        selected_root = resolve_authoring_run_root(options.run_root, legacy_cwd=working,
+                                                  source_resolution=resolution)
+        root = selected_root / run_id("watch")
         root.mkdir(parents=True, exist_ok=False)
     except (OSError, RuntimeError, ValueError, SystemExit) as exc:
         print(f"WATCH: cannot start: {exc}", file=sys.stderr)
@@ -100,7 +104,10 @@ def main(args: list[str], *, script_dir: str | os.PathLike[str], cwd: str | os.P
                     path = _replay_receipt(root)
                     receipt = _read_json(path) if path and path != previous_receipt else {}
                     # Use the actual captured input identity, not a pre-launch observation.
-                    last_attempt = receipt.get("source_dependency_closure_sha256") or launched
+                    # A failed basis preparation has its own source receipt.
+                    # It must not be mistaken for a new revision of this leaf.
+                    last_attempt = (receipt.get("source_dependency_closure_sha256")
+                                    if receipt.get("source") == str(source) else None) or launched
                     if revision != last_attempt:
                         print("STALE: the finished result is for earlier inputs; another check is pending.", flush=True)
                     else:
@@ -119,7 +126,11 @@ def main(args: list[str], *, script_dir: str | os.PathLike[str], cwd: str | os.P
                     process = subprocess.Popen(
                         [str(scripts / "prove"), str(source), "--profile", name,
                          "--timeout", str(options.timeout), "--run-root", str(root),
-                         "--progress-interval", str(options.progress_interval)],
+                         "--progress-interval", str(options.progress_interval),
+                         # Receipts stay in this watch session; reusable bases
+                         # share the same root as ordinary prove and later watches.
+                         *(["--basis", str(basis), "--basis-cache-root", str(selected_root)]
+                           if basis is not None else [])],
                         cwd=working, start_new_session=True,
                     )
                 else:

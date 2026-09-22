@@ -12,14 +12,22 @@ uses a fresh HOL child; failed proofs do not contaminate the next attempt.
 
 ## Work on a project
 
-After [setup](docs/setup.md), select the basis your project needs:
+On a host with an existing warm environment, first point Hearth at its runtime
+configuration; see [reuse an existing environment](docs/setup.md#existing-hol-and-criu-environment).
+Use [setup](docs/setup.md#create-the-first-profile) when provisioning a new host.
+Then run the project on its intended basis:
 
 ```sh
-./hearth doctor --profile light
 ./hearth prove /ABS/project/proofs/leaf.ml --profile light \
   --timeout 120 --run-root /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
 ```
+
+Use `s2n-arm` for ARM assembly, `s2n-arm-mlkem` for the larger NTT basis, or
+`s2n-x86` for x86 assembly. `hearth profiles` lists recipes; installed shelves
+depend on the host. The optional `hearth doctor --profile NAME` checks the
+configured shelf and queue without running a proof. See the
+[assembly workflow](docs/usage.md#assembly-projects-on-an-existing-profile).
 
 For a sustained edit session:
 
@@ -41,10 +49,12 @@ At a milestone, check the complete root with an appropriate budget:
 ./hearth inspect /ABS/project/milestones --json
 ```
 
-Every attempt evaluates the whole requested source. It does not automatically
-cache an arbitrary proved prefix. Choose a focused leaf and keep stable,
-expensive library dependencies in the selected warm profile. See the
-[project workflow](docs/usage.md).
+Every attempt evaluates the whole requested source in a fresh child. For a
+stable, expensive project dependency, add `--basis /ABS/project/proofs/basis.ml`
+to prepare it once on the existing warm profile and reuse its checked state.
+The leaf must import that file through literal `needs`. Source or object edits
+invalidate reuse; preparation and leaf checks each retain a receipt. See the
+[project workflow](docs/usage.md#reuse-a-completed-project-dependency).
 
 ## Why this exists
 
