@@ -10,7 +10,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
@@ -27,6 +27,28 @@ from hol_workbench.vanilla_claims import (
 
 
 class AuthoringRegression(unittest.TestCase):
+    def test_source_preflight_refusals_leave_receipts_without_restore(self):
+        from hol_workbench.cli.orbstack_criu_vanilla import run
+        for source_bytes in (
+            b"let DUP = prove (`T`, REWRITE_TAC[]);;\n" * 2,
+            b"let BROKEN = prove (`T`, REWRITE_TAC[]);; (* unfinished",
+        ):
+            with self.subTest(source=source_bytes), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                source, transcript = root / "leaf.ml", root / "run" / "transcript.log"
+                source.write_bytes(source_bytes)
+                restore = Mock(side_effect=AssertionError("preflight must not restore"))
+                status = run(profile_root=root / "profile", source=source, timeout=30,
+                             idle_timeout=None, restore=restore, transcript_output=transcript,
+                             logical_profile="light", display_transcript=False)
+                self.assertEqual(status, 2)
+                restore.assert_not_called()
+                receipt = json.loads(Path(f"{transcript}.json").read_text())
+                self.assertEqual(receipt["transport_status"], "not_started")
+                self.assertEqual(receipt["source_preflight_status"], "claim_probe_contract_refused")
+                self.assertFalse(receipt["source_completed"])
+                self.assertEqual(receipt["exit_status"], 2)
+
     def inspect(self, path, *args):
         return subprocess.run([str(ROOT / "hearth"), "inspect", str(path), *args],
                               cwd="/tmp", capture_output=True, text=True, timeout=10)

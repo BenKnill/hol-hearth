@@ -5,7 +5,10 @@ from __future__ import annotations
 import secrets
 from typing import Any
 
-from hol_workbench.proof_diagnostics import account_proof_diagnostics, diagnostic_prelude, identify_failed_binding
+from hol_workbench.proof_diagnostics import (
+    ACTIVITY_PREFIX, ACTIVITY_PROTOCOL, MAX_ACTIVITY_CALLS, account_proof_activity,
+    account_proof_diagnostics, diagnostic_prelude, identify_failed_binding, identify_running_binding,
+)
 
 from hol_workbench.foundation_delta import account_foundation_delta, foundation_probe_contract
 from hol_workbench.vanilla_claims import (
@@ -43,6 +46,8 @@ def instrumented_source_bytes(
             "nonce": contract["nonce"], "authority": "diagnostic_only",
             "packaged_entrypoint": diagnostic_source_path,
             "source_line_offset": prefix_bytes.count(b"\n") + 1,
+            "activity_protocol": ACTIVITY_PROTOCOL,
+            "max_activity_calls": MAX_ACTIVITY_CALLS,
         }
     return payload, contract
 
@@ -70,6 +75,7 @@ def displayed_transcript(transcript: bytes, contract: dict[str, Any]) -> str:
         for line in transcript.splitlines()
         if line not in hidden and not (foundation_prefix and line.startswith(foundation_prefix))
         and not line.startswith(("__HOL_PROOF_DIAGNOSTIC__:" + str(contract["nonce"]) + ":").encode())
+        and not line.startswith((ACTIVITY_PREFIX + ":" + str(contract["nonce"]) + ":").encode())
     )
     if rendered and transcript.endswith((b"\n", b"\r")):
         rendered += b"\n"
@@ -152,6 +158,7 @@ def analyze_vanilla_transcript(
             "name": None,
             "reason": "no reliable source binding location was recorded; preceding printed text is not attribution",
         },
+        "running_binding": None,
         "claim_accounting": claim_docs,
         "probe_contract": contract,
         "natural_output_is_evidence": False,
@@ -160,6 +167,9 @@ def analyze_vanilla_transcript(
     }
     if foundation_enabled:
         result["proof_diagnostics"] = account_proof_diagnostics(transcript, contract)
+        result["proof_activity"] = account_proof_activity(transcript, contract)
+        if not source_completed and transport in {"timeout", "interrupted", "cancelled"}:
+            result["running_binding"] = identify_running_binding(result["proof_activity"], contract, claims)
         if not source_completed:
             attribution = identify_failed_binding(result["proof_diagnostics"], contract, claims, failure_like_lineno)
             if attribution:

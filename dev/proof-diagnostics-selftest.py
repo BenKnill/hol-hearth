@@ -145,3 +145,164 @@ with redirect_stdout(view):
     print_proof_diagnostics(caught, verbose=False)
 assert "caught proof failures; the source continued to completion" in view.getvalue()
 print("proof-diagnostics overflow: exact callsite, unrelated failure and completed-source boundaries passed")
+
+
+# Interruption records an entered call, never a failed/proved theorem. A return
+# (including a caught exception) clears the active call before later source work.
+from hol_workbench.proof_diagnostics import (
+    ACTIVITY_PREFIX, MAX_ACTIVITY_CALLS, account_proof_activity, identify_running_binding,
+)
+from hol_workbench.cli.orbstack_criu_vanilla_semantics import displayed_transcript
+
+activity_prefix = f"{ACTIVITY_PREFIX}:{nonce}:"
+
+def activity_line(call, op, *, file="/package/stack.ml", name="STUCK", line=callsite_line):
+    locations = f":{hx(file)}:{hx(name)}:{line}" if op == "ENTER" else ""
+    return f"{activity_prefix}{call}:{op}{locations}\n".encode()
+
+def analyze_activity(transcript, transport="timeout"):
+    return analyze_vanilla_transcript(
+        claims=overflow_claims, transcript=transcript, contract=overflow_contract,
+        transport=transport, response={"exit_status": 124} if transport == "timeout" else None)
+
+entered = activity_line(1, "ENTER")
+left = activity_line(1, "LEAVE")
+for transport in ("timeout", "interrupted", "cancelled"):
+    running = analyze_activity(entered + b"ongoing tactic output\n", transport)
+    assert running["source_status"] == "not_completed" and not running["source_completed"]
+    assert running["running_binding"]["status"] == "running_at_interruption"
+    assert running["running_binding"]["name"] == "STUCK" and running["running_binding"]["source_line"] == 1
+    assert running["running_binding"]["authority"] == "diagnostic_only"
+    assert running["failing_binding"]["status"] == "unknown"
+    assert running["bindings"][0]["status"] == "missing"
+assert analyze_activity(entered, "completed")["running_binding"] is None
+assert analyze_activity(entered + left)["running_binding"]["status"] == "unknown"
+assert displayed_transcript(entered + b"visible\n" + left, overflow_contract) == "visible\n"
+assert analyze_activity(entered + left + overflow_frame + b"Exception: caught\n")["running_binding"]["status"] == "unknown"
+
+# Current imported or ambiguous calls never borrow a preceding completed name.
+imported = activity_line(2, "ENTER", file="/package/imported.ml", name="HELPER")
+assert analyze_activity(entered + left + imported)["running_binding"]["status"] == "unknown"
+assert analyze_activity(activity_line(1, "ENTER", line=callsite_line + 5))["running_binding"]["status"] == "unknown"
+active_data = account_proof_activity(entered, overflow_contract)
+assert identify_running_binding(active_data, overflow_contract,
+    overflow_claims + [{**overflow_claims[0], "source": "/other/stack.ml"}])["status"] == "unknown"
+# Nested calls return in stack order. An unlocated inner call is unknown until
+# it returns, at which point the entered outer call is again the active one.
+nested = entered + imported
+assert analyze_activity(nested)["running_binding"]["status"] == "unknown"
+assert analyze_activity(nested + activity_line(2, "LEAVE"))["running_binding"]["name"] == "STUCK"
+
+for malformed in (
+    entered + entered, left, entered + activity_line(2, "LEAVE"),
+    activity_line(2, "ENTER"), entered + activity_line(1, "BAD"),
+):
+    assert account_proof_activity(malformed, overflow_contract)["status"] == "malformed"
+    assert analyze_activity(malformed)["running_binding"]["status"] == "unknown"
+for partial in (entered.rstrip(b"\n"), entered + activity_line(2, "ENTER")[:-12],
+                entered + activity_prefix[:-3].encode()):
+    assert account_proof_activity(partial, overflow_contract)["status"] == "incomplete"
+    assert analyze_activity(partial)["running_binding"]["status"] == "unknown"
+assert account_proof_activity(entered.replace(nonce.encode(), b"b" * 32), overflow_contract)["status"] == "none"
+assert account_proof_activity(entered, contract)["status"] == "unavailable"
+
+# The bounded stream explicitly invalidates activity after capture is capped.
+many_calls = b"".join(activity_line(call, "ENTER") + activity_line(call, "LEAVE")
+                      for call in range(1, MAX_ACTIVITY_CALLS + 1))
+truncated_activity = many_calls + activity_line(MAX_ACTIVITY_CALLS + 1, "TRUNCATED")
+assert account_proof_activity(truncated_activity, overflow_contract)["status"] == "truncated"
+assert analyze_activity(truncated_activity)["running_binding"]["status"] == "unknown"
+assert b"original_prove (tm,observe)" in diagnostic_prelude(nonce)
+print("proof activity: interruption, return, nested/imported scope and bounded framing passed")
+
+
+# Imported attribution requires byte-identical captured and packaged sources.
+# The imported claims stay outside entrypoint theorem verification.
+import copy
+import tempfile
+from hol_workbench.proof_diagnostics import attach_dependency_diagnostic_sources
+from hol_workbench.source_dependency_closure import build_source_dependency_closure
+from hol_workbench.source_dependency_package import materialize_dependency_package
+
+with tempfile.TemporaryDirectory(prefix="hearth-imported-diagnostics-") as temporary:
+    root = Path(temporary)
+    project = root / "project"
+    dependency = project / "nested" / "imported.ml"
+    dependency.parent.mkdir(parents=True)
+    dependency_bytes = (
+        b"(* exact imported source *)\nlet IMPORTED = prove\n (`T`,REWRITE_TAC[]);;\n"
+        b"let helper () = let LOCAL = prove (`T`,REWRITE_TAC[]) in LOCAL;;\n"
+    )
+    dependency.write_bytes(dependency_bytes)
+    source = project / "entry.ml"
+    source.write_bytes(b'needs "nested/imported.ml";;\nlet ENTRY = prove (`T`,REWRITE_TAC[]);;\n')
+    entry_claims = extract_hol_theorems_bytes(source, source.read_bytes())
+    closure = build_source_dependency_closure(source)
+    package = root / "package"
+    entrypoint, _ = materialize_dependency_package(source=source, closure=closure, destination=package)
+    packaged_dependency = package / "nested" / "imported.ml"
+    _, imported_contract = instrumented_source_bytes(
+        source.read_bytes(), entry_claims, nonce=nonce, include_foundation_delta=True,
+        diagnostic_source_path=str(entrypoint))
+    imported_frame = activity_line(
+        1, "ENTER", file=f"{package}/nested/././imported.ml", name="IMPORTED", line=2)
+
+    def imported_result(frame=imported_frame, selected_contract=None):
+        return analyze_vanilla_transcript(
+            claims=entry_claims, transcript=frame,
+            contract=imported_contract if selected_contract is None else selected_contract,
+            transport="timeout", response={"exit_status": 124})
+
+    assert imported_result()["running_binding"]["status"] == "unknown"
+    attach_dependency_diagnostic_sources(imported_contract, closure, package)
+    mapped = imported_result()
+    assert mapped["running_binding"]["name"] == "IMPORTED"
+    assert mapped["running_binding"]["source"] == str(dependency)
+    assert mapped["running_binding"]["source_line"] == 2
+    assert mapped["running_binding"]["authority"] == "diagnostic_only"
+    assert mapped["source_completed"] is False and mapped["effective_exit_status"] == 124
+    assert [(row["name"], row["status"]) for row in mapped["bindings"]] == [("ENTRY", "missing")]
+    descriptor = imported_contract["proof_diagnostics"]
+    assert descriptor["dependency_sources_status"] == "recorded"
+    assert descriptor["dependency_sources"][0]["source_line_offset"] == 0
+    assert [row["name"] for row in descriptor["dependency_sources"][0]["claims"]] == ["IMPORTED"]
+    for frame in (
+        activity_line(1, "ENTER", file=str(packaged_dependency), name="LOCAL", line=4),
+        activity_line(1, "ENTER", file=str(packaged_dependency), name="IMPORTED", line=4),
+        activity_line(1, "ENTER", file=str(root / "other" / "imported.ml"), name="IMPORTED", line=2),
+        imported_frame.rstrip(b"\n"),
+    ):
+        assert imported_result(frame)["running_binding"]["status"] == "unknown"
+
+    ambiguous = copy.deepcopy(imported_contract)
+    extra = copy.deepcopy(descriptor["dependency_sources"][0])
+    extra["claims"][0]["source"] = str(root / "other" / "imported.ml")
+    ambiguous["proof_diagnostics"]["dependency_sources"].append(extra)
+    assert imported_result(selected_contract=ambiguous)["running_binding"]["status"] == "unknown"
+    malformed = copy.deepcopy(imported_contract)
+    malformed["proof_diagnostics"]["dependency_sources"][0]["source_line_offset"] = False
+    assert imported_result(selected_contract=malformed)["running_binding"]["status"] == "unknown"
+
+    dependency.write_bytes(dependency_bytes + b"(* source edit *)\n")
+    attach_dependency_diagnostic_sources(imported_contract, closure, package)
+    assert imported_result()["running_binding"]["status"] == "unknown"
+    assert descriptor["dependency_sources_status"] == "partial"
+    dependency.write_bytes(dependency_bytes)
+    packaged_dependency.chmod(0o644)
+    packaged_dependency.write_bytes(dependency_bytes + b"(* package edit *)\n")
+    attach_dependency_diagnostic_sources(imported_contract, closure, package)
+    assert imported_result()["running_binding"]["status"] == "unknown"
+    packaged_dependency.unlink()
+    packaged_dependency.symlink_to(dependency)
+    attach_dependency_diagnostic_sources(imported_contract, closure, package)
+    assert imported_result()["running_binding"]["status"] == "unknown"
+    packaged_dependency.unlink()
+    packaged_dependency.write_bytes(dependency_bytes)
+    invalid_closure = copy.deepcopy(closure)
+    invalid_closure["strict_sha256"] = "0" * 64
+    attach_dependency_diagnostic_sources(imported_contract, invalid_closure, package)
+    assert imported_result()["running_binding"]["status"] == "unknown"
+    assert descriptor["dependency_sources_status"] == "invalid_closure"
+    attach_dependency_diagnostic_sources(imported_contract, closure, package)
+    assert imported_result()["running_binding"]["name"] == "IMPORTED"
+print("proof activity: exact imported source, normalized frames, edits and ambiguity boundaries passed")

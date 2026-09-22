@@ -49,10 +49,12 @@ At a milestone, check the complete root with an appropriate budget:
 ./hearth inspect /ABS/project/milestones --json
 ```
 
-Every attempt evaluates the whole requested source. It does not automatically
-cache an arbitrary proved prefix. Choose a focused leaf and keep stable,
-expensive library dependencies in the selected warm profile. See the
-[project workflow](docs/usage.md).
+Every attempt evaluates the whole requested source in a fresh child. For a
+stable, expensive project dependency, add `--basis /ABS/project/proofs/basis.ml`
+to prepare it once on the existing warm profile and reuse its checked state.
+The leaf must import that file through literal `needs`. Source or object edits
+invalidate reuse; preparation and leaf checks each retain a receipt. See the
+[project workflow](docs/usage.md#reuse-a-completed-project-dependency).
 
 ## Why this exists
 

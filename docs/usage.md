@@ -37,10 +37,42 @@ directory; inspect that directory to select the latest attempt.
 Ctrl-C cancels the owned replay and preserves receipts. The shared broker may
 remain idle for reuse. No separate evaluator build is needed.
 
-A 30-second source still takes about 30 seconds after a save. Use a small leaf,
-split unnecessary imports out of the leaf, and select the appropriate
-preloaded basis. Hearth does not silently build project snapshots or reuse
-an arbitrary source prefix.
+The leaf's own proof still runs after each save. Use a small leaf and split
+unnecessary imports out of it. Stable, completed imports can be retained with
+the explicit project basis below.
+
+## Reuse a completed project dependency
+
+For a leaf that imports a substantial, stable dependency with literal `needs`:
+
+```sh
+./hearth prove /ABS/project/proofs/leaf.ml --profile s2n-arm-mlkem \
+  --basis /ABS/project/proofs/completed_dependency.ml \
+  --timeout 1500 --run-root /ABS/project/runs
+```
+
+On the first run, Hearth checks the dependency through ordinary recorded replay
+on the existing profile. Only a complete source check with all discovered
+bindings checked and an observed zero new axioms admits its retained HOL state.
+It then checks the entire leaf in a fresh child of that state. Later invocations
+with the same run root reuse it; `--loop` accepts the same option.
+
+The requested timeout applies separately to preparation and leaf evaluation.
+Both phases print and preserve their receipts. A failed preparation stops the
+leaf. Leaf receipts identify the exact preparation receipt and inherited input
+hashes. Inspection of that receipt describes what was prepared; it does not
+claim that every transitive imported declaration had a separate named probe.
+
+The cache identity includes the basis source, transitive source and ELF bytes,
+selected shelf and current transport implementation. Changes require another
+preparation. An unrelated file or a forced `loadt` cannot serve as the basis.
+Ordinary admission capacity still applies to cached replays. At most two live
+project bases are retained per run root; replacement retires only owned project
+processes. Ctrl-C cancels the active child and preserves reusable warm state.
+
+This reuses completed dependencies. It does not resume inside an unfinished
+tactic or automatically find and splice a prefix of a changing source. The
+shared profile and its snapshot are preserved.
 
 ## Multi-file sources
 

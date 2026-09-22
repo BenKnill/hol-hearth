@@ -32,6 +32,11 @@ def _parse(args: list[str]) -> argparse.Namespace:
     parser.add_argument("positional_source", nargs="?")
     parser.add_argument("--source")
     parser.add_argument("--profile")
+    parser.add_argument("--basis", metavar="FILE.ml",
+                        help="reuse a checked project basis imported by literal needs; stored under --run-root")
+    # Watch attempts live below session directories but share the caller's
+    # selected cache root. This internal argument keeps --run-root public.
+    parser.add_argument("--basis-cache-root", help=argparse.SUPPRESS)
     parser.add_argument("--run-root", default=None)
     parser.add_argument("--timeout", type=float, default=120.0)
     add_progress_argument(parser)
@@ -41,6 +46,8 @@ def _parse(args: list[str]) -> argparse.Namespace:
         parser.error("SOURCE.ml is required")
     if parsed.source and parsed.positional_source:
         parser.error("specify SOURCE.ml once")
+    if parsed.basis_cache_root and not parsed.basis:
+        parser.error("--basis-cache-root requires --basis")
     if not math.isfinite(parsed.timeout) or parsed.timeout <= 0:
         parser.error("--timeout must be finite and positive")
     parsed.source = source
@@ -72,6 +79,7 @@ def main(
     command_cwd = Path(cwd).expanduser().resolve()
     try:
         resolution = resolve_authoring_source(options.source, legacy_cwd=command_cwd)
+        basis = resolve_authoring_source(options.basis, legacy_cwd=command_cwd).source if options.basis else None
     except AuthoringSourcePathError as exc:
         print(f"prove: {exc}", file=sys.stderr)
         return 2
@@ -84,6 +92,9 @@ def main(
         legacy_cwd=command_cwd,
         source_resolution=resolution,
     )
+    basis_cache_root = resolve_authoring_run_root(
+        options.basis_cache_root, legacy_cwd=command_cwd, source_resolution=resolution,
+    ) if options.basis_cache_root else run_root
     scripts = Path(script_dir).expanduser().resolve()
     try:
         name = _profile(source, options.profile, scripts)
@@ -109,6 +120,9 @@ def main(
             evidence_role="recorded_warm_replay",
             expected_source_sha256=expected_sha256,
             on_phase=progress.set_phase,
+            basis_source=basis,
+            run_root=run_root,
+            basis_cache_root=basis_cache_root,
         )
     receipt = Path(f"{transcript}.json")
     if receipt.is_file():
@@ -133,6 +147,7 @@ def main(
         print("prove: replay succeeded without its required receipt", file=sys.stderr)
         return 1
     else:
-        print("RECEIPT: unavailable; replay did not reach recorded evaluation", file=sys.stderr)
+        print("LEAF RECEIPT: unavailable; see the project basis preparation or refusal above"
+              if basis is not None else "RECEIPT: unavailable; replay did not reach recorded evaluation", file=sys.stderr)
         print("NEXT: review the refusal details above, resolve the cause, then rerun prove SOURCE", file=sys.stderr)
     return status

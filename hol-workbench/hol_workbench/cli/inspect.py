@@ -261,6 +261,12 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         coordinate = f"transcript_line={failure_line} " if type(failure_line) is int else ""
         print(f"first_failure: {coordinate}{receipt['first_failure']}")
     if not source_accepted:
+        running = receipt.get("running_binding") or (receipt.get("transcript_accounting") or {}).get("running_binding")
+        if isinstance(running, dict):
+            if running.get("status") == "running_at_interruption" and running.get("name"):
+                print(f"running_at_interruption: {running['name']} source={running.get('source')}:{running.get('source_line')} (diagnostic only)")
+            else:
+                print("running_at_interruption: unknown (" + str(running.get("reason") or "no reliable location recorded") + ")")
         attribution = receipt.get("failing_binding") or (receipt.get("transcript_accounting") or {}).get("failing_binding")
         if isinstance(attribution, dict) and attribution.get("status") == "identified" and attribution.get("name"):
             print(f"failing_binding: {attribution['name']} source={attribution.get('source')}:{attribution.get('source_line')}")
