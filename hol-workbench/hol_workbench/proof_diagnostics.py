@@ -18,6 +18,7 @@ MAX_ACTIVITY_SEQUENCE = (1 << 62) - 1  # Positive OCaml int limit on the 64-bit 
 MAX_GOALS = 8
 MAX_ASSUMPTIONS = 16
 MAX_TEXT_BYTES = 2048
+MAX_EXCEPTION_GAP_LINES = 8
 
 
 def attach_dependency_diagnostic_sources(
@@ -231,6 +232,43 @@ def _text(value: str) -> str:
     return bytes.fromhex(value).decode("utf-8", errors="replace")
 
 
+def _following_exception_line(lines: list[bytes], event: dict[str, Any]) -> int | None:
+    """Link a frame only to a matching, nearby OCaml exception rendering.
+
+    HOL can insert empty lines before printing the exception re-raised by prove.
+    Skip only those lines, never substantive output or another diagnostic frame.
+    Unknown, wrapped or truncated exception renderings remain unattributed.
+    """
+    error = event["exception"]
+    if error == "Stack overflow":
+        expected = "Stack overflow during evaluation (looping recursion?)."
+    else:
+        # Printexc.to_string and the toplevel differ for these common exceptions.
+        # Match their already-escaped string verbatim; do not decode OCaml text.
+        string_error = re.fullmatch(r'(Failure|Invalid_argument)\(("(?:[^"\\\r\n]|\\[^\r\n])*")\)', error)
+        if string_error:
+            rendered = f"{string_error[1]} {string_error[2]}"
+        elif re.fullmatch(r"[A-Z][A-Za-z0-9_']*(?:\.[A-Z][A-Za-z0-9_']*)*", error):
+            rendered = error
+        else:
+            return None
+        expected = f"Exception: {rendered}."
+    start = event["end_transcript_line"]
+    for index in range(start, min(len(lines), start + MAX_EXCEPTION_GAP_LINES + 1)):
+        line = lines[index].strip()
+        if not line:
+            continue
+        text = line.decode("utf-8", errors="replace").removeprefix("# ").strip()
+        return index + 1 if text == expected else None
+    return None
+
+
+def _event_at_failure(event: dict[str, Any], failure_line: Any) -> bool:
+    return (type(failure_line) is int
+            and type(event.get("following_exception_transcript_line")) is int
+            and event["following_exception_transcript_line"] == failure_line)
+
+
 def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> dict[str, Any]:
     """Accept only complete, bounded frames; diagnostic text cannot prove claims."""
     descriptor = contract.get("proof_diagnostics")
@@ -248,7 +286,8 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
     if not NONCE.fullmatch(nonce) or descriptor.get("nonce") != nonce:
         return {**empty, "status": "invalid_contract"}
     prefix = f"{PREFIX}:{nonce}:".encode()
-    lines = [(number, line) for number, line in enumerate(transcript.splitlines(), 1) if line.startswith(prefix)]
+    transcript_lines = transcript.splitlines()
+    lines = [(number, line) for number, line in enumerate(transcript_lines, 1) if line.startswith(prefix)]
     if not lines:
         return empty
     events: list[dict[str, Any]] = []
@@ -313,6 +352,8 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
             return {**empty, "status": "incomplete"}
     except (ValueError, UnicodeError, IndexError):
         return {**empty, "status": "malformed"}
+    for event in events:
+        event["following_exception_transcript_line"] = _following_exception_line(transcript_lines, event)
     return {**empty, "status": "recorded", "events": events, "capture_truncated": truncated}
 
 
@@ -455,8 +496,19 @@ def print_proof_diagnostics(receipt: dict[str, Any], *, verbose: bool) -> None:
         print("  caught proof failures; the source continued to completion")
     for event in events if verbose else events[-1:]:
         failure_line = receipt.get("first_failure_transcript_line")
-        current = (not data.get("capture_truncated") and not receipt.get("source_completed") and type(failure_line) is int
-                   and event.get("end_transcript_line") == failure_line - 1)
+        recorded_binding = receipt.get("failing_binding") or {}
+        # Old receipts predate exception-link accounting. Preserve their already
+        # identified adjacent context for display only; never infer a new link.
+        legacy_current = (
+            "following_exception_transcript_line" not in event
+            and type(failure_line) is int and event.get("end_transcript_line") == failure_line - 1
+            and recorded_binding.get("status") == "identified"
+            and recorded_binding.get("verification_kind") == "compiler_callsite_diagnostic"
+            and recorded_binding.get("authority") == "diagnostic_only"
+            and any(loc.get("name") == recorded_binding.get("name") for loc in event.get("locations", []))
+        )
+        current = (not data.get("capture_truncated") and not receipt.get("source_completed")
+                   and (_event_at_failure(event, failure_line) or legacy_current))
         if not current:
             print("  earlier/caught proof context; not attributed to the current source failure")
         kind = event["kind"]
@@ -527,12 +579,12 @@ def identify_failed_binding(
 ) -> dict[str, Any] | None:
     """Map a compiler-reported direct call site, never a preceding printed val."""
     events = diagnostics.get("events") or []
-    if diagnostics.get("capture_truncated") or not events:
+    if diagnostics.get("status") != "recorded" or diagnostics.get("capture_truncated") or not events:
         return None
     event = events[-1]
     # A caught failure followed by another error is not attribution. The
-    # diagnostic must be immediately followed by HOL's uncaught exception.
-    if type(failure_line) is not int or event.get("end_transcript_line") != failure_line - 1:
+    # diagnostic must be followed only by blank lines and its matching exception.
+    if not _event_at_failure(event, failure_line):
         return None
     candidate = _binding_at_locations(event.get("locations") or [], contract, claims)
     if candidate is None:
@@ -540,7 +592,7 @@ def identify_failed_binding(
     name, source, line = candidate
     return {"status": "identified", "name": name, "source": source, "source_line": line,
             "verification_kind": "compiler_callsite_diagnostic",
-            "reason": "unique compiler call site in the exact packaged entrypoint, immediately before the uncaught failure",
+            "reason": "unique compiler call site in the exact packaged entrypoint, followed only by bounded blank output and the matching uncaught exception",
             "authority": "diagnostic_only"}
 
 

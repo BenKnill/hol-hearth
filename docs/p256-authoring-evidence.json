@@ -1,0 +1,2058 @@
+{
+  "schema": "hol-hearth.p256-continuation-validation.v1",
+  "checked_on": "2026-09-22",
+  "status": "recorded_results_complete",
+  "environment": "Linux; existing ARM and ARM-MLKEM shelves; no shelf rebuilt",
+  "evidence_boundary": "Recorded warm source execution under the unchanged upstream premises and instruction semantics. Independent publication, ABI frame, alignment and source-to-object assembler audits are outside this record.",
+  "runtime_identity_note": "Receipt client revision is unknown and non-authoritative. Commit identities and controller hashes are independently checked from clean frozen runtime worktrees. Retained-basis backend identities are compared against those hashes.",
+  "external_source_distribution": "External sources, objects, raw transcripts, original receipts, configuration, memory images and machine paths remain outside the public repository.",
+  "upstream": {
+    "repository": "https://github.com/awslabs/s2n-bignum",
+    "commit": "471fca76a9079753aab938ba35ef55ec22717d89",
+    "source": "arm/proofs/p256_montjadd.ml",
+    "source_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+    "size_bytes": 70755,
+    "git_blob_matches": true
+  },
+  "factoring": {
+    "basis_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+    "leaf_sha256": "122a12ae2adfba0893152de82b51207e5df19a1bf685a4da10dc101a01f150b6",
+    "original_suffix_sha256": "99a3805aa066bd259dea1107836d42ded822e949d2ecb2f9fa1a6224b815b5b9",
+    "boundary_byte": 60208,
+    "boundary_original_line": 1230,
+    "basis_targets": [
+      "unilemma0",
+      "unilemma1",
+      "lemont",
+      "demont",
+      "pumont",
+      "dismont",
+      "unmont",
+      "unreplemma",
+      "weierstrass_of_jacobian_p256_add",
+      "P256_MONTJADD_UNOPT_CORE_CORRECT",
+      "P256_MONTJADD_UNOPT_CORRECT",
+      "P256_MONTJADD_EQUIV"
+    ],
+    "leaf_targets": [
+      "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+      "P256_MONTJADD_CORRECT",
+      "P256_MONTJADD_SUBROUTINE_CORRECT",
+      "P256_MONTJADD_SAFE",
+      "P256_MONTJADD_SUBROUTINE_SAFE"
+    ],
+    "exact_original_bytes_reconstructed": true,
+    "change": "The original prefix becomes a recorded project basis; the exact remaining suffix gains one literal needs declaration for that basis. No original premise, proof, frame or instruction bytes are edited."
+  },
+  "runtimes": {
+    "original_arm": {
+      "commit": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "clean_worktree_verified": true,
+      "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+      "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7"
+    },
+    "elf_fixed_arm_mlkem": {
+      "commit": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "clean_worktree_verified": true,
+      "backend_sha256": "62fc0641f71fb477e4e1010f42eabb1c706c4c67d2cfbedabb14ddb3e7f67f31",
+      "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7"
+    }
+  },
+  "control_sources": [
+    {
+      "role": "equivalence_computed_goal_audit",
+      "source_sha256": "f32e7f4c37248c6ac7fb797392e95116e938992e80712b4f61e44796d8a11e26",
+      "targets": [
+        "HEARTH_P256_EQUIV_AUDIT"
+      ]
+    },
+    {
+      "role": "wrong_sum_control",
+      "source_sha256": "6b2a1a68f0c474cb03bce2b2496ba3feb3743687d9d40fd870c278d798328540",
+      "targets": [
+        "HEARTH_P256_WRONG_SUM"
+      ]
+    },
+    {
+      "role": "repaired_sum_control",
+      "source_sha256": "6c31e6bb3302fe79a3db7c2e0ca2204168bb17c427c4ff02e4ed4710862b0ba3",
+      "targets": [
+        "HEARTH_P256_REPAIRED_SUM"
+      ]
+    },
+    {
+      "role": "wrong_final_postcondition_control",
+      "source_sha256": "9886c0313c27e12826eb648ed049c24da1bf08db6d931b8d249dd65dfa0e809e",
+      "targets": [
+        "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+        "P256_MONTJADD_CORRECT",
+        "P256_MONTJADD_SUBROUTINE_CORRECT",
+        "P256_MONTJADD_SAFE",
+        "P256_MONTJADD_SUBROUTINE_SAFE"
+      ]
+    }
+  ],
+  "control_definitions": {
+    "equivalence_computed_goal_audit": "The admitted equivalence theorem is checked for empty hypotheses and alpha-equivalence to the original computed goal, then proved again with ACCEPT_TAC as an audit alias.",
+    "wrong_sum_control": "The literal unoptimized correctness conclusion replaces the result for the two input points with the result for the first input twice; ACCEPT_TAC is offered the original theorem. Premises and frame are preserved.",
+    "repaired_sum_control": "The exact original literal unoptimized correctness quotation is restored and ACCEPT_TAC is offered the original theorem.",
+    "wrong_final_postcondition_control": "The complete original factored leaf changes one byte in the optimized correctness result, replacing the second input point with the first. Premises, frame, tactics and the other four leaf targets remain unchanged."
+  },
+  "attempts": [
+    {
+      "runtime": "original_arm",
+      "role": "complete_original_leaf",
+      "attempt_started_utc": "20260922T150840Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "97752297776752cb86c8a10ba883799bd2b9b97754058794622e9487754b8158",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "122a12ae2adfba0893152de82b51207e5df19a1bf685a4da10dc101a01f150b6",
+      "executed_source_sha256": "a8babc714a605db1f158240ae61d79c3bcda0d00ca790b9fdd1069f09ae4d6f5",
+      "source_dependency_closure_sha256": "42f346ab712a2fa75c65b7026e47e4cf9d5853580d2d1fccc1a9e19099254dc5",
+      "transcript_sha256": "38c9a64b48626d8020208bf447f093dd452f4211f25efd654a83ea43500c9796",
+      "raw_transcript_sha256": "d1035231f27d23ebbdbe7fc5f7f14711ccd5d48c78d25b8c379c60483b7563e9",
+      "eval_elapsed_seconds": 1095.04,
+      "requested_timeout_seconds": 7200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 5,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "P256_MONTJADD_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SAFE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_SAFE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "binding_and_thm_type_only_nonliteral_statement": 1,
+        "kernel_conclusion_and_empty_hypotheses": 4
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 8
+      },
+      "complete_leaf_attempt_number": 1,
+      "same_preparation_receipt_as_first_leaf": false
+    },
+    {
+      "runtime": "original_arm",
+      "role": "basis_preparation",
+      "attempt_started_utc": "20260922T150843Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+      "executed_source_sha256": "518a2eeb3e9fd8a8fbeaad1afcd9f6ee57835d40a991b9cb9ccb1a2a8dff23e6",
+      "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+      "transcript_sha256": "9cc3251023bb22a38584dfe7727ac6fc911c8c337588aa63f07c681b7eb5488a",
+      "raw_transcript_sha256": "24e9ca1768c26d141ad751502fae52130bd5d554abfaae1899a8352b1406e397",
+      "eval_elapsed_seconds": 4404.013,
+      "requested_timeout_seconds": 7200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 12,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "unilemma0",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unilemma1",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "lemont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "demont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "pumont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "dismont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unmont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unreplemma",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "weierstrass_of_jacobian_p256_add",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_EQUIV",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "kernel_conclusion_and_empty_hypotheses": 11,
+        "binding_and_thm_type_only_nonliteral_statement": 1
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 275,
+          "definitions": 269,
+          "types": 3
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": null,
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "truncated",
+        "authority": "diagnostic_only",
+        "entered_call_count": 8192
+      }
+    },
+    {
+      "runtime": "original_arm",
+      "role": "equivalence_computed_goal_audit",
+      "attempt_started_utc": "20260922T164031Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "47c3e7f65acab5f4edf68983d2ea19d2905409983d55c64477ed3be6a753b410",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "f32e7f4c37248c6ac7fb797392e95116e938992e80712b4f61e44796d8a11e26",
+      "executed_source_sha256": "9a156394655a30b6bbfdaa21fbb5d37679c0da787475753ac9de7e27ccf7cc9f",
+      "source_dependency_closure_sha256": "e06a7aaa68e6a966c0a0dd06d90277ebd544b78d4d2d367322ef68044c3a19bc",
+      "transcript_sha256": "1e52cad686087b63401997870e5a82eaeb8d93f15f3f0fabaee339c0e59ff226",
+      "raw_transcript_sha256": "156e1383ad27bae92e8af1310b2827e8b8991ec27fd6aeb6e10107ce7a3b7e6f",
+      "eval_elapsed_seconds": 0.583,
+      "requested_timeout_seconds": 120.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "HEARTH_P256_EQUIV_AUDIT",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "binding_and_thm_type_only_nonliteral_statement": 1
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 1
+      },
+      "ordinary_source_guards_completed": true,
+      "guard_evidence_boundary": "The recorded source contains explicit empty-hypothesis and alpha-equivalent-conclusion guards. Their execution is established only when the complete source is accepted; binding probes themselves remain theorem-type-only for computed goals."
+    },
+    {
+      "runtime": "original_arm",
+      "role": "wrong_sum_control",
+      "attempt_started_utc": "20260922T164033Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "0766cd2c3bcfce7587eb24fb944bafc251e78d27a4f7397474cb35bb8e3f0a77",
+      "semantic_outcome": "rejected_no_acceptance",
+      "accepted": false,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "6b2a1a68f0c474cb03bce2b2496ba3feb3743687d9d40fd870c278d798328540",
+      "executed_source_sha256": "41a36e11b568d004e532915b2d934035a5517dafd3da15f912d324fabcf9c920",
+      "source_dependency_closure_sha256": "08b0e146d22e57c49c8299e0f785b1bf1b10bf17b32d76172df8f6e7aa98e04e",
+      "transcript_sha256": "ec76b51c0d39dd3125aa78a7d7374bcdaffafa377a886317173c30796d5ec13a",
+      "raw_transcript_sha256": "69d763ab40ed44823b442624839f65217f7a534e6c3f78311671c4015ff8f381",
+      "eval_elapsed_seconds": 0.767,
+      "requested_timeout_seconds": 120.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "failed",
+      "exit_status": 1,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 1,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "HEARTH_P256_WRONG_SUM",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "proved_probe_class_counts": {},
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 1
+      },
+      "control_interpretation": "The changed source was rejected; this does not independently prove its negation.",
+      "failure_kind": "ACCEPT_TAC mismatch",
+      "recorded_failing_binding": {
+        "status": "unknown",
+        "name": null
+      }
+    },
+    {
+      "runtime": "original_arm",
+      "role": "repaired_sum_control",
+      "attempt_started_utc": "20260922T164036Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "e7c5e425da62063b1d5beba484ad9c771337091c70e1a3ad09aac332bcf406b9",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "6c31e6bb3302fe79a3db7c2e0ca2204168bb17c427c4ff02e4ed4710862b0ba3",
+      "executed_source_sha256": "2f560cb4740ba4358912a6014847148241adb0e2876c2c77ee9cb8d8ac4d7872",
+      "source_dependency_closure_sha256": "d49a9926501ff53c11464c04a6ec79da260b364db7c074e436a1c8bc0224dd5a",
+      "transcript_sha256": "fdfba698988d4e8a1ac2753387af29fd09d579599995236e0edf2966e7d56d60",
+      "raw_transcript_sha256": "d61fc025a04a8f51e575bdfe484422774fb0fcf7ad453cc65641e6ae9512c9cb",
+      "eval_elapsed_seconds": 0.805,
+      "requested_timeout_seconds": 120.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "HEARTH_P256_REPAIRED_SUM",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "kernel_conclusion_and_empty_hypotheses": 1
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 1
+      }
+    },
+    {
+      "runtime": "original_arm",
+      "role": "wrong_final_postcondition_control",
+      "attempt_started_utc": "20260922T164039Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "9623e99b4ada2721b586c1d16462369f1dd047c3a544578ea5d89f15e466975f",
+      "semantic_outcome": "rejected_no_acceptance",
+      "accepted": false,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "9886c0313c27e12826eb648ed049c24da1bf08db6d931b8d249dd65dfa0e809e",
+      "executed_source_sha256": "02b1cfc1e5310e944443c41a273324f863c15ee79dcf7d38137f9313fdba346d",
+      "source_dependency_closure_sha256": "4aaf1e021ff030ea84ad675825966c3e09c7ef168aa4c77302a03e603fcd6045",
+      "transcript_sha256": "bf866881b724d2eae49bf399b483912288bfca29a619b7d8bfbe91906e82aace",
+      "raw_transcript_sha256": "69349fa7504c575b15db6e1863aa1392cd0405b9a9729a089d619394a8813ee7",
+      "eval_elapsed_seconds": 1134.199,
+      "requested_timeout_seconds": 2311.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "failed",
+      "exit_status": 1,
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "included_file_error_observed": true,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 4,
+        "printed_unprobed": 1,
+        "proved": 0,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "printed_unprobed",
+          "evidence": "unverified_toplevel_output",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "P256_MONTJADD_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SAFE",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_SAFE",
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "proved_probe_class_counts": {},
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 2
+      },
+      "control_interpretation": "The changed source was rejected; this does not independently prove its negation.",
+      "failure_kind": "source proof failure: solve_goal: Too deep",
+      "recorded_failing_binding": {
+        "status": "unknown",
+        "name": null
+      }
+    },
+    {
+      "runtime": "original_arm",
+      "role": "two_computed_goal_audit",
+      "attempt_started_utc": "20260922T164201Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "fdfee4b552a2d03a772d1181ed8fe5ddf96d1b73c95e3b09535d08710023eca0",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "2c688296d39e7afb895f01be7b38a0d143b4d6852d7b3bc1cf8382a118447e0f",
+      "executed_source_sha256": "f14d50e282ca85be49fcd3ae10d453df350be24ff45588fd8db5b244fc6ecddb",
+      "source_dependency_closure_sha256": "01cb5a0105a7dc6e8f5b4cc61cc19b4adfa60abaf537d0ee802bc063a8d37720",
+      "transcript_sha256": "795445485935edb0bab92328e699405953f98abf8571f53e8ef40b05fe19b07a",
+      "raw_transcript_sha256": "1abc1c60d35ed325369152c92d5dd4ea731d4dbe9e59405ae32fd81955894ce5",
+      "eval_elapsed_seconds": 375.818,
+      "requested_timeout_seconds": 1200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 3,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "HEARTH_P256_EQUIV_COMPUTED_AUDIT",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "HEARTH_P256_EVENTUALLY_N_COMPUTED_AUDIT",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "binding_and_thm_type_only_nonliteral_statement": 3
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 3
+      },
+      "ordinary_source_guards_completed": true,
+      "guard_evidence_boundary": "The recorded source contains explicit empty-hypothesis and alpha-equivalent-conclusion guards. Their execution is established only when the complete source is accepted; binding probes themselves remain theorem-type-only for computed goals."
+    },
+    {
+      "runtime": "original_arm",
+      "role": "complete_original_leaf",
+      "attempt_started_utc": "20260922T165935Z",
+      "runtime_commit_independently_verified": "0fa3ef785bf3857d1fe135f0905cc5a518803c14",
+      "receipt_sha256": "1398ad0b651ee6262b483ed6ab9f2c6ba1ac138717bc1eea1d42e90935e73aca",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm",
+      "profile_basis_id": "hol.s2n.arm.base.v2",
+      "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "source_sha256": "122a12ae2adfba0893152de82b51207e5df19a1bf685a4da10dc101a01f150b6",
+      "executed_source_sha256": "fae8069dcc9536b1432ed9c1fae735ae135751bdbba23fdc03cd46e924bf6dd8",
+      "source_dependency_closure_sha256": "42f346ab712a2fa75c65b7026e47e4cf9d5853580d2d1fccc1a9e19099254dc5",
+      "transcript_sha256": "ebcc9fa181873af5bd25a2362be8d886a61306a971d0a26f8118046bf763c292",
+      "raw_transcript_sha256": "75698ec2c5fd14067778f1e8fe12a04a4de2db1cebefe4af3253a20709241220",
+      "eval_elapsed_seconds": 1285.456,
+      "requested_timeout_seconds": 7200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 5,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "P256_MONTJADD_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SAFE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_SAFE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "binding_and_thm_type_only_nonliteral_statement": 1,
+        "kernel_conclusion_and_empty_hypotheses": 4
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751",
+        "loaded_closure_sha256": "1ddb3ce386419b78d79059a3000331a9907e89ccdfa4c2908f730c4d32788379",
+        "snapshot_environment_sha256": "70f0b1dbe44e20dd151fdbc6316a00295340ee0b124e677eb4191f93c04c7afb"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "5fb7a8c0f7a5401a8e60cc2fd9c2ce00cde35d8fbb83f0e27deab36ec3e1f25c",
+        "preparation_receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "preparation_eval_elapsed_seconds": 4404.013,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "beaa5893c8554c03aa9d8775f85a75f5e3abba0af3681b3aea521d5affab16b2",
+        "backend_sha256": "fc3190400f6197efdbf6a89acf014cc9d5ce4b65f03a2d0e664b8754c4191c9d",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 8
+      },
+      "complete_leaf_attempt_number": 2,
+      "same_preparation_receipt_as_first_leaf": true
+    },
+    {
+      "runtime": "elf_fixed_arm_mlkem",
+      "role": "complete_original_leaf",
+      "attempt_started_utc": "20260922T154704Z",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "501ee11b922559c4f435d392682f76820834007636a503a9be0805349e949803",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "122a12ae2adfba0893152de82b51207e5df19a1bf685a4da10dc101a01f150b6",
+      "executed_source_sha256": "6ed0f0c2558da6d745897fd43cc1a33c0278fbf4a668d227cec47149813fe9a2",
+      "source_dependency_closure_sha256": "c8cf2ba816a397b5f1916c35cffeb9d687c5492f04d5292055621272a090eadf",
+      "transcript_sha256": "7d6e47746b58f96ea73ccfdfccac5250814bc961818cedaebc865e681ffed024",
+      "raw_transcript_sha256": "7eb25d479dc973dfd808ab1bb6d1c961dcd0e8782b7eb0b904e9e9fb3b28b657",
+      "eval_elapsed_seconds": 1251.807,
+      "requested_timeout_seconds": 7200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 192.303,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 5,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "P256_MONTJADD_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SAFE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_SUBROUTINE_SAFE",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "binding_and_thm_type_only_nonliteral_statement": 1,
+        "kernel_conclusion_and_empty_hypotheses": 4
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+        "loaded_closure_sha256": "5740737531e7c9f2d3fac73125fc6711aac53ed20986b148227e3e16cc72797f",
+        "snapshot_environment_sha256": "8b56203538341c9106305742c703f3f72c7bdb5bed388385b4bd7b56f620dd90"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "0d40bab9715d37ec40226bc2ac9c6244fba721456d74ea66fd2f722c180f541c",
+        "preparation_receipt_sha256": "f49689ce47f8a0c2c3c57cd7b3bbe52573b321931db71f4083d38443706bad9e",
+        "preparation_eval_elapsed_seconds": 4601.477,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "d1b43effa6507ede04459cd8f0a2e3f07123805d23687383b87788c24f3060a2",
+        "backend_sha256": "62fc0641f71fb477e4e1010f42eabb1c706c4c67d2cfbedabb14ddb3e7f67f31",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 8
+      },
+      "complete_leaf_attempt_number": 1,
+      "same_preparation_receipt_as_first_leaf": false
+    },
+    {
+      "runtime": "elf_fixed_arm_mlkem",
+      "role": "basis_preparation",
+      "attempt_started_utc": "20260922T154706Z",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "f49689ce47f8a0c2c3c57cd7b3bbe52573b321931db71f4083d38443706bad9e",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+      "executed_source_sha256": "49f4b1037af2b74b19b66647e0421aad09801ec1e8cb3580a783e46c9eeca4fc",
+      "source_dependency_closure_sha256": "d1b43effa6507ede04459cd8f0a2e3f07123805d23687383b87788c24f3060a2",
+      "transcript_sha256": "0b719099ef73e4a584be634a6befb212423f0644a90a7d34b0ced61b92d713c2",
+      "raw_transcript_sha256": "a50bc0671da95b4818df0ad52a198e7922d9ecdd88e2130ffa6c86100d67c68a",
+      "eval_elapsed_seconds": 4601.477,
+      "requested_timeout_seconds": 7200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 0.0,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 12,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "unilemma0",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unilemma1",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "lemont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "demont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "pumont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "dismont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unmont",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "unreplemma",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "weierstrass_of_jacobian_p256_add",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_UNOPT_CORRECT",
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        },
+        {
+          "name": "P256_MONTJADD_EQUIV",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "kernel_conclusion_and_empty_hypotheses": 11,
+        "binding_and_thm_type_only_nonliteral_statement": 1
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 275,
+          "definitions": 269,
+          "types": 3
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+        "loaded_closure_sha256": "5740737531e7c9f2d3fac73125fc6711aac53ed20986b148227e3e16cc72797f",
+        "snapshot_environment_sha256": "8b56203538341c9106305742c703f3f72c7bdb5bed388385b4bd7b56f620dd90"
+      },
+      "project_basis": null,
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "truncated",
+        "authority": "diagnostic_only",
+        "entered_call_count": 8192
+      }
+    },
+    {
+      "runtime": "elf_fixed_arm_mlkem",
+      "role": "two_computed_goal_audit",
+      "attempt_started_utc": "20260922T172815Z",
+      "runtime_commit_independently_verified": "564a0d2426a85dbb1dd3edfb34a07b54f7aaf3ae",
+      "receipt_sha256": "b96bb280a3f9f5c84009dbbbea654c98e54ba624b15b3dec65b1ff8782da0a97",
+      "semantic_outcome": "accepted",
+      "accepted": true,
+      "logical_profile": "s2n-arm-mlkem",
+      "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+      "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "source_sha256": "2c688296d39e7afb895f01be7b38a0d143b4d6852d7b3bc1cf8382a118447e0f",
+      "executed_source_sha256": "2730c4aa8eb52eab2578c2027b9611f447cf9c2d434f08e5598bb02167fee30c",
+      "source_dependency_closure_sha256": "c654265203140444e98e4e5e2c6654066b0fc94980062bffcc788700b62747ae",
+      "transcript_sha256": "51ad299288ace6e23592db6ad7af72b6ba54b860484373441ca7b7d889068dee",
+      "raw_transcript_sha256": "ff12e21f651cdd80bfc829cd236f13bc8a156f778ab41ea421ef0a767ea51c2e",
+      "eval_elapsed_seconds": 314.671,
+      "requested_timeout_seconds": 1200.0,
+      "effective_capacity": 1,
+      "admission_wait_seconds": 26.876,
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "semantic_source_status": "succeeded",
+      "exit_status": 0,
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "included_file_error_observed": false,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 3,
+        "unknown": 0
+      },
+      "termination_kind": "child_exited",
+      "timeout_kind": null,
+      "bindings": [
+        {
+          "name": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "HEARTH_P256_EQUIV_COMPUTED_AUDIT",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        },
+        {
+          "name": "HEARTH_P256_EVENTUALLY_N_COMPUTED_AUDIT",
+          "status": "proved",
+          "evidence": "nonce_probe_binding_only",
+          "verification_kind": "binding_and_thm_type_only_nonliteral_statement"
+        }
+      ],
+      "proved_probe_class_counts": {
+        "binding_and_thm_type_only_nonliteral_statement": 3
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0,
+        "deltas": {
+          "axioms": 0,
+          "constants": 0,
+          "definitions": 0,
+          "types": 0
+        }
+      },
+      "profile_snapshot": {
+        "manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+        "loaded_closure_sha256": "5740737531e7c9f2d3fac73125fc6711aac53ed20986b148227e3e16cc72797f",
+        "snapshot_environment_sha256": "8b56203538341c9106305742c703f3f72c7bdb5bed388385b4bd7b56f620dd90"
+      },
+      "project_basis": {
+        "status": "ready",
+        "identity_sha256": "0d40bab9715d37ec40226bc2ac9c6244fba721456d74ea66fd2f722c180f541c",
+        "preparation_receipt_sha256": "f49689ce47f8a0c2c3c57cd7b3bbe52573b321931db71f4083d38443706bad9e",
+        "preparation_eval_elapsed_seconds": 4601.477,
+        "source_sha256": "6eba1200b15badef5806c665a855cb157acd0656fd9ad5ca6274746d39f1a515",
+        "source_dependency_closure_sha256": "d1b43effa6507ede04459cd8f0a2e3f07123805d23687383b87788c24f3060a2",
+        "backend_sha256": "62fc0641f71fb477e4e1010f42eabb1c706c4c67d2cfbedabb14ddb3e7f67f31",
+        "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+        "snapshot_manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9"
+      },
+      "exact_objects": [
+        {
+          "name": "p256_montjadd_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016
+        },
+        {
+          "name": "p256_montjadd_mc",
+          "loader": "define_from_elf",
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632
+        },
+        {
+          "name": "bignum_montsqr_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344
+        },
+        {
+          "name": "bignum_montsqr_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648
+        },
+        {
+          "name": "bignum_montmul_p256_unopt_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544
+        },
+        {
+          "name": "bignum_montmul_p256_mc",
+          "loader": "define_from_elf",
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920
+        },
+        {
+          "name": "bignum_sub_p256_mc",
+          "loader": "define_assert_from_elf",
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ],
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "diagnostic_activity": {
+        "schema": "hol-hearth.proof-activity.v1",
+        "status": "recorded",
+        "authority": "diagnostic_only",
+        "entered_call_count": 3
+      },
+      "ordinary_source_guards_completed": true,
+      "guard_evidence_boundary": "The recorded source contains explicit empty-hypothesis and alpha-equivalent-conclusion guards. Their execution is established only when the complete source is accepted; binding probes themselves remain theorem-type-only for computed goals."
+    }
+  ],
+  "pending_requirements": [],
+  "attempts_without_completed_receipt": [],
+  "probe_boundary": {
+    "original_targets": 17,
+    "literal_conclusion_and_empty_hypotheses_targets": 15,
+    "computed_statement_targets": [
+      "P256_MONTJADD_EQUIV",
+      "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC"
+    ],
+    "computed_probe": "binding_and_thm_type_only_nonliteral_statement",
+    "additional_guard_source_sha256": "2c688296d39e7afb895f01be7b38a0d143b4d6852d7b3bc1cf8382a118447e0f",
+    "guard_source_identity_verified": true,
+    "additional_guard_checks": [
+      {
+        "theorem": "P256_MONTJADD_EQUIV",
+        "empty_hypotheses_required": true,
+        "conclusion_comparison": "aconv"
+      },
+      {
+        "theorem": "P256_MONTJADD_UNOPT_EVENTUALLY_N_AT_PC",
+        "empty_hypotheses_required": true,
+        "conclusion_comparison": "aconv"
+      }
+    ],
+    "guard_acceptance": "See actual two_computed_goal_audit receipts; a prepared source alone is not evidence of execution.",
+    "diagnostics": "Proof activity, including truncation of the original v1 diagnostics, is never theorem or source acceptance evidence."
+  },
+  "foundation_boundary": "Registry cardinality deltas are relative to the restored warm or project basis, not an inventory of pre-existing axioms. Zero observed new axioms is not an independent foundation audit.",
+  "static_object_checks": {
+    "evidence_class": "static_artifact_identity_and_contract_candidate_discovery",
+    "theorem_execution": false,
+    "objects": [
+      {
+        "object": "arm/p256/p256_montjadd.o",
+        "object_sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+        "object_size_bytes": 13632,
+        "proof_source": "arm/proofs/p256_montjadd.ml",
+        "binding": "p256_montjadd_mc",
+        "symbol": "p256_montjadd",
+        "selected_section": ".text",
+        "text_sha256": "57684b0927dd99e8de42d44a6be05a9a83215b29f3991f556e195ec827808528",
+        "text_size_bytes": 12472,
+        "symbol_analysis": {
+          "status": "complete",
+          "instruction_count": 3118,
+          "start": 0,
+          "end_exclusive": 12472,
+          "word_bytes_sha256": "57684b0927dd99e8de42d44a6be05a9a83215b29f3991f556e195ec827808528",
+          "text_relocations": "none_in_symbol",
+          "reason": null
+        },
+        "literal_comparison": {
+          "status": "not_applicable",
+          "source_line": null,
+          "instruction_count": null,
+          "literal_bytes_sha256": null,
+          "comparison": null,
+          "reason": "define_from_elf imports object bytes dynamically; no literal machine-word assertion exists"
+        }
+      },
+      {
+        "object": "arm/p256/unopt/p256_montjadd.o",
+        "object_sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+        "object_size_bytes": 3016,
+        "proof_source": "arm/proofs/p256_montjadd.ml",
+        "binding": "p256_montjadd_unopt_mc",
+        "symbol": "p256_montjadd",
+        "selected_section": ".text",
+        "text_sha256": "363b1975ea78316686bec6b842625588155fae73275ed774777fe2751001c408",
+        "text_size_bytes": 2076,
+        "symbol_analysis": {
+          "status": "refused",
+          "instruction_count": null,
+          "start": null,
+          "end_exclusive": null,
+          "word_bytes_sha256": null,
+          "text_relocations": null,
+          "reason": "object symbol has unsupported AArch64 size: p256_montjadd: 0"
+        },
+        "literal_comparison": {
+          "status": "byte_match",
+          "source_line": 27,
+          "instruction_count": 519,
+          "literal_bytes_sha256": "363b1975ea78316686bec6b842625588155fae73275ed774777fe2751001c408",
+          "comparison": "whole .text section equals existing define_assert_from_elf literal words",
+          "reason": null
+        }
+      },
+      {
+        "object": "arm/p256/bignum_montsqr_p256.o",
+        "object_sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+        "object_size_bytes": 1648,
+        "proof_source": "arm/proofs/bignum_montsqr_p256.ml",
+        "binding": "bignum_montsqr_p256_mc",
+        "symbol": "bignum_montsqr_p256",
+        "selected_section": ".text",
+        "text_sha256": "521920600bde8b4687b889e10c461962fce6304aab31b2fdb92520dbd0af9b9b",
+        "text_size_bytes": 548,
+        "symbol_analysis": {
+          "status": "complete",
+          "instruction_count": 137,
+          "start": 0,
+          "end_exclusive": 548,
+          "word_bytes_sha256": "521920600bde8b4687b889e10c461962fce6304aab31b2fdb92520dbd0af9b9b",
+          "text_relocations": "none_in_symbol",
+          "reason": null
+        },
+        "literal_comparison": {
+          "status": "not_applicable",
+          "source_line": null,
+          "instruction_count": null,
+          "literal_bytes_sha256": null,
+          "comparison": null,
+          "reason": "define_from_elf imports object bytes dynamically; no literal machine-word assertion exists"
+        }
+      },
+      {
+        "object": "arm/p256/unopt/bignum_montsqr_p256_base.o",
+        "object_sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+        "object_size_bytes": 1344,
+        "proof_source": "arm/proofs/bignum_montsqr_p256.ml",
+        "binding": "bignum_montsqr_p256_unopt_mc",
+        "symbol": "bignum_montsqr_p256_base",
+        "selected_section": ".text",
+        "text_sha256": "e8b0c2764134112133cdd2b5857c92846a546e1bac20855d5efefd555c0aeb83",
+        "text_size_bytes": 500,
+        "symbol_analysis": {
+          "status": "refused",
+          "instruction_count": null,
+          "start": null,
+          "end_exclusive": null,
+          "word_bytes_sha256": null,
+          "text_relocations": null,
+          "reason": "object symbol has unsupported AArch64 size: bignum_montsqr_p256_base: 0"
+        },
+        "literal_comparison": {
+          "status": "byte_match",
+          "source_line": 17,
+          "instruction_count": 125,
+          "literal_bytes_sha256": "e8b0c2764134112133cdd2b5857c92846a546e1bac20855d5efefd555c0aeb83",
+          "comparison": "whole .text section equals existing define_assert_from_elf literal words",
+          "reason": null
+        }
+      },
+      {
+        "object": "arm/p256/bignum_montmul_p256.o",
+        "object_sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+        "object_size_bytes": 1920,
+        "proof_source": "arm/proofs/bignum_montmul_p256.ml",
+        "binding": "bignum_montmul_p256_mc",
+        "symbol": "bignum_montmul_p256",
+        "selected_section": ".text",
+        "text_sha256": "e6145a37f65b2828945cc803959801db66de9d5759db9ad6f1f8762d3f2bf097",
+        "text_size_bytes": 820,
+        "symbol_analysis": {
+          "status": "complete",
+          "instruction_count": 205,
+          "start": 0,
+          "end_exclusive": 820,
+          "word_bytes_sha256": "e6145a37f65b2828945cc803959801db66de9d5759db9ad6f1f8762d3f2bf097",
+          "text_relocations": "none_in_symbol",
+          "reason": null
+        },
+        "literal_comparison": {
+          "status": "not_applicable",
+          "source_line": null,
+          "instruction_count": null,
+          "literal_bytes_sha256": null,
+          "comparison": null,
+          "reason": "define_from_elf imports object bytes dynamically; no literal machine-word assertion exists"
+        }
+      },
+      {
+        "object": "arm/p256/unopt/bignum_montmul_p256_base.o",
+        "object_sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+        "object_size_bytes": 1544,
+        "proof_source": "arm/proofs/bignum_montmul_p256.ml",
+        "binding": "bignum_montmul_p256_unopt_mc",
+        "symbol": "bignum_montmul_p256_base",
+        "selected_section": ".text",
+        "text_sha256": "da3e3342b5430f4a6920b49150dc0969fa55c9db9b8d092d3b22b187a7521ea2",
+        "text_size_bytes": 704,
+        "symbol_analysis": {
+          "status": "refused",
+          "instruction_count": null,
+          "start": null,
+          "end_exclusive": null,
+          "word_bytes_sha256": null,
+          "text_relocations": null,
+          "reason": "object symbol has unsupported AArch64 size: bignum_montmul_p256_base: 0"
+        },
+        "literal_comparison": {
+          "status": "byte_match",
+          "source_line": 17,
+          "instruction_count": 176,
+          "literal_bytes_sha256": "da3e3342b5430f4a6920b49150dc0969fa55c9db9b8d092d3b22b187a7521ea2",
+          "comparison": "whole .text section equals existing define_assert_from_elf literal words",
+          "reason": null
+        }
+      },
+      {
+        "object": "arm/p256/bignum_sub_p256.o",
+        "object_sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+        "object_size_bytes": 1160,
+        "proof_source": "arm/proofs/bignum_sub_p256.ml",
+        "binding": "bignum_sub_p256_mc",
+        "symbol": "bignum_sub_p256",
+        "selected_section": ".text",
+        "text_sha256": "3168c15d008126e2da8683c8ae7c3b1fbc6ddcd25a9285a230bb28da7977c0f8",
+        "text_size_bytes": 72,
+        "symbol_analysis": {
+          "status": "complete",
+          "instruction_count": 18,
+          "start": 0,
+          "end_exclusive": 72,
+          "word_bytes_sha256": "3168c15d008126e2da8683c8ae7c3b1fbc6ddcd25a9285a230bb28da7977c0f8",
+          "text_relocations": "none_in_symbol",
+          "reason": null
+        },
+        "literal_comparison": {
+          "status": "byte_match",
+          "source_line": 15,
+          "instruction_count": 18,
+          "literal_bytes_sha256": "3168c15d008126e2da8683c8ae7c3b1fbc6ddcd25a9285a230bb28da7977c0f8",
+          "comparison": "whole .text section equals existing define_assert_from_elf literal words",
+          "reason": null
+        }
+      }
+    ],
+    "statement_identities": [
+      {
+        "name": "P256_MONTJADD_CORRECT",
+        "source": "arm/proofs/p256_montjadd.ml",
+        "source_line": 1266,
+        "statement_sha256": "18c6eaf835a91e4d5163edda8d9a18f7c3fd359862a62b08df53f62938f4ece5"
+      },
+      {
+        "name": "P256_MONTJADD_SUBROUTINE_CORRECT",
+        "source": "arm/proofs/p256_montjadd.ml",
+        "source_line": 1347,
+        "statement_sha256": "f56066afe5e0d3214fc0795a844d41fd727d1d56e0762949e913e2e37aaaebe6"
+      }
+    ],
+    "boundary": "Four whole-text literal assertions match. Three unoptimized zero-size symbols were refused by symbol analysis; whole-section literal comparison is separate. Optimized define_from_elf objects have no literal machine-word assertions. Hashes and static checks alone do not establish theorem acceptance or alignment sufficiency."
+  },
+  "timing_scope": "Individual evaluation times collected alongside concurrent proof work; not a controlled profile comparison. Preparation and each fresh-child leaf are separate costs. admission_wait_seconds is receipt-reported admission wait and can omit earlier project-basis lock waiting; evaluation plus this field does not establish end-to-end wall time. This source split retains expensive exact-step and safety proofs in the leaf; a warm basis does not make the complete P256 leaf subsecond."
+}

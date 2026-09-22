@@ -239,6 +239,97 @@ total wall time. These results are bound to independently verified runtime
 `7b9933845b2e334ec73af9fa9a1dfa21a807ad7f`; its changes from the checked runtime
 are documentation only.
 
+## Completed P256 authoring continuation, September 22
+
+The earlier P256 failures remained in the record while the same hard case was
+continued with an explicit project basis and a longer budget. The
+[P256 record](p256-authoring-evidence.json) binds the unchanged upstream
+`arm/proofs/p256_montjadd.ml` at s2n-bignum `471fca76`. Its first 60,208 bytes
+form the project basis; the exact remaining suffix gains one literal `needs`
+for that basis. Removing that added declaration reconstructs all 70,755 original
+bytes. No original proof, premise, frame or instruction bytes were changed.
+
+| Existing profile and checked runtime | Preparation | Complete remaining leaf |
+| --- | --- | --- |
+| `s2n-arm`, merged integration `0fa3ef7` | **4,404.013 s**, 12 targets | **1,095.040 s**, five targets |
+| Same retained ARM basis, unchanged leaf after the negative control | Reused the same preparation receipt | **1,285.456 s**, five targets |
+| `s2n-arm-mlkem`, ELF correction `564a0d2` | **4,601.477 s**, 12 targets | **1,251.807 s**, five targets |
+
+Every accepted phase completed its source and observed zero new axioms. The leaf
+includes optimized correctness, subroutine correctness and safety under the
+upstream theorem premises. These concurrent-work timings are not a controlled
+profile comparison. Preparation is a separate one-time cost: the first ARM
+attempt took about 92 minutes across both evaluations, and each subsequent
+complete remaining leaf still took 18–21 minutes. Small contract checks against
+the retained dependency can be much shorter.
+
+Fifteen discovered targets have literal statements and received exact-conclusion
+and empty-hypothesis probes. The equivalence and exact-step statements are
+computed terms, so their ordinary binding probes establish theorem type only.
+Additional ordinary HOL sources explicitly checked empty hypotheses and
+alpha-equivalence to both original computed goals. Those sources passed in
+**375.818 s** on ARM and **314.671 s** on ARM-MLKEM, with all three discovered
+targets and zero new axioms. This closes that statement-checking gap without
+adding another evaluator or theorem-lookup mechanism.
+
+The controls retain the same preparation. An incorrect unoptimized sum was
+rejected by `ACCEPT_TAC` in **0.767 s**; restoring its exact original quotation
+passed in **0.805 s**. Changing only the optimized postcondition's second group
+operand from `P2` to `P1` in the full remaining leaf produced
+`solve_goal: Too deep` after **1,134.199 s**. The source was rejected, with no
+accepted target probe, one printed/unprobed value and four missing targets.
+This was a proof failure within budget, not a timeout or an independent proof
+of the changed proposition's negation. The subsequent unchanged full-leaf check
+was planned negative-control/repair validation, not an automatic retry after
+an unexplained infrastructure failure.
+
+All seven complete ELF objects are hash-bound. Four available literal instruction
+assertions matched their full text sections. The optimized `define_from_elf`
+objects have no literal assertion; their proof evidence is not replaced by an
+invented byte-list comparison. These results establish the recorded warm proof
+under the upstream semantics and premises. Independent publication replay and
+a complete alignment, ABI and frame review remain separate.
+
+## Failure feedback from the P256 control
+
+The full negative control exposed a concrete diagnostic defect. HOL printed one
+blank line between the nonce-bound diagnostic frame and its matching uncaught
+exception. The old adjacency rule therefore left the failing binding unknown,
+despite a compiler call site in the exact captured source. The corrected rule
+allows at most eight blank lines and requires a supported exception rendering
+to match. Substantive intervening output, different later exceptions, malformed
+or truncated frames and completed sources remain barriers. Legacy display
+preserves an already identified adjacent diagnostic without weakening new
+attribution.
+
+The [failure-context record](failure-context-evidence.json) checks the original
+receipt, source and raw-transcript hashes. Re-accounting those immutable bytes
+identifies `P256_MONTJADD_CORRECT` at original source line 38. Only diagnostic
+fields changed; source acceptance and every other accounting field stayed
+unchanged. The original receipt was preserved and the failed assembly proof was
+not rerun. Attribution remains diagnostic: output alone cannot distinguish a
+silent catch followed immediately by the identical exception.
+
+Four small real HOL controls exercised identified failure, successful repair,
+caught failure and an unrelated later exception in **0.235–0.240 s**. All had
+the expected result, zero new axioms and reusable seats. These were diagnostic
+controls on the implementation worktree before the final legacy-display
+refinement; exact runtime hashes were not captured, so they are not relabeled
+as final-commit HOL acceptance. Full `./hearth check` and the immutable P256
+re-accounting passed on the final implementation.
+
+The [final delivery record](warm-delivery-evidence.json) also checks the unchanged
+256-cell ARM NTT functional source on clean runtime
+`a8c85d17c333b2798fbc9a7cf0ac43f2a35ba9e4`, which combines the failure-context fix,
+long activity diagnostics and clearer warm-basis onboarding. Preparation passed
+in **145.062 s** with both targets, and the full leaf passed in **17.649 s** with
+all four literal conclusions and empty hypotheses checked. The ready launcher,
+invoked outside the checkout, reused that exact preparation receipt and passed
+again in **18.028 s**. All three observed zero new axioms and reusable seats.
+The prior onboarding-only checkout independently passed preparation in
+**146.754 s** and the same full leaf in **18.086 s**. The record retains earlier
+runtime results separately; none is relabeled as testing a later implementation.
+
 ## Hearth acceptance, September 16
 
 Real runs used existing compatible `light` profiles in Ubuntu 26.04 ARM64.
