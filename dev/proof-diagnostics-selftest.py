@@ -47,8 +47,9 @@ from hol_workbench.proof_diagnostics import identify_failed_binding
 
 claim = {"name": "TARGET", "source": "/project/proof.ml", "source_line": 10, "statement_line": 11}
 location_contract = {"proof_diagnostics": {"packaged_entrypoint": "/package/proof.ml", "source_line_offset": 80}}
-event = {"end_transcript_line": 24, "locations": [{"file": "/package/proof.ml", "name": "TARGET", "line": 90}]}
-diagnostic = {"events": [event]}
+event = {"end_transcript_line": 24, "following_exception_transcript_line": 25,
+         "locations": [{"file": "/package/proof.ml", "name": "TARGET", "line": 90}]}
+diagnostic = {"status": "recorded", "events": [event]}
 attribution = identify_failed_binding(diagnostic, location_contract, [claim], 25)
 assert attribution["name"] == "TARGET" and attribution["source_line"] == 10
 assert identify_failed_binding(diagnostic, location_contract, [claim], 27) is None  # caught earlier
@@ -126,6 +127,30 @@ with redirect_stdout(view):
 assert "original tactic input" in view.getvalue()
 assert "earlier/caught proof context" not in view.getvalue()
 
+# Persisted pre-link receipts can retain an already identified adjacent failure
+# in their display. This compatibility path cannot create fresh attribution or
+# override a new explicit None produced by exception-link accounting.
+from copy import deepcopy
+legacy_receipt = deepcopy(uncaught)
+del legacy_receipt["proof_diagnostics"]["events"][0]["following_exception_transcript_line"]
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics(legacy_receipt, verbose=False)
+assert "earlier/caught proof context" not in view.getvalue()
+assert identify_failed_binding(legacy_receipt["proof_diagnostics"], overflow_contract, overflow_claims, 5) is None
+for legacy_variant in (
+    {**legacy_receipt, "failing_binding": {"status": "unknown", "name": None}},
+    {**legacy_receipt, "first_failure_transcript_line": 6},
+    {**legacy_receipt, "source_completed": True},
+    {**legacy_receipt, "proof_diagnostics": {**legacy_receipt["proof_diagnostics"], "capture_truncated": True}},
+    {**uncaught, "proof_diagnostics": {**uncaught["proof_diagnostics"], "events": [
+        {**uncaught["proof_diagnostics"]["events"][0], "following_exception_transcript_line": None}]}},
+):
+    view = StringIO()
+    with redirect_stdout(view):
+        print_proof_diagnostics(legacy_variant, verbose=False)
+    assert "earlier/caught proof context" in view.getvalue()
+
 # A caught diagnostic cannot be attributed to a later, unrelated overflow.
 later = analyze_overflow(overflow_frame + ("continued after caught failure\n" + overflow_message + "\n").encode())
 assert later["first_failure_transcript_line"] == 6
@@ -145,6 +170,64 @@ with redirect_stdout(view):
     print_proof_diagnostics(caught, verbose=False)
 assert "caught proof failures; the source continued to completion" in view.getvalue()
 print("proof-diagnostics overflow: exact callsite, unrelated failure and completed-source boundaries passed")
+
+
+# The P256 negative control exposed ordinary HOL output with one empty line
+# between diagnostic END and the matching uncaught Failure. Reproduce that
+# shape, including the distinct Printexc and toplevel exception renderings.
+from hol_workbench.proof_diagnostics import MAX_EXCEPTION_GAP_LINES
+
+failure_exception = 'Failure("solve_goal: Too deep")'
+failure_message = 'Exception: Failure "solve_goal: Too deep".'
+failure_frame = overflow_frame.replace(hx("Stack overflow").encode(), hx(failure_exception).encode())
+
+def assert_failure_context(raw, expected_name):
+    result = analyze_overflow(raw)
+    assert result["source_completed"] is False and result["effective_exit_status"] == 1
+    assert result["bindings"][0]["status"] == "missing"
+    assert result["failing_binding"]["name"] == expected_name
+    view = StringIO()
+    with redirect_stdout(view):
+        print_proof_diagnostics(result, verbose=False)
+    assert ("earlier/caught proof context" not in view.getvalue()) == bool(expected_name)
+    return result
+
+for blank_count in (0, 1, MAX_EXCEPTION_GAP_LINES):
+    observed = assert_failure_context(
+        failure_frame + b" \t\r\n" * blank_count + failure_message.encode() + b"\n", "STUCK")
+    assert observed["proof_diagnostics"]["events"][0]["following_exception_transcript_line"] == 5 + blank_count
+
+for intervening in (b"continued after caught failure\n", b"val helper : int = 1\n",
+                    b"# \n", b"__HOL_PROOF_ACTIVITY__:other:1:LEAVE\n"):
+    assert_failure_context(failure_frame + b"\n" + intervening + failure_message.encode() + b"\n", None)
+assert_failure_context(failure_frame + b"\n" * (MAX_EXCEPTION_GAP_LINES + 1) + failure_message.encode(), None)
+assert_failure_context(failure_frame + b'\nException: Failure "unrelated later failure".\n', None)
+assert_failure_context(failure_frame + b"\n" + overflow_message.encode() + b"\n", None)
+assert_failure_context(overflow_frame + b"\n" + failure_message.encode() + b"\n", None)
+assert_failure_context(overflow_frame + b"\n# " + overflow_message.encode() + b"\n", "STUCK")
+
+# Reject unknown exception printers and malformed or incomplete frames, even
+# when the printed failure immediately follows. Escaped strings compare as-is.
+for exception, message, expected in (
+    ('Invalid_argument("bad\\"argument")', 'Exception: Invalid_argument "bad\\"argument".', "STUCK"),
+    ("Not_found", "Exception: Not_found.", "STUCK"),
+    ('Custom_error("details")', 'Exception: Custom_error "details".', None),
+    ('Failure("unfinished... [truncated]', 'Exception: Failure "unfinished".', None),
+):
+    frame = overflow_frame.replace(hx("Stack overflow").encode(), hx(exception).encode())
+    assert_failure_context(frame + b"\n" + message.encode() + b"\n", expected)
+for malformed_frame in (
+    failure_frame.replace(b"GOAL:0:0:", b"GOAL:3:0:"),
+    failure_frame.rsplit(prefix.encode(), 1)[0],
+    failure_frame.replace(nonce.encode(), b"b" * 32),
+):
+    result = analyze_overflow(malformed_frame + b"\n" + failure_message.encode() + b"\n")
+    assert result["failing_binding"]["status"] == "unknown"
+
+caught = analyze_overflow(failure_frame + b"\n" + failure_message.encode() + b"\n" + markers.encode())
+assert caught["source_completed"] is True and caught["failing_binding"] is None
+assert caught["bindings"][0]["status"] == "proved"
+print("proof-diagnostics spacing: matching exceptions, bounded blank gaps and caught/malformed barriers passed")
 
 
 # Interruption records an entered call, never a failed/proved theorem. A return
