@@ -98,7 +98,12 @@ def _analysis_cache_path(root: Path, source_sha256: str) -> Path:
 
 
 def _cached_source_analysis(root: Path, source_sha256: str) -> dict[str, Any] | None:
-    payload = read_json(_analysis_cache_path(root, source_sha256))
+    try:
+        payload = read_json(_analysis_cache_path(root, source_sha256))
+    except UnicodeError:
+        # Cache damage is a miss; the exact source bytes still go through the
+        # ordinary strict scanner before replacement analysis is written.
+        return None
     analysis = payload.get("analysis")
     if (
         payload.get("schema") != SOURCE_ANALYSIS_CACHE_SCHEMA

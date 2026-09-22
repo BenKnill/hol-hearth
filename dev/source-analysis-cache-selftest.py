@@ -133,6 +133,21 @@ class SourceAnalysisCache(unittest.TestCase):
         self.assertEqual(first["strict_sha256"], repeated["strict_sha256"])
         self.assertEqual(repeated["analysis_cache"]["writes"], 0)
 
+    def test_invalid_utf8_cache_relexes_and_preserves_source_freshness(self):
+        before = self.capture()
+        for path in cache.source_analysis_cache_root().rglob("*.json"):
+            path.write_bytes(b"\xff")
+        self.scans.reset_mock()
+        recovered = self.capture()
+        self.assertEqual(self.scans.call_count, 2)
+        self.assertEqual(before["strict_sha256"], recovered["strict_sha256"])
+        self.helper.write_text("let helper = 4;;\n")
+        self.scans.reset_mock()
+        edited = self.capture()
+        self.assertEqual(self.scans.call_count, 1)
+        self.assertEqual(edited["analysis_cache"]["hits"], 1)
+        self.assertNotEqual(before["strict_sha256"], edited["strict_sha256"])
+
     def test_watcher_reuses_lexing_and_detects_transitive_edits(self):
         profile = SimpleNamespace(cwd=None, legacy_holdir_roots=(), logical_source_roots=())
         before = project_revision(self.leaf, profile)
