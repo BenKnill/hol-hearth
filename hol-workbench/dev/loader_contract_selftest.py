@@ -545,7 +545,10 @@ def _uncaptured_execution_contract(root: Path) -> int:
             closure = build_source_dependency_closure(source)
             assert closure["dynamic_loader_count"] > 0, control
             assert closure["semantic_identity_complete"] is False, control
-            assert dependency_transport_status(closure)[0] == "refused_dynamic", control
+            status, reason = dependency_transport_status(closure)
+            assert status == "refused_dynamic", control
+            assert ("execution-helper.ml:1" if imported else "<entrypoint>:1") in reason, (control, reason)
+            assert "literal needs/loadt/loads" in reason and "leaf-needs --deep" in reason
             destination = root / f"refused-package-{count}"
             try:
                 materialize_dependency_package(source=source, closure=closure, destination=destination)

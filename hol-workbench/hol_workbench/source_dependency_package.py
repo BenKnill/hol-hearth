@@ -45,9 +45,13 @@ def dependency_transport_status(
         transport_status = str(project_inputs.get("transport_blocker_status") or "project_input_invalid")
         return transport_status, str(blockers[0] if blockers else "project input readiness is blocked")
     if closure.get("dynamic_loader_count"):
+        first = (closure.get("dynamic_loaders") or [{}])[0]
+        location = f"{first.get('declaring_file', '<unknown>')}:{first.get('source_line', '?')}"
         return ("refused_dynamic",
-                "uncaptured file execution, directory changes, or nonliteral loader references "
-                "are outside the literal package contract")
+                f"{location}: {first.get('loader', 'loader')} ({first.get('reason', 'uncaptured input')}); "
+                "file execution, module exports, directory changes, or nonliteral loader references "
+                "are outside the literal package contract. Use literal needs/loadt/loads for file imports; "
+                "leaf-needs --deep lists all input blockers")
     if closure.get("dynamic_artifact_count"):
         return (
             "refused_dynamic_artifact",
