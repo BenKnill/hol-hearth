@@ -488,6 +488,20 @@ def _span_and_escape_contract() -> None:
 def _uncaptured_execution_contract(root: Path) -> int:
     controls = (
         b'Toploop.use_file Format.std_formatter "a.ml";;',
+        b'include Toploop;; use_file Format.std_formatter "a.ml";;',
+        b'module File_loader = struct include Toploop end;;',
+        b'module File_loader : sig val use_file : unit end = Toploop;;',
+        b'module File_loader = (Toploop);;',
+        b'open (Toploop);;',
+        b'module File_loader = Toploop;;',
+        b'let packed = (module Toploop : Loader);;',
+        b'module File_loader = Functor(Toploop);;',
+        b'include Unix;; chdir "/tmp";;',
+        b'module Directory = Sys;;',
+        b'#cd "/tmp";;', b'#directory "/tmp";;', b'#remove_directory "/tmp";;',
+        b'Topdirs.dir_cd Format.std_formatter "/tmp";;',
+        b'Topdirs.dir_directory "/tmp";;',
+        b'Topdirs.dir_remove_directory "/tmp";;',
         b'(Toploop.use_file) Format.std_formatter "a.ml";;',
         b'let invoke = Toploop.use_file;; invoke Format.std_formatter "a.ml";;',
         b'Topdirs.dir_use Format.std_formatter "a.ml";;',
@@ -541,6 +555,13 @@ def _uncaptured_execution_contract(root: Path) -> int:
                 raise AssertionError(f"uncaptured execution was packaged: {control!r}")
             assert not destination.exists(), control
             count += 1
+
+    # The alias exporter must be rejected independently: per-file lexical
+    # scans do not carry OCaml module or open scopes into importing sources.
+    dependency.write_bytes(b'module File_loader = Toploop;;')
+    source.write_bytes(b'needs "execution-helper.ml";; File_loader.use_file Format.std_formatter "a.ml";;')
+    assert dependency_transport_status(build_source_dependency_closure(source))[0] == "refused_dynamic"
+    count += 1
 
     harmless = (
         b'(* Toploop.use_file Sys.command Unix.system Sys.chdir *)\n'
