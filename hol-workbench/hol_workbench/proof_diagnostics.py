@@ -235,8 +235,9 @@ def _text(value: str) -> str:
 def _following_exception_line(lines: list[bytes], event: dict[str, Any]) -> int | None:
     """Link a frame only to a matching, nearby OCaml exception rendering.
 
-    HOL can insert empty lines before printing the exception re-raised by prove.
-    Skip only those lines, never substantive output or another diagnostic frame.
+    HOL can insert empty lines or its time wrapper's failure report before the
+    exception re-raised by prove. Skip at most one matching timing report within
+    the same total line bound, never arbitrary output or another diagnostic frame.
     Unknown, wrapped or truncated exception renderings remain unattributed.
     """
     error = event["exception"]
@@ -254,12 +255,23 @@ def _following_exception_line(lines: list[bytes], event: dict[str, Any]) -> int 
             return None
         expected = f"Exception: {rendered}."
     start = event["end_transcript_line"]
+    timing_report_seen = False
     for index in range(start, min(len(lines), start + MAX_EXCEPTION_GAP_LINES + 1)):
         line = lines[index].strip()
         if not line:
             continue
-        text = line.decode("utf-8", errors="replace").removeprefix("# ").strip()
-        return index + 1 if text == expected else None
+        text = line.decode("utf-8", errors="replace")
+        if text.removeprefix("# ").strip() == expected:
+            return index + 1
+        # HOL lib.ml's time function prints the exact Printexc.to_string error
+        # after a nonnegative string_of_float CPU duration, then re-raises it.
+        timing = re.fullmatch(
+            r"Failed after \(user\) CPU time of "
+            r"(?:[0-9]+\.[0-9]*(?:e[+-]?[0-9]+)?|[0-9]+e[+-]?[0-9]+): (.+)", text)
+        if not timing_report_seen and timing is not None and timing[1] == error:
+            timing_report_seen = True
+            continue
+        return None
     return None
 
 
@@ -583,7 +595,8 @@ def identify_failed_binding(
         return None
     event = events[-1]
     # A caught failure followed by another error is not attribution. The
-    # diagnostic must be followed only by blank lines and its matching exception.
+    # diagnostic must be followed only by bounded blank/matching HOL timing
+    # output and its matching exception.
     if not _event_at_failure(event, failure_line):
         return None
     candidate = _binding_at_locations(event.get("locations") or [], contract, claims)
@@ -592,7 +605,7 @@ def identify_failed_binding(
     name, source, line = candidate
     return {"status": "identified", "name": name, "source": source, "source_line": line,
             "verification_kind": "compiler_callsite_diagnostic",
-            "reason": "unique compiler call site in the exact packaged entrypoint, followed only by bounded blank output and the matching uncaught exception",
+            "reason": "unique compiler call site in the exact packaged entrypoint, followed only by bounded blank or matching HOL timing output and the matching uncaught exception",
             "authority": "diagnostic_only"}
 
 
