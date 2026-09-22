@@ -228,6 +228,17 @@ The tested merge changed only documentation from that checked implementation;
 the record distinguishes independently verified Git identity from the receipts'
 unknown client revision.
 
+The combined runtime also accepted the unchanged 256-cell ARM NTT layers 1–3
+functional source. Preparation took **194.827 s**, with both targets checked;
+the complete leaf took **18.323 s**, with all four literal conclusions and empty
+hypotheses checked. Both observed zero new axioms. The receipts report
+**3,582.321 s** and **1,273.738 s** of physical-shelf admission waiting respectively;
+that waiting did not consume either phase's 1,500-second evaluation budget.
+Reported admission time can omit earlier project-basis lock waiting and is not
+total wall time. These results are bound to independently verified runtime
+`7b9933845b2e334ec73af9fa9a1dfa21a807ad7f`; its changes from the checked runtime
+are documentation only.
+
 ## Hearth acceptance, September 16
 
 Real runs used existing compatible `light` profiles in Ubuntu 26.04 ARM64.
