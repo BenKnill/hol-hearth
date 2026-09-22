@@ -136,9 +136,16 @@ selected named probes; inspection describes this scope.
 ./hearth inspect /ABS/project/runs --tail 40
 ```
 
-The exact binding view includes its recorded status and original source span.
+The exact binding view includes its recorded status, probe strength, and original
+source span. A literal statement's probe checks that the theorem's conclusion
+matches the source quotation and that its hypotheses are empty. A computed
+statement's probe checks only that the binding has type `thm`; inspection labels
+its conclusion and hypotheses as unchecked. The recorded `proved` status alone
+does not distinguish these checks. `--binding` and `--verbose` also show the exact
+`verification_kind`; older receipts without it have unknown probe strength.
 Verbose lists all discovered entrypoint bindings and captured input identities.
-JSON exposes the complete receipt for agents. An unrecorded binding is reported
+JSON exposes the complete, unchanged receipt, including each binding's recorded
+`verification_kind`, for agents. An unrecorded binding is reported
 as unrecorded; it is not inferred absent from the mathematical basis.
 
 Failure inspection includes a bounded exception block. Compiler locations in

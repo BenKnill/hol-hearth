@@ -79,6 +79,13 @@ def _bool(value: object) -> str:
 
 def _binding_card_label(row: dict[str, Any]) -> str:
     probe = str(row.get("status") or "unknown")
+    if probe == "proved":
+        kind = row.get("verification_kind")
+        if kind == "kernel_conclusion_and_empty_hypotheses":
+            return "proved (source conclusion matched; hypotheses empty)"
+        if kind == "binding_and_thm_type_only_nonliteral_statement":
+            return "proved (binding and thm type only; conclusion and hypotheses not checked)"
+        return "proved (probe strength not recorded or unrecognized)"
     if probe == "printed_unprobed":
         return "printed_unprobed (diagnostic only; no verified kernel probe)"
     if probe == "missing" and row.get("unverified_binding_like_text_observed") is True:
@@ -235,6 +242,8 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         span = claim.get("source_span")
         location = f" source_line={span[0]}" if isinstance(span, list) and span else ""
         print(f"  {name}: {_binding_card_label(row)}{location}")
+        if (selected_names or args.verbose) and row.get("verification_kind"):
+            print(f"    verification_kind: {row['verification_kind']}")
         if row.get("status") == "printed_unprobed":
             printed = row.get("printed_output") or []
             if isinstance(printed, list):

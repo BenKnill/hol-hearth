@@ -214,6 +214,56 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             self.assertNotIn("val OTHER = hidden", result.stdout)
             self.assertNotIn("noise", result.stdout)
 
+    def test_inspect_exposes_probe_strength_without_changing_receipt_or_acceptance(self):
+        source = (b"let LITERAL = prove (`T`, REWRITE_TAC[]);;\n"
+                  b"let COMPUTED = prove (derived_goal, REWRITE_TAC[]);;\n")
+        claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source)
+        _, contract = build_claim_probe(source, claims, nonce="5" * 32)
+        transcript = ("\n".join(row["ok_marker"] for row in contract["claims"]) +
+                      "\n" + contract["completion_marker"] + "\n").encode()
+        result = analyze_vanilla_transcript(claims=claims, transcript=transcript, contract=contract,
+                                          transport="completed", response={"exit_status": 0})
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt = Path(temporary) / "transcript.log.json"
+            _receipt(receipt, succeeded=True, recorded_exit_status=0, bindings=result["bindings"])
+            original = receipt.read_bytes()
+            for flags in ((), ("--verbose",), ("--binding", "COMPUTED")):
+                rendered = self.inspect(receipt, *flags)
+                self.assertEqual(rendered.returncode, 0, rendered.stderr)
+                self.assertIn("COMPUTED: proved (binding and thm type only; "
+                              "conclusion and hypotheses not checked)", rendered.stdout)
+                if flags:
+                    self.assertIn("verification_kind: binding_and_thm_type_only_nonliteral_statement",
+                                  rendered.stdout)
+            literal = self.inspect(receipt, "--binding", "LITERAL")
+            self.assertIn("LITERAL: proved (source conclusion matched; hypotheses empty)", literal.stdout)
+            self.assertNotIn("COMPUTED:", literal.stdout)
+            self.assertEqual(json.loads(self.inspect(receipt, "--json", "--binding", "COMPUTED").stdout),
+                             json.loads(original))
+            self.assertEqual(receipt.read_bytes(), original)
+            _receipt(receipt, succeeded=False, recorded_exit_status=1, bindings=result["bindings"])
+            rejected = self.inspect(receipt, "--binding", "COMPUTED")
+            self.assertEqual(rejected.returncode, 1)
+            self.assertIn("COMPUTED: proved (binding and thm type only;", rejected.stdout)
+            self.assertIn("source_acceptance: not_accepted", rejected.stdout)
+
+    def test_inspect_does_not_infer_probe_strength_or_claim_failed_checks_passed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt = Path(temporary) / "transcript.log.json"
+            bindings = [
+                {"name": "LEGACY", "status": "proved"},
+                {"name": "FUTURE", "status": "proved", "verification_kind": "future_probe"},
+                {"name": "MISMATCH", "status": "failed",
+                 "verification_kind": "kernel_conclusion_and_empty_hypotheses"},
+            ]
+            _receipt(receipt, succeeded=False, recorded_exit_status=1, bindings=bindings)
+            rendered = self.inspect(receipt, "--verbose")
+            for name in ("LEGACY", "FUTURE"):
+                self.assertIn(f"{name}: proved (probe strength not recorded or unrecognized)", rendered.stdout)
+            self.assertIn("verification_kind: future_probe", rendered.stdout)
+            self.assertIn("MISMATCH: failed", rendered.stdout)
+            self.assertNotIn("source conclusion matched", rendered.stdout)
+
 
     def test_printed_output_is_not_a_probe_or_source_acceptance(self):
         source = b"let BEFORE = prove (`T`, REWRITE_TAC[]);;\nlet FAILING = prove (`F`, ALL_TAC);;\n"
