@@ -507,16 +507,17 @@ def _print_compact_profile(profile_name: str, profile: dict[str, Any]) -> None:
     operations = ", ".join(name for name, _hint in _useful_operation_rows(profile)) or "-"
     print(f"PROFILE: {profile_name}")
     print(f"SUMMARY: {profile.get('summary') or '-'}")
+    print("AVAILABILITY: recipe only; local shelf compatibility is not checked")
     print(
-        f"SEATS: Linux warm baseline={profile.get('orbstack_public_capacity', 1)} "
-        "(logical seats may expand over the same immutable basis)"
+        f"RECIPE CAPACITY: {profile.get('orbstack_public_capacity', 1)} "
+        "(use status for effective proof capacity)"
     )
     print(f"OPERATIONS: {operations}")
     print(f"NEXT: {_profile_use_commands(profile_name)[0]}")
 
 
 def _print_compact_profiles(profiles: dict[str, Any]) -> None:
-    print("HOL PROFILES")
+    print("HOL PROFILE RECIPES (local availability is not checked)")
     print("BASIC: light")
     print("CALCULUS/GEOMETRY: heavy")
     print("PROBABILITY: probability")

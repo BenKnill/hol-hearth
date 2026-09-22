@@ -25,10 +25,10 @@ from hol_workbench.source_load_transport import source_local_needs_prelude, sour
 
 
 def machine_holdir_authority() -> Path | None:
-    """Return the machine-configured Linux HOL root, never a caller mapping."""
+    """Return the selected host runtime's Linux HOL root, never a caller mapping."""
 
     try:
-        holdir = load_runtime_config({}).hol_light_dir
+        holdir = load_runtime_config().hol_light_dir
     except RuntimeConfigError:
         return None
     try:

@@ -99,6 +99,25 @@ class SetupRegression(unittest.TestCase):
         self.assertEqual(prove_doctor._parse([]).profile, "light")
         self.assertTrue(prove_doctor._parse(["--all-profiles"]).all_profiles)
 
+    def test_doctor_details_preserve_requested_diagnosis(self):
+        report = {
+            "status": "blocked",
+            "runtime": {"summary": {"workers": 0, "active": 0}},
+            "layers": [{"layer": name, "status": status, "detail": detail}
+                       for name, status, detail in (
+                           ("config", "ready", "configured"),
+                           ("profiles", "blocked", "s2n-arm-light"),
+                           ("queue", "clear", "no waiters"),
+                           ("lifecycle", "clean", "no stall"))],
+        }
+        for profile, expected in (("s2n-arm-light", "--profile s2n-arm-light"),
+                                  (None, "--all-profiles")):
+            with self.subTest(profile=profile):
+                details = prove_doctor.render_doctor(report, profile=profile, stalled_after=240.0)[-1]
+                self.assertIn(expected, details)
+                self.assertIn("--stalled-after 240.0", details)
+                self.assertIn("--json", details)
+
     def test_distribution_parser_does_not_require_opam(self):
         with tempfile.TemporaryDirectory() as temporary:
             env = syntax_preflight_environment(Path(temporary), environ={

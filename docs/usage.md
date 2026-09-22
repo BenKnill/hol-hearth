@@ -183,6 +183,38 @@ that the warm image loaded those bytes. It starts no HOL process.
 `warm_exploration`. It refuses a receipt whose profile, source SHA-256 or
 recipe SHA-256 differs from the selected profile and current leaf bytes.
 
+## Assembly projects on an existing profile
+
+Select the existing runtime as described in [setup](setup.md#existing-hol-and-criu-environment).
+Use `s2n-arm` for the ARM proof base, `s2n-arm-mlkem` for the shared NTT
+development, and `s2n-x86` for the x86 proof base. `s2n-arm-light` is a separate
+optional recipe adding arithmetic and ring theory; its absence does not prevent
+using an installed `s2n-arm` shelf.
+
+Run the actual project leaf and inspect its intended theorem:
+
+```sh
+./hearth prove /ABS/project/proof/leaf.ml --profile s2n-arm-mlkem \
+  --timeout 300 --run-root /ABS/project/runs
+./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
+```
+
+Choose a budget for the complete dependency replay and proof. A fast restore
+removes basis startup time; dependencies outside that basis still execute in
+each fresh child. Keep literal `needs` declarations in the source. Replay
+compares their exact bytes with the admitted shelf's loaded-file inventory.
+The `profile_satisfied_dependencies` field in receipt JSON records which imports
+the shelf supplied. A direct recipe-text comparison alone cannot establish this.
+
+Assembly profiles also declare a pinned s2n source generation. Check it with
+`./hol-workbench/dev/reconcile-source-layout --check`. If it reports the
+`s2n_bignum` generation missing or stale, run
+`./hol-workbench/dev/reconcile-source-layout --materialize s2n_bignum`.
+This fetches the declared source revision; it does not build a HOL profile.
+Retain project dependencies and the exact ELF objects alongside the proof as
+required by its loader paths. Shelf compatibility does not establish that those
+project inputs exist or that their contents match.
+
 ## Runtime and evidence
 
 `./hearth profiles` lists recipes, not installed environments.

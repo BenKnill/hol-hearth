@@ -18,6 +18,8 @@ from hol_workbench.cli.prove_loop import project_revision
 from hol_workbench.public_surface_contract import _receipt
 from hol_workbench.cli.orbstack_criu_vanilla_semantics import analyze_vanilla_transcript
 from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
+from hol_workbench.runtime_config import write_runtime_config
+from hol_workbench.source_execution_plan import capture_source_dependency_closure
 from hol_workbench.vanilla_claims import (
     build_claim_probe, first_error, account_claims, target_pack_status, diagnostic_claim_output,
 )
@@ -47,6 +49,42 @@ class AuthoringRegression(unittest.TestCase):
                 self.assertNotEqual(edited, project_revision(source, profile))
                 leaf.write_text("let n = 1;;\n")
                 self.assertEqual(original, project_revision(source, profile))
+
+    def test_selected_runtime_config_binds_hol_dependencies_and_watch_revision(self):
+        for selector in ("HOL_WORKBENCH_RUNTIME_CONFIG", "XDG_CONFIG_HOME"):
+            with self.subTest(selector=selector), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                holdir = root / "selected-hol"
+                library = holdir / "Library"
+                library.mkdir(parents=True)
+                helper, dependency = library / "helper.ml", library / "dependency.ml"
+                helper.write_text('needs "dependency.ml";;\n')
+                dependency.write_text("let n = 1;;\n")
+                project = root / "project"
+                project.mkdir()
+                source = project / "leaf.ml"
+                source.write_text('needs "Library/helper.ml";;\n')
+                environment = {"HOME": str(root / "home"), selector: str(root / "config")}
+                if selector == "HOL_WORKBENCH_RUNTIME_CONFIG":
+                    environment[selector] = str(root / "config" / "custom-runtime.toml")
+                write_runtime_config(hol_light_dir=holdir, criu_shelf_root=root / "shelves",
+                                     criu_bin=Path("/usr/sbin/criu"), environment=environment)
+                profile = SimpleNamespace(cwd=holdir, legacy_holdir_roots=(), logical_source_roots=())
+                with patch.dict(os.environ, environment, clear=True):
+                    closure, captured_holdir = capture_source_dependency_closure(
+                        source, profile_cwd=profile.cwd, legacy_holdir_roots=(),
+                        logical_source_root_declarations=())
+                    self.assertEqual(captured_holdir, holdir)
+                    self.assertEqual({record["resolved_path"] for record in closure["records"]},
+                                     {str(helper), str(dependency)})
+                    self.assertTrue(closure["semantic_identity_complete"])
+                    original = project_revision(source, profile)
+                    self.assertEqual(original, closure["strict_sha256"])
+                    stamp = dependency.stat()
+                    dependency.write_text("let n = 2;;\n")
+                    os.utime(dependency, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                    self.assertNotEqual(original, project_revision(source, profile),
+                                        "an imported HOL dependency edit must invalidate the watched result")
 
     def test_target_after_default_limit_json_and_whole_source_failure(self):
         with tempfile.TemporaryDirectory() as temporary:
