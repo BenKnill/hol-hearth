@@ -11,10 +11,11 @@ linked JSON records retain their full values and exact inputs.
 
 | Case | Profile | Recorded result | HOL time (s) | Receipt SHA-256 prefix / evidence entry | Runtime commit |
 | --- | --- | --- | --- | --- | --- |
+| Complete ARM subtraction after alias-rebinding correction | `light` | Accepted; both literal targets, identical source/closure/profile identities | 281.084 | `9472ad5464d8` — [file-loader guards](file-loader-guard-evidence.json), `/final_repeat` | `0ed77f5116e5` |
 | Complete ARM subtraction after file-loader guards | `light` | Accepted; both literal targets, zero new axioms | 301.901 | `a7acf8f9cf9fa` — [file-loader guards](file-loader-guard-evidence.json), `/positive` | `5af553486dfd` |
 | Acoustic–elastic full shared-table root | `light` | Accepted; 73 discovered root bindings, zero new axioms | 642.844 | `d38c2e999ef0b` — [hard-authoring](hard-authoring-evidence.json), `/full_root` | Unknown during integration |
 | ML-KEM NTT layers 1–3, complete functional replay | `s2n-arm-mlkem` | Accepted; all four targets | 336.679 | `0f598abf97f9` — [assembly](assembly-authoring-evidence.json), `/iterations/0/functional_baseline` | Unknown during integration |
-| ML-KEM dependency preparation, latest recorded runtime | `s2n-arm-mlkem` | Accepted; two targets, zero new axioms | 230.263 | `6fb72fe1cf94` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/7` | `564a0d2426a8` |
+| ML-KEM dependency preparation, ELF bootstrap campaign | `s2n-arm-mlkem` | Accepted; two targets, zero new axioms | 230.263 | `6fb72fe1cf94` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/7` | `564a0d2426a8` |
 | ML-KEM functional leaf on that prepared basis | `s2n-arm-mlkem` | Accepted; four targets, zero new axioms | 26.720 | `004e58099a48` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/6` | `564a0d2426a8` |
 | ML-KEM functional leaf, reuse | `s2n-arm-mlkem` | Accepted; same four targets | 33.679 | `6fc9126d3d8c` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/8` | `564a0d2426a8` |
 | P256 point addition, initial full attempt | `s2n-arm` | Rejected: imported missing object; no target accepted | 1,733.717 | `524d5c28f892` — [assembly](assembly-authoring-evidence.json), `/separate_p256_acceptance/receipt` | Unknown during integration |
@@ -41,6 +42,7 @@ identical leaf and dependency hashes; the corrected path refuses before HOL.
 
 | Negative control | Expected result | Recorded observation | Evidence JSON entry |
 | --- | --- | --- | --- |
+| Rebind a file-loader module alias after using it | Preserve the earlier loading reference and refuse transport | `refused_dynamic` after HOL syntax preflight; no source execution | [file-loader guards](file-loader-guard-evidence.json), `/alias_rebinding_control` |
 | Hidden file-loading API, qualified loader, changed directory, or hidden loader in an import | Refuse before source execution | All four real ARM-project controls returned `refused_dynamic`; no HOL evaluation or profile restore requested | [file-loader guards](file-loader-guard-evidence.json), `/controls` |
 | False helper beneath an unchanged warm base | Reject changed source | Before: incorrect acceptance in 0.345 s. After: `refused_profile_satisfaction_dependency_changed`, no HOL execution | [assembly](assembly-authoring-evidence.json), `/iterations/3/hidden_false_import_before` and `/iterations/3/hidden_false_import_after` |
 | Unused false import in the substantial NTT source | Reject complete source even if named targets prove | Rejected; all four target probes still proved | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/1/receipt` |
@@ -52,6 +54,16 @@ identical leaf and dependency hashes; the corrected path refuses before HOL.
 The history below retains the initial defects, timeouts, interrupted attempts
 and subsequent refinements. The successful ML-KEM and subtraction cases do not
 replace the unsuccessful P256 point-addition case.
+
+The file-loader guard checks used an existing `light` profile on x86-64 WSL
+Linux, without rebuilding it. Both complete ARM subtraction replays recorded
+zero new axioms; the second includes the alias-rebinding correction. Five
+project variants were refused before evaluation. Two earlier alias spellings
+were rejected by HOL's parser before reaching the loader guard; their receipts
+are retained in the same evidence record. These checks cover known file loaders
+and directory changes, not arbitrary OCaml subprocess or generated-code effects.
+Runtime revisions were independently checked before launch; checkout-relative
+receipt metadata itself still reports an unknown revision.
 
 ## Acceptance follows substantial proof work
 

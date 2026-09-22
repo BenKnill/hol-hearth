@@ -175,6 +175,82 @@
     "Controls use the same complete ARM project with added file-loading or directory-changing references; all are refused before HOL or profile restore.",
     "Generic subprocess effects and in-memory evaluation remain outside the bounded scanner contract.",
     "External proof sources, object files, runtime images, paths, raw transcripts and original receipts are not distributed.",
-    "This used an existing WSL Linux profile; it is not a fresh installation or OrbStack compatibility test."
-  ]
+    "This used an existing WSL Linux profile; it is not a fresh installation or OrbStack compatibility test.",
+    "Initial alias controls named T and FileLoader were rejected by the HOL lexer before dependency analysis. File_loader follows the HOL mixed-case module convention and exercised the rebinding guard; all attempts retained."
+  ],
+  "alias_rebinding_control": {
+    "runtime_revision_at_launch": "0ed77f5116e5d227bb129be123ec0c6ae662c637",
+    "module_name": "File_loader",
+    "receipt_sha256": "3c951453be9cfe68e0f9932f07674d5e82d6cac3e5ddca4a63f642eca2ab2b49",
+    "source_sha256": "f9d6bd082a77171d8f1bf73e75f0e3a544dc69ad8797d6965611da7e2d304ac9",
+    "source_dependency_closure_sha256": "9a373c2e8c72003e330f2e6ccbbe05b5328c7136198d6bf7a034a91162c9e8e6",
+    "source_preflight_status": null,
+    "dependency_transport_status": "refused_dynamic",
+    "transport_status": "not_started",
+    "source_completed": false,
+    "exit_status": 2
+  },
+  "alias_control_preflight_attempts": [
+    {
+      "receipt_sha256": "64fcf762b07e716c78e57603fc0dc8eca098c039255984c69764f6b1af69899a",
+      "source_sha256": "a85febcc580ec13d1e58d546f381e5c38f590b6430b1330a4004ef23b90b8e32",
+      "source_preflight_status": "syntax_preflight_failed",
+      "dependency_transport_status": "not_checked",
+      "source_completed": false,
+      "exit_status": 2
+    },
+    {
+      "receipt_sha256": "7ea0fc8f81a262f1047f6df3df375f01044f993c873a12919ba02b48485d9caf",
+      "source_sha256": "cb31d22971b703c14919497b6ccc6f8d182253a2fcd6ea561e236119ab1f808e",
+      "source_preflight_status": "syntax_preflight_failed",
+      "dependency_transport_status": "not_checked",
+      "source_completed": false,
+      "exit_status": 2
+    }
+  ],
+  "final_repeat": {
+    "runtime_revision_at_launch": "0ed77f5116e5d227bb129be123ec0c6ae662c637",
+    "receipt_sha256": "9472ad5464d8c806d18e47969aeeeb16bbd1548064a30e31e5a5246eba04172e",
+    "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+    "source_dependency_closure_sha256": "58a882d3bd0857683c65e38cd6922159c5b65a4dd221056edaba1450064d69aa",
+    "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+    "dependency_transport_status": "packaged",
+    "transport_status": "completed",
+    "source_completed": true,
+    "claims_complete": true,
+    "completion_marker_valid": true,
+    "exit_status": 0,
+    "eval_elapsed_seconds": 281.084,
+    "raw_transcript_sha256": "079adcefbc695ca952ed03004f73412b6a61cdbd1370ee9796ea2c5ffad2e5bb",
+    "binding_counts": {
+      "failed": 0,
+      "missing": 0,
+      "printed_unprobed": 0,
+      "proved": 2,
+      "unknown": 0
+    },
+    "bindings": [
+      {
+        "name": "BIGNUM_SUB_P256_CORRECT",
+        "status": "proved",
+        "evidence": "nonce_probe_kernel_conclusion",
+        "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+      },
+      {
+        "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+        "status": "proved",
+        "evidence": "nonce_probe_kernel_conclusion",
+        "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+      }
+    ],
+    "foundation_delta": {
+      "status": "observed",
+      "deltas": {
+        "axioms": 0,
+        "constants": 791,
+        "definitions": 773,
+        "types": 9
+      }
+    }
+  }
 }
