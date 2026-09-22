@@ -297,6 +297,29 @@ class Reopening(unittest.TestCase):
         self.assertEqual(self.command().returncode,2)
         self.assert_no_outputs()
 
+    def test_historical_and_current_display_labels_preserve_receipt_identity(self):
+        for label in ("Workbench", "Hearth"):
+            with self.subTest(label=label):
+                self.capture()
+                self.payload["source_dependency_closure"]["project_inputs"]["declaration"]["meaning"] = (
+                    f"optional display-only project metadata; {label} never executes it"
+                )
+                self.save()
+                self.out = self.outdir / f"{label}_debug.ml"
+                result = self.command()
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_nondisplay_declaration_changes_still_refuse(self):
+        for key, value in (("status", "present"), ("path", str(self.root / "different.json"))):
+            with self.subTest(key=key):
+                self.capture()
+                self.payload["source_dependency_closure"]["project_inputs"]["declaration"][key] = value
+                self.save()
+                result = self.command()
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("closure identity is invalid", result.stderr)
+                self.assert_no_outputs()
+
     def test_ambiguous_binding_is_refused(self):
         self.source.write_text(self.source.read_text()+theorem())
         self.capture()

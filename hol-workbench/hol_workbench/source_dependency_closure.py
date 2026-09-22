@@ -1010,6 +1010,14 @@ def source_dependency_closure_identity_matches(closure: dict[str, Any]) -> bool:
         for key, value in project_inputs.items()
         if key not in {"source_dependency_closure_sha256", "source_dependency_closure_schema"}
     }
+    # This explanatory label is excluded from the projection hash. Its wording
+    # must not invalidate an older receipt; retain every other field comparison.
+    for projection in (stored_project_inputs, rebuilt_project_inputs):
+        declaration = projection.get("declaration")
+        if isinstance(declaration, dict):
+            projection["declaration"] = {
+                key: value for key, value in declaration.items() if key != "meaning"
+            }
     if stored_project_inputs != rebuilt_project_inputs:
         return False
     projection_digest = project_input_projection_sha256(project_inputs)
