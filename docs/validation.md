@@ -202,6 +202,32 @@ theorem named `open_in` shadows the file-opening function expected by the ARM
 ELF reader, which was observed to fail with theorem type. A priority reset alone
 does not make the complete heavy environment compatible with these ARM sources.
 
+## Long proof activity diagnostics, September 22
+
+A live P256 run exhausted the original activity protocol's 8,192-call limit,
+leaving later work unattributed. Protocol v2 retains up to 64 active calls and
+discards completed-call history. Deeper nesting emits explicit overflow and
+resume records; legacy v1 receipts remain readable. This bounds activity
+accounting, while the raw transcript continues to grow with emitted events.
+
+The [sanitized activity control record](long-proof-activity-evidence.json)
+contains two completed real HOL attempts on the existing `light` shelf:
+
+| Diagnostic control | Observed result |
+| --- | --- |
+| 8,300 completed calls followed by a deliberately delayed target | The 20-second budget, plus the 15-second controller response allowance and cleanup, returned 124 in **35.129 s**. Call 8,301 remained attributable to `HEARTH_AFTER_ACTIVITY_LIMIT` at original source line 2; complete source and its target were not accepted. |
+| Same completed-call prefix, target repaired | Accepted in **3.610 s**; 8,301 calls recorded, none active; the one literal `T` target matched its conclusion with empty hypotheses, and zero new axioms were observed. |
+
+Both receipts report a quiescent child and reusable seat. The timeout's axiom
+measurement is missing, not zero. These are diagnostic controls, not assembly
+acceptance or a completed P256 certificate. Activity attribution itself supplies
+neither failure nor theorem evidence. Full `./hearth check` passed on the
+implementation, including legacy-accounting regressions and a plain OCaml
+emitter check for long histories, overflow, recovery and exception propagation.
+The tested merge changed only documentation from that checked implementation;
+the record distinguishes independently verified Git identity from the receipts'
+unknown client revision.
+
 ## Hearth acceptance, September 16
 
 Real runs used existing compatible `light` profiles in Ubuntu 26.04 ARM64.

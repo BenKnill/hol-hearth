@@ -1,0 +1,198 @@
+{
+  "schema": "hol-hearth.long-proof-activity-validation.v1",
+  "checked_on": "2026-09-22",
+  "status": "completed_diagnostic_control",
+  "environment": "Linux; existing light shelf; no shelf rebuilt",
+  "evidence_boundary": "Real warm HOL diagnostic controls after 8300 completed prove calls. Activity records describe entered calls without recorded returns; they neither prove a theorem nor identify a failed theorem. The repair proves only its literal T target. These controls are not assembly acceptance and do not establish a complete P256 point-addition certificate.",
+  "runtime_commit_independently_verified": "38eb1196f9db46d3ff7024c80a0a572ec00a57f4",
+  "runtime_identity_note": "Receipt client metadata reports unknown revision and is not authoritative; clean=false is preserved below. Runtime commit identity is supplied by an independent clean Git-worktree check. This merge differs from checked implementation commit 96eca9476cf4700f36f77dd26338180a9c4544ac only in documentation.",
+  "external_source_distribution": "Proof inputs, raw transcripts, original receipts, runtime images and machine configuration remain outside the public repository.",
+  "motivation": {
+    "observed_legacy_protocol": "hol-hearth.proof-activity.v1",
+    "observed_legacy_entered_call_limit": 8192,
+    "observed_legacy_status": "truncated",
+    "scope": "Live P256 diagnostic snapshot only; no source-completion or theorem-acceptance claim."
+  },
+  "protocol": {
+    "schema": "hol-hearth.proof-activity.v2",
+    "authority": "diagnostic_only",
+    "completed_call_history_retained": 0,
+    "history_retention": "active_calls_only",
+    "max_active_calls": 64,
+    "overflow_policy": "Explicit overflow suppresses deeper call locations; attribution resumes after returning to the recorded depth. Unavailable or malformed diagnostics cannot supply theorem evidence.",
+    "legacy_v1_receipts_supported": true,
+    "storage_boundary": "Accounting retains active calls, not completed call history. The raw transcript still grows with emitted events."
+  },
+  "attempts": [
+    {
+      "name": "timeout",
+      "receipt_sha256": "3c47a594f3e0651d3b86aec4e738dab567a24f99be543cffc01b4f8e37bb4871",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "696f3ea0bd5a457efa4882aa34228df66aa49492e09dfb1085fcee53ad4f5bd3",
+      "source_dependency_closure_sha256": "2e115fc9650a69feed4c8de8572637138f67a85f31547e9f05644930016579f4",
+      "executed_source_sha256": "28cb504a48ce43ee66e6d25b58b98e6da72767d1a5cd6cdc4201e0e913a08daa",
+      "transcript_sha256": "71e61effd3a7dc544484b9acd16f22da3dffe59591dd9b1586c73bb2d6630b0e",
+      "raw_transcript_sha256": "98dcd20e915f65e066cf8d0b75cc07068169b330492001cf8e515105285a5d40",
+      "requested_timeout_seconds": 20.0,
+      "controller_response_timeout_seconds": 35.0,
+      "eval_elapsed_seconds": 35.129,
+      "exit_status": 124,
+      "semantic_exit_status": 1,
+      "semantic_source_status": "not_completed",
+      "transport_status": "timeout",
+      "worker_status": "timeout",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "controller_cancellation_reason": "controller_response_timeout",
+      "timeout_kind": "controller_response_timeout",
+      "termination_kind": "explicit_cancel",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 1,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "foundation_delta": {
+        "status": "missing",
+        "new_axiom_count": null
+      },
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "proof_activity": {
+        "authority": "diagnostic_only",
+        "boundary": "An entered prove call without a recorded return; neither failure nor theorem evidence.",
+        "completed_call_history_retained": 0,
+        "entered_call_count": 8301,
+        "history_retention": "active_calls_only",
+        "max_active_calls": 64,
+        "overflow_span_count": 0,
+        "schema": "hol-hearth.proof-activity.v2",
+        "status": "recorded",
+        "suppressed_call_count": 0,
+        "suppressed_call_count_complete": true,
+        "active_calls": [
+          {
+            "call": 8301,
+            "entered_transcript_line": 33220
+          }
+        ]
+      },
+      "running_binding": {
+        "authority": "diagnostic_only",
+        "entered_transcript_line": 33220,
+        "name": "HEARTH_AFTER_ACTIVITY_LIMIT",
+        "reason": "unique exactly captured prove call entered without a recorded return before interruption; not failure or proof evidence",
+        "source_line": 2,
+        "status": "running_at_interruption",
+        "verification_kind": "compiler_callsite_diagnostic"
+      },
+      "claims": [
+        {
+          "theorem": "HEARTH_AFTER_ACTIVITY_LIMIT",
+          "statement": "T",
+          "statement_sha256": "e632b7095b0bf32c260fa4c539e9fd7b852d0de454e9be26f24d0d6f91d069d3",
+          "statement_quote_sha256": "c72ac912bf6b2c6cf233052fe08c431b796a76f5c4df4e5a41b0b4eb31f757cc",
+          "source_span": [
+            2,
+            2
+          ],
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ]
+    },
+    {
+      "name": "repair",
+      "receipt_sha256": "e81181dab98617f60447bd3d6c0c5e8da9443f899faac9125da4c96b6f44400b",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "6fbed1d6bf3df6371b4ad6fa09b7112b23821235944a12afd091339305e5f148",
+      "source_dependency_closure_sha256": "0779a365e81bbb5cf692023efb4ca530fe721794511d94a6cae5aa60baa32699",
+      "executed_source_sha256": "e1a568264dbed478fc00527b284892c47087a01e42760c2217ed3e21f22bb726",
+      "transcript_sha256": "fa33a3e85f57adb04957e9b54cfc0e02f95b777e5cc214c0f00a84a441eb32bb",
+      "raw_transcript_sha256": "54fd769bb5aded13b574c6217b29aadbf64a06090a868ef322479f183877999a",
+      "requested_timeout_seconds": 120.0,
+      "controller_response_timeout_seconds": 135.0,
+      "eval_elapsed_seconds": 3.61,
+      "exit_status": 0,
+      "semantic_exit_status": 0,
+      "semantic_source_status": "succeeded",
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "controller_cancellation_reason": null,
+      "timeout_kind": null,
+      "termination_kind": "child_exited",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "proof_activity": {
+        "authority": "diagnostic_only",
+        "boundary": "An entered prove call without a recorded return; neither failure nor theorem evidence.",
+        "completed_call_history_retained": 0,
+        "entered_call_count": 8301,
+        "history_retention": "active_calls_only",
+        "max_active_calls": 64,
+        "overflow_span_count": 0,
+        "schema": "hol-hearth.proof-activity.v2",
+        "status": "recorded",
+        "suppressed_call_count": 0,
+        "suppressed_call_count_complete": true,
+        "active_calls": []
+      },
+      "running_binding": null,
+      "claims": [
+        {
+          "theorem": "HEARTH_AFTER_ACTIVITY_LIMIT",
+          "statement": "T",
+          "statement_sha256": "e632b7095b0bf32c260fa4c539e9fd7b852d0de454e9be26f24d0d6f91d069d3",
+          "statement_quote_sha256": "c72ac912bf6b2c6cf233052fe08c431b796a76f5c4df4e5a41b0b4eb31f757cc",
+          "source_span": [
+            2,
+            2
+          ],
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "implementation_commit": "96eca9476cf4700f36f77dd26338180a9c4544ac",
+    "hearth_check": "passed",
+    "hearth_check_log_sha256": "ab7d99fa55be8d1547b6590244da48ba91aa6243cd7287c9a5fc0a5b4f6b0d71",
+    "harness_boundary": "The full check does not start HOL or CRIU. It includes a separately compiled plain OCaml emitter regression, not a second HOL implementation.",
+    "plain_ocaml_emitter": "passed: long call history, nesting overflow and recovery, exception propagation",
+    "accounting_regressions": "passed: legacy v1, long v2 history, bounded nesting, recovery, sequence exhaustion, malformed and incomplete records, exact source mapping and theorem-evidence boundaries",
+    "independent_review": "completed; no additional finding reported"
+  }
+}
