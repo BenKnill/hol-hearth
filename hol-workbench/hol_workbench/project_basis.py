@@ -35,7 +35,7 @@ from hol_workbench.proof_run_fork_basis_safety import admit_single_threaded_basi
 from hol_workbench.proof_run_fork_broker import ForkBasisBroker
 from hol_workbench.proof_run_fork_broker_client import broker_control_request
 from hol_workbench.source_dependency_closure import source_dependency_closure_identity_matches
-from hol_workbench.source_dependency_package import dependency_transport_status
+from hol_workbench.source_dependency_package import dependency_transport_status, elf_package_transport
 from hol_workbench.secure_tree_read import read_regular_file_beneath
 
 SCHEMA = "hol-hearth.project-basis.v1"
@@ -133,6 +133,7 @@ def plan_basis(
         "captured_inputs": inputs,
         "elf_loaders": sorted({row.get("loader") for row in closure.get("artifacts") or []
                                if row.get("loader") in {"define_from_elf", "define_assert_from_elf"}}),
+        "elf_transport": elf_package_transport(closure),
     }
     return BasisPlan(source, profile, logical_profile,
                      run_root.expanduser().resolve() / ".project-bases", identity, _digest(identity))
@@ -298,7 +299,7 @@ def retire_basis(handle: BasisHandle, *, reason: str = "owned_basis_lifecycle_fa
 
 def bootstrap_prelude(plan: BasisPlan) -> bytes:
     """Save only harness-managed transport functions before packaging wrappers."""
-    loaders = ["needs", "loadt", "loads", "prove", *plan.identity["elf_loaders"]]
+    loaders = ["needs", "loadt", "loads", "prove", *plan.identity["elf_transport"]["wrapped_loaders"]]
     lines = [f"let hearth_basis_original_{name} = {name};;" for name in loaders]
     lines.extend(["let hearth_basis_original_cwd = Sys.getcwd ();;",
                   "let hearth_basis_original_load_path = !load_path;;"])
@@ -356,7 +357,8 @@ def bootstrap_postlude(plan: BasisPlan) -> bytes:
     atomic_write_json(generation / "spec.json", spec)
     lit = ocaml_string_literal
     restore = "\n".join(f"let {name} = hearth_basis_original_{name};;"
-                        for name in ["needs", "loadt", "loads", "prove", *plan.identity["elf_loaders"]])
+                        for name in ["needs", "loadt", "loads", "prove",
+                                     *plan.identity["elf_transport"]["wrapped_loaders"]])
     # These are transport operations. Proof source continues to be loaded by
     # the existing fork_eval_phrase and ordinary HOL file loader.
     text = f'''
@@ -499,6 +501,7 @@ def validate_preparation_receipt(plan: BasisPlan, receipt_path: Path) -> dict[st
         "claims_complete": True, "exit_status": 0, "transport_status": "completed",
         "included_file_error_observed": False,
         "completion_marker_valid": True, "semantic_exit_status": 0, "worker_exit_status": 0,
+        "literal_elf_transport": plan.identity["elf_transport"],
     }
     for name, value in required.items():
         if type(row.get(name)) is not type(value) or row.get(name) != value:

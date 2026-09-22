@@ -90,6 +90,15 @@ sources and their transitive ELF inputs, even when the selected profile was
 prepared in another checkout. A missing file inside a local directory such as
 `arm/` is refused before evaluation; another checkout cannot fill the gap.
 
+For exact relative ELF paths, Hearth can run from the captured package's
+working directory. This lets ordinary imports define their ELF loaders before
+the source uses them, including when those loaders were absent from the warm
+profile. The source order and object bytes stay unchanged. Hearth selects this
+transport only when every object resolves to its captured location and the
+exact source closure has no directory-changing function references or native
+declarations. Other cases retain the existing ELF path wrappers. Receipts record
+the selected `literal_elf_transport`; project-basis admission checks it too.
+
 The configured HOL source and declared logical roots supply remaining library
 imports, such as `Library/words.ml` when this checkout has no `Library/` tree.
 For a narrower package boundary or a source archive without Git metadata, place

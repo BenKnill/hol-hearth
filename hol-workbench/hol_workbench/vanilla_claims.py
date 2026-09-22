@@ -35,6 +35,7 @@ from hol_workbench.source_dependency_closure import SourceDependencyInferenceErr
 from hol_workbench.source_dependency_package import (
     DependencyPackageError,
     dependency_package_entrypoint,
+    literal_elf_artifact_runtime_cwd,
     materialize_dependency_package,
 )
 from hol_workbench.source_execution_plan import (
@@ -235,65 +236,8 @@ def validate_vanilla_source_snapshot(closure: dict[str, Any], source_bytes: byte
         )
 
 
-def vanilla_artifact_runtime_cwd(
-    closure: dict[str, Any],
-    *,
-    original_cwd: Path,
-    package_root: Path,
-) -> Path | None:
-    """Mirror the caller cwd only when every relative ELF path stays exact."""
-
-    artifacts = [
-        artifact
-        for artifact in closure.get("artifacts") or []
-        if artifact.get("resolution") == "source_local"
-    ]
-    if not artifacts:
-        return None
-    cwd = original_cwd.expanduser().resolve(strict=True)
-    runtime_cwd: Path | None = None
-    for artifact in artifacts:
-        literal = Path(str(artifact.get("runtime_literal_path") or ""))
-        package_path = Path(str(artifact.get("package_path") or ""))
-        if literal.is_absolute() or not literal.parts or not package_path.parts:
-            raise DependencyPackageError(
-                "refused_artifact_runtime_path",
-                f"literal ELF path cannot be reproduced inside the cold package: {literal}",
-            )
-        project_root = Path(str(artifact.get("project_root") or "")).resolve(strict=True)
-        resolved_path = Path(str(artifact.get("resolved_path") or "")).resolve(strict=True)
-        try:
-            relative_cwd = cwd.relative_to(project_root)
-            project_artifact = resolved_path.relative_to(project_root)
-        except ValueError as exc:
-            raise DependencyPackageError(
-                "refused_artifact_runtime_cwd",
-                f"cold replay cwd or artifact is outside its source project root: {project_root}",
-            ) from exc
-        expected = (package_root / package_path).resolve()
-        packaged_project_root = expected
-        for _part in project_artifact.parts:
-            packaged_project_root = packaged_project_root.parent
-        candidate_cwd = packaged_project_root / relative_cwd
-        observed = (candidate_cwd / literal).resolve()
-        if (
-            observed != expected
-            or not expected.is_relative_to(package_root)
-            or not candidate_cwd.resolve().is_relative_to(package_root)
-        ):
-            raise DependencyPackageError(
-                "refused_artifact_runtime_path",
-                f"literal ELF path does not resolve to its captured package file: "
-                f"{literal} -> {observed}, expected {expected}",
-            )
-        if runtime_cwd is not None and candidate_cwd != runtime_cwd:
-            raise DependencyPackageError(
-                "refused_artifact_runtime_cwd",
-                "literal ELF artifacts require different packaged working directories",
-            )
-        runtime_cwd = candidate_cwd
-    assert runtime_cwd is not None
-    return runtime_cwd
+# Preserve the ordinary standalone replay API while sharing exact ELF coordinates.
+vanilla_artifact_runtime_cwd = literal_elf_artifact_runtime_cwd
 
 
 def default_hol_environment(holdir: Path) -> dict[str, str]:

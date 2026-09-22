@@ -1310,6 +1310,22 @@ def scan_claim_binding_starts(source: bytes) -> frozenset[int]:
     return frozenset(starts)
 
 
+def source_may_change_cwd(source: bytes) -> bool:
+    """Conservative lexical exclusion for the fixed-cwd ELF transport.
+
+    Include aliases of directory-changing functions and native declarations;
+    comments, strings and HOL quotations do not call these functions. This is
+    a bounded source contract, not a sandbox for arbitrary hostile OCaml.
+    """
+    if not any(word in source for word in (b"chdir", b"external")):
+        return False
+    checked = scan_ocaml_loaders(source)
+    if checked.status != "ok":
+        return True
+    return any(token.kind == "IDENT" and token.value in {"chdir", "fchdir", "external"}
+               for token in _Lexer(source, source.decode("utf-8")).tokenize())
+
+
 def scan_prove_bindings(source: bytes) -> ProveBindingScanResult:
     """Locate only unambiguous, complete top-level let NAME = [time] prove phrases.
 
