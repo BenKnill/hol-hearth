@@ -84,7 +84,7 @@ def _binding_card_label(row: dict[str, Any]) -> str:
         if kind == "kernel_conclusion_and_empty_hypotheses":
             return "proved (source conclusion matched; hypotheses empty)"
         if kind == "binding_and_thm_type_only_nonliteral_statement":
-            return "proved (binding and thm type only; conclusion and hypotheses not checked)"
+            return "thm bound (conclusion and hypotheses not checked)"
         return "proved (probe strength not recorded or unrecognized)"
     if probe == "printed_unprobed":
         return "printed_unprobed (diagnostic only; no verified kernel probe)"
@@ -232,6 +232,16 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         binding_status = str(row.get("status") or "unknown")
         counts[binding_status] = counts.get(binding_status, 0) + 1
     print("binding_counts: " + " ".join(f"{name}={count}" for name, count in counts.items()))
+    probe_counts = dict.fromkeys(("conclusion_checked", "thm_type_only", "unknown"), 0)
+    probe_kinds = {
+        "kernel_conclusion_and_empty_hypotheses": "conclusion_checked",
+        "binding_and_thm_type_only_nonliteral_statement": "thm_type_only",
+    }
+    for row in dict_rows:
+        if row.get("status") == "proved":
+            kind = probe_kinds.get(str(row.get("verification_kind")), "unknown")
+            probe_counts[kind] += 1
+    print("successful_probe_counts: " + " ".join(f"{name}={count}" for name, count in probe_counts.items()))
     display_rows = selected if selected_names else sorted(dict_rows, key=lambda row: row.get("status") == "proved")
     visible = display_rows if args.verbose or selected_names else display_rows[:12]
     accounting = (receipt.get("transcript_accounting") or {}).get("claim_accounting") or []

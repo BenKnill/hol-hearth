@@ -139,10 +139,13 @@ selected named probes; inspection describes this scope.
 The exact binding view includes its recorded status, probe strength, and original
 source span. A literal statement's probe checks that the theorem's conclusion
 matches the source quotation and that its hypotheses are empty. A computed
-statement's probe checks only that the binding has type `thm`; inspection labels
-its conclusion and hypotheses as unchecked. The recorded `proved` status alone
-does not distinguish these checks. `--binding` and `--verbose` also show the exact
-`verification_kind`; older receipts without it have unknown probe strength.
+statement's probe checks only that the binding has type `thm`; inspection shows
+`thm bound (conclusion and hypotheses not checked)`. The recorded `proved` status
+alone does not distinguish these checks. `successful_probe_counts` separates
+conclusion checks, type-only checks, and unknown strength across all bindings,
+including those hidden by the compact display limit. `--binding` and `--verbose`
+also show the exact `verification_kind`; older receipts without it have unknown
+probe strength.
 Verbose lists all discovered entrypoint bindings and captured input identities.
 JSON exposes the complete, unchanged receipt, including each binding's recorded
 `verification_kind`, for agents. An unrecorded binding is reported

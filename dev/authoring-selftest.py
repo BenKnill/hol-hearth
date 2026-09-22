@@ -230,8 +230,9 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             for flags in ((), ("--verbose",), ("--binding", "COMPUTED")):
                 rendered = self.inspect(receipt, *flags)
                 self.assertEqual(rendered.returncode, 0, rendered.stderr)
-                self.assertIn("COMPUTED: proved (binding and thm type only; "
-                              "conclusion and hypotheses not checked)", rendered.stdout)
+                self.assertIn("COMPUTED: thm bound (conclusion and hypotheses not checked)", rendered.stdout)
+                self.assertIn("successful_probe_counts: conclusion_checked=1 thm_type_only=1 unknown=0",
+                              rendered.stdout)
                 if flags:
                     self.assertIn("verification_kind: binding_and_thm_type_only_nonliteral_statement",
                                   rendered.stdout)
@@ -244,7 +245,7 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             _receipt(receipt, succeeded=False, recorded_exit_status=1, bindings=result["bindings"])
             rejected = self.inspect(receipt, "--binding", "COMPUTED")
             self.assertEqual(rejected.returncode, 1)
-            self.assertIn("COMPUTED: proved (binding and thm type only;", rejected.stdout)
+            self.assertIn("COMPUTED: thm bound (conclusion and hypotheses not checked)", rejected.stdout)
             self.assertIn("source_acceptance: not_accepted", rejected.stdout)
 
     def test_inspect_does_not_infer_probe_strength_or_claim_failed_checks_passed(self):
@@ -263,6 +264,8 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             self.assertIn("verification_kind: future_probe", rendered.stdout)
             self.assertIn("MISMATCH: failed", rendered.stdout)
             self.assertNotIn("source conclusion matched", rendered.stdout)
+            self.assertIn("successful_probe_counts: conclusion_checked=0 thm_type_only=0 unknown=2",
+                          rendered.stdout)
 
 
     def test_printed_output_is_not_a_probe_or_source_acceptance(self):
@@ -345,6 +348,8 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
         with tempfile.TemporaryDirectory() as temporary:
             receipt = Path(temporary) / "transcript.log.json"
             bindings = [{"name": f"GOOD_{i}", "status": "proved"} for i in range(73)]
+            bindings[-2]["verification_kind"] = "kernel_conclusion_and_empty_hypotheses"
+            bindings[-1]["verification_kind"] = "binding_and_thm_type_only_nonliteral_statement"
             bindings.extend([{"name": "LATE_FAILED", "status": "failed"},
                              {"name": "LATE_PRINTED", "status": "printed_unprobed"},
                              {"name": "LATE_MISSING", "status": "missing"}])
@@ -357,6 +362,9 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             self.assertIn("LATE_MISSING: missing", result.stdout)
             self.assertLess(result.stdout.index("LATE_MISSING:"), result.stdout.index("GOOD_0:"))
             self.assertIn("64 more (64 proved)", result.stdout)
+            self.assertIn("successful_probe_counts: conclusion_checked=1 thm_type_only=1 unknown=71",
+                          result.stdout)
+            self.assertNotIn("GOOD_72:", result.stdout)
             _receipt(receipt, succeeded=True, bindings=bindings[:73])
             passed = self.inspect(receipt)
             self.assertIn("binding_counts: proved=73 failed=0 printed_unprobed=0 missing=0 unknown=0",
