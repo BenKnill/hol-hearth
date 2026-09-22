@@ -2,15 +2,19 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 PREFIX = "__HOL_PROOF_DIAGNOSTIC__"
 ACTIVITY_PREFIX = "__HOL_PROOF_ACTIVITY__"
-ACTIVITY_PROTOCOL = "hol-hearth.proof-activity.v1"
+LEGACY_ACTIVITY_PROTOCOL = "hol-hearth.proof-activity.v1"
+ACTIVITY_PROTOCOL = "hol-hearth.proof-activity.v2"
 NONCE = re.compile(r"^[0-9a-f]{32}$")
 MAX_EVENTS = 8
-MAX_ACTIVITY_CALLS = 8192
+MAX_ACTIVITY_CALLS = 8192  # Legacy v1 lifetime limit, not a v2 capture quota.
+MAX_ACTIVITY_DEPTH = 64
+MAX_ACTIVITY_SEQUENCE = (1 << 62) - 1  # Positive OCaml int limit on the 64-bit runtime.
 MAX_GOALS = 8
 MAX_ASSUMPTIONS = 16
 MAX_TEXT_BYTES = 2048
@@ -124,6 +128,8 @@ let prove =
   let original_term_printer = pp_print_term in
   let events = ref 0 in
   let calls = ref 0 in
+  let depth = ref 0 in
+  let activity_enabled = ref true in
   let bound = 2048 in
   let bounded s = if String.length s <= bound then s else
     String.sub s 0 bound ^ "... [truncated]" in
@@ -144,10 +150,14 @@ let prove =
   let rec take n xs = match xs with
     [] -> [] | _ when n = 0 -> [] | x::rest -> x::take (n-1) rest in
   let enter locations =
-    incr calls;
+    if !activity_enabled && !calls = @MAX_ACTIVITY_SEQUENCE@ then
+      (activity_enabled := false;
+       (try original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:EXHAUSTED\n%!" !calls
+        with _ -> ()));
+    if !activity_enabled then (incr calls; incr depth);
     let call = !calls in
     (try
-       if call <= @MAX_ACTIVITY_CALLS@ then
+       if !activity_enabled && !depth <= @MAX_ACTIVITY_DEPTH@ then
          (original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:ENTER" call;
           List.iter (fun slot -> match Printexc.Slot.location slot with
             None -> () | Some loc ->
@@ -155,14 +165,19 @@ let prove =
               original_print ":%s:%s:%d" (hex (bounded loc.Printexc.filename))
                 (hex (bounded name)) loc.Printexc.line_number) locations;
           original_print "\n%!")
-       else if call = @MAX_ACTIVITY_CALLS@ + 1 then
-         original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:TRUNCATED\n%!" call
+       else if !activity_enabled && !depth = @MAX_ACTIVITY_DEPTH@ + 1 then
+         original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:OVERFLOW\n%!" call
      with _ -> ());
     call in
   let leave call =
-    try if !calls <= @MAX_ACTIVITY_CALLS@ then
-      original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:LEAVE\n%!" call
-    with _ -> () in
+    if !activity_enabled then
+      ((try
+          if !depth <= @MAX_ACTIVITY_DEPTH@ then
+            original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:LEAVE\n%!" call
+          else if !depth = @MAX_ACTIVITY_DEPTH@ + 1 then
+            original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:RESUME:%d\n%!" call !calls
+        with _ -> ());
+       decr depth) in
   let emit kind tm error goals locations =
     if !events < 8 then
       (incr events;
@@ -205,7 +220,9 @@ let prove =
        with _ -> ());
       raise error;;
 '''
-    return source.replace("@NONCE@", nonce).replace("@MAX_ACTIVITY_CALLS@", str(MAX_ACTIVITY_CALLS)).encode("utf-8")
+    return (source.replace("@NONCE@", nonce)
+            .replace("@MAX_ACTIVITY_DEPTH@", str(MAX_ACTIVITY_DEPTH))
+            .replace("@MAX_ACTIVITY_SEQUENCE@", str(MAX_ACTIVITY_SEQUENCE)).encode("utf-8"))
 
 
 def _text(value: str) -> str:
@@ -299,12 +316,32 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
     return {**empty, "status": "recorded", "events": events, "capture_truncated": truncated}
 
 
+def _line_ranges(transcript: bytes) -> Iterator[tuple[int, int, int]]:
+    """Yield line offsets without copying or retaining the transcript's lines."""
+    start = 0
+    number = 0
+    for number, match in enumerate(re.finditer(rb"\r\n?|\n", transcript), 1):
+        end = match.end()
+        yield number, start, end
+        start = end
+    if start < len(transcript):
+        yield number + 1, start, len(transcript)
+
+
 def account_proof_activity(transcript: bytes, contract: dict[str, Any]) -> dict[str, Any]:
-    """Track entered/returned prove calls without treating either as proof evidence."""
+    """Retain only active calls, with explicit loss/recovery at the nesting bound.
+
+    The v2 raw event log grows with execution, but completed calls consume no
+    retained activity history. Legacy v1 receipts keep their terminal call cap.
+    Neither protocol establishes failure, completion, or theorem evidence.
+    """
     descriptor = contract.get("proof_diagnostics")
-    available = isinstance(descriptor, dict) and descriptor.get("activity_protocol") == ACTIVITY_PROTOCOL
+    protocol = descriptor.get("activity_protocol") if isinstance(descriptor, dict) else None
+    available = isinstance(protocol, str) and protocol in {LEGACY_ACTIVITY_PROTOCOL, ACTIVITY_PROTOCOL}
+    legacy = protocol == LEGACY_ACTIVITY_PROTOCOL
     empty: dict[str, Any] = {
-        "schema": ACTIVITY_PROTOCOL, "status": "none" if available else "unavailable",
+        "schema": protocol if available else ACTIVITY_PROTOCOL,
+        "status": "none" if available else "unavailable",
         "active_calls": [], "authority": "diagnostic_only",
         "boundary": "An entered prove call without a recorded return; neither failure nor theorem evidence.",
     }
@@ -316,27 +353,64 @@ def account_proof_activity(transcript: bytes, contract: dict[str, Any]) -> dict[
     prefix = f"{ACTIVITY_PREFIX}:{nonce}:".encode()
     active: list[dict[str, Any]] = []
     entered = records = 0
+    overflow: int | None = None
+    overflow_spans = suppressed_calls = 0
+    terminal: str | None = None
+    max_line_bytes = 32 * (MAX_TEXT_BYTES + 32) * 4 + 256
     try:
-        for lineno, raw in enumerate(transcript.splitlines(keepends=True), 1):
-            if not raw.startswith(prefix):
+        for lineno, start, end in _line_ranges(transcript):
+            if not transcript.startswith(prefix, start, end):
                 # A cut-off ENTER must not leave an earlier call looking current.
-                if raw.startswith(ACTIVITY_PREFIX.encode()) and prefix.startswith(raw):
+                if (end - start < len(prefix) and transcript.startswith(ACTIVITY_PREFIX.encode(), start, end)
+                        and prefix.startswith(transcript[start:end])):
                     return {**empty, "status": "incomplete"}
                 continue
+            if end - start > max_line_bytes:
+                raise ValueError("proof activity record limit exceeded")
+            raw = transcript[start:end]
             if not raw.endswith(b"\n"):
                 return {**empty, "status": "incomplete"}
             records += 1
-            if records > MAX_ACTIVITY_CALLS * 2 + 1 or len(raw) > 32 * (MAX_TEXT_BYTES + 32) * 4 + 256:
+            if legacy and records > MAX_ACTIVITY_CALLS * 2 + 1:
                 raise ValueError("proof activity record limit exceeded")
+            if terminal is not None:
+                raise ValueError("proof activity record after terminal truncation")
             parts = raw[len(prefix):].rstrip(b"\r\n").decode("ascii").split(":")
             call = int(parts[0])
             op = parts[1]
-            if op == "TRUNCATED":
+            if not 1 <= call <= MAX_ACTIVITY_SEQUENCE:
+                raise ValueError("invalid proof activity sequence")
+            if legacy and op == "TRUNCATED":
                 if len(parts) != 2 or call != MAX_ACTIVITY_CALLS + 1 or entered != MAX_ACTIVITY_CALLS:
                     raise ValueError("invalid proof activity truncation")
-                return {**empty, "status": "truncated", "entered_call_count": entered}
-            if op == "ENTER":
-                if call != entered + 1 or call > MAX_ACTIVITY_CALLS or (len(parts) - 2) % 3 or len(parts) > 98:
+                terminal = "truncated"
+            elif not legacy and op == "EXHAUSTED":
+                if len(parts) != 2 or call != MAX_ACTIVITY_SEQUENCE or (overflow is None and entered != call):
+                    raise ValueError("invalid proof activity sequence exhaustion")
+                entered = call
+                terminal = "sequence_exhausted"
+            elif not legacy and op == "OVERFLOW":
+                if (len(parts) != 2 or overflow is not None or len(active) != MAX_ACTIVITY_DEPTH
+                        or call != entered + 1):
+                    raise ValueError("invalid proof activity overflow")
+                overflow = call
+                overflow_spans += 1
+                entered = call
+            elif not legacy and op == "RESUME":
+                if len(parts) != 3 or overflow is None or call != overflow:
+                    raise ValueError("unmatched proof activity recovery")
+                last = int(parts[2])
+                if not call <= last <= MAX_ACTIVITY_SEQUENCE:
+                    raise ValueError("invalid proof activity recovery sequence")
+                suppressed_calls += last - call + 1
+                entered = last
+                overflow = None
+            elif overflow is not None:
+                raise ValueError("unexpected proof activity record inside overflow")
+            elif op == "ENTER":
+                if (call != entered + 1 or (legacy and call > MAX_ACTIVITY_CALLS)
+                        or (not legacy and len(active) >= MAX_ACTIVITY_DEPTH)
+                        or (len(parts) - 2) % 3 or len(parts) > 98):
                     raise ValueError("invalid proof activity entry")
                 locations = []
                 for pos in range(2, len(parts), 3):
@@ -354,8 +428,19 @@ def account_proof_activity(transcript: bytes, contract: dict[str, Any]) -> dict[
                 raise ValueError("unknown proof activity operation")
     except (ValueError, UnicodeError, IndexError):
         return {**empty, "status": "malformed"}
+    if terminal is not None:
+        return {**empty, "status": terminal, "entered_call_count": entered}
+    bounds = {} if legacy else {
+        "max_active_calls": MAX_ACTIVITY_DEPTH, "history_retention": "active_calls_only",
+        "completed_call_history_retained": 0, "overflow_span_count": overflow_spans,
+        "suppressed_call_count": suppressed_calls,
+        "suppressed_call_count_complete": overflow is None,
+    }
+    if overflow is not None:
+        return {**empty, **bounds, "status": "depth_overflow", "entered_call_count": entered,
+                "entered_call_count_complete": False}
     return {**empty, "status": "recorded" if records else "none", "active_calls": active,
-            "entered_call_count": entered}
+            "entered_call_count": entered, **bounds}
 
 
 def print_proof_diagnostics(receipt: dict[str, Any], *, verbose: bool) -> None:

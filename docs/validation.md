@@ -202,6 +202,43 @@ theorem named `open_in` shadows the file-opening function expected by the ARM
 ELF reader, which was observed to fail with theorem type. A priority reset alone
 does not make the complete heavy environment compatible with these ARM sources.
 
+## Long proof activity diagnostics, September 22
+
+A live P256 run exhausted the original activity protocol's 8,192-call limit,
+leaving later work unattributed. Protocol v2 retains up to 64 active calls and
+discards completed-call history. Deeper nesting emits explicit overflow and
+resume records; legacy v1 receipts remain readable. This bounds activity
+accounting, while the raw transcript continues to grow with emitted events.
+
+The [sanitized activity control record](long-proof-activity-evidence.json)
+contains two completed real HOL attempts on the existing `light` shelf:
+
+| Diagnostic control | Observed result |
+| --- | --- |
+| 8,300 completed calls followed by a deliberately delayed target | The 20-second budget, plus the 15-second controller response allowance and cleanup, returned 124 in **35.129 s**. Call 8,301 remained attributable to `HEARTH_AFTER_ACTIVITY_LIMIT` at original source line 2; complete source and its target were not accepted. |
+| Same completed-call prefix, target repaired | Accepted in **3.610 s**; 8,301 calls recorded, none active; the one literal `T` target matched its conclusion with empty hypotheses, and zero new axioms were observed. |
+
+Both receipts report a quiescent child and reusable seat. The timeout's axiom
+measurement is missing, not zero. These are diagnostic controls, not assembly
+acceptance or a completed P256 certificate. Activity attribution itself supplies
+neither failure nor theorem evidence. Full `./hearth check` passed on the
+implementation, including legacy-accounting regressions and a plain OCaml
+emitter check for long histories, overflow, recovery and exception propagation.
+The tested merge changed only documentation from that checked implementation;
+the record distinguishes independently verified Git identity from the receipts'
+unknown client revision.
+
+The combined runtime also accepted the unchanged 256-cell ARM NTT layers 1–3
+functional source. Preparation took **194.827 s**, with both targets checked;
+the complete leaf took **18.323 s**, with all four literal conclusions and empty
+hypotheses checked. Both observed zero new axioms. The receipts report
+**3,582.321 s** and **1,273.738 s** of physical-shelf admission waiting respectively;
+that waiting did not consume either phase's 1,500-second evaluation budget.
+Reported admission time can omit earlier project-basis lock waiting and is not
+total wall time. These results are bound to independently verified runtime
+`7b9933845b2e334ec73af9fa9a1dfa21a807ad7f`; its changes from the checked runtime
+are documentation only.
+
 ## Hearth acceptance, September 16
 
 Real runs used existing compatible `light` profiles in Ubuntu 26.04 ARM64.
