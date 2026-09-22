@@ -40,7 +40,7 @@ def _project_declaration(project_root: Path) -> dict[str, Any]:
     base: dict[str, Any] = {
         "path": str(declaration),
         "status": "absent",
-        "meaning": "optional display-only project metadata; Workbench never executes it",
+        "meaning": "optional display-only project metadata; Hearth never executes it",
     }
     if not declaration.exists():
         return base

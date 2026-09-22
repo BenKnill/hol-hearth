@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+usage='Usage: dev/check-all [--offline]'
+offline=()
+case "${1:-}" in
+  --offline) offline=(--offline); shift ;;
+  -h|--help) echo "$usage"; exit 0 ;;
+  '') ;;
+  *) echo "$usage" >&2; exit 2 ;;
+esac
+(( $# == 0 )) || { echo "$usage" >&2; exit 2; }
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+cd -- "$root"
+./hearth check
+command -v uv >/dev/null 2>&1 || {
+  echo 'Lint requires uv on PATH. Install uv, then rerun dev/check-all; hearth check needs no development tools.' >&2
+  exit 2
+}
+echo 'LINT: Ruff 0.15.7 (uv may fetch the tool unless --offline is selected)'
+exec uv tool run "${offline[@]}" --from ruff==0.15.7 ruff check .

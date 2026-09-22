@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import fcntl
 import json
 import os
 import signal
@@ -13,24 +12,12 @@ import sys
 import tempfile
 import threading
 import time
-from contextlib import ExitStack, redirect_stderr, redirect_stdout
-from io import StringIO
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
-from unittest.mock import patch
 
 WORKBENCH_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(WORKBENCH_ROOT))
 
-from hol_workbench import (  # noqa: E402
-    criu_shelf_admission as criu_shelf_admission_module,
-)
-from hol_workbench import (  # noqa: E402
-    hot_profile_session,
-    orbstack_idle_retirement,
-)
-from hol_workbench.cli import orbstack_criu_restore  # noqa: E402
 from hol_workbench.fork_broker_protocol import (  # noqa: E402
     BROKER_FRAME_CONTROL,
     BROKER_FRAME_HEADER,
@@ -42,7 +29,6 @@ from hol_workbench.fork_broker_protocol import (  # noqa: E402
 )
 from hol_workbench.hot_profile_session import broker_response_proves_reusable  # noqa: E402
 from hol_workbench.jsonio import atomic_write_json  # noqa: E402
-from hol_workbench.pools import fork_attempt_lifecycle as fork_attempt_lifecycle_module  # noqa: E402
 from hol_workbench.pools.fork_attempt_lifecycle import (  # noqa: E402
     ACTIVE_CHILDREN_SCHEMA,
     wait_for_fork_attempt_cleanup,

@@ -255,7 +255,7 @@ def warmup_profile_publication_guard(
             resolved = path.resolve()
             if not resolved.is_relative_to(resource_root):
                 raise ValueError(
-                    f"profile {name!r} publication_guard resource-relative preload escapes the Workbench root"
+                    f"profile {name!r} publication_guard resource-relative preload escapes the Hearth root"
                 )
         else:
             resolved = path.resolve()

@@ -2,6 +2,8 @@
 """Leaf-versus-recipe needs report regressions; original fixtures, no HOL or CRIU."""
 from __future__ import annotations
 
+from contextlib import redirect_stderr
+import io
 import json
 import os
 from pathlib import Path
@@ -9,12 +11,17 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
-from hol_workbench.cli.leaf_needs import LeafNeedsError, build_report
+from hol_workbench.cli.leaf_needs import LeafNeedsError, build_report, main
 from hol_workbench.hashing import sha256_bytes
+from hol_workbench.profile_satisfied_dependencies import ProfileSatisfactionError
+from hol_workbench.source_dependency_closure import SourceDependencyInferenceError
+from hol_workbench.source_execution_plan import capture_source_dependency_closure
 
 LEAF = (
     '(* original fixture leaf *)\n'
@@ -131,6 +138,142 @@ class LeafNeeds(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("refused", result.stderr)
         self.assertEqual(result.stdout, "")
+
+
+class DeepLeafNeeds(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        (self.root / ".hol-workbench-source-root").touch()
+        self.leaf = self.root / "leaf.ml"
+        self.leaf.write_text('needs "helper.ml";;\nlet LEAF = prove(`T`, REWRITE_TAC[]);;\n')
+        (self.root / "helper.ml").write_text('needs "nested.ml";;\n')
+        (self.root / "nested.ml").write_text('let code = define_from_elf "code" "code.o";;\n')
+        (self.root / "code.o").write_bytes(b"original object input")
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def report(self):
+        with mock.patch("hol_workbench.source_execution_plan.machine_holdir_authority", return_value=None), \
+             mock.patch("hol_workbench.source_execution_plan.source_analysis_cache_root",
+                        side_effect=AssertionError("read-only preflight must not request a cache")), \
+             mock.patch("hol_workbench.cli.leaf_needs.resolve_published_warm_profile",
+                        side_effect=RuntimeError("no local shelf in this fixture")):
+            return build_report(self.leaf, "light", deep=True)
+
+    def test_transitive_identity_changes_and_read_only_capture(self):
+        before = {str(path): path.read_bytes() for path in self.root.rglob("*") if path.is_file()}
+        report = self.report()
+        preflight = report["preflight"]
+        closure = preflight["closure"]
+        self.assertEqual(report["evidence_class"], "static_recipe_text_comparison")
+        self.assertEqual(preflight["evidence_class"], "static_dependency_closure")
+        self.assertEqual(preflight["status"], "complete")
+        self.assertEqual(preflight["transport_status"], "packaged")
+        self.assertEqual(preflight["warm_inventory"]["status"], "unavailable")
+        self.assertIn("no local shelf", preflight["warm_inventory"]["reason"])
+        self.assertEqual(closure["literal_edge_count"], 2)
+        self.assertEqual(closure["literal_artifact_count"], 1)
+        self.assertEqual(closure["artifacts"][0]["sha256"], sha256_bytes(b"original object input"))
+        self.assertNotIn("analysis_cache", closure)
+        after = {str(path): path.read_bytes() for path in self.root.rglob("*") if path.is_file()}
+        self.assertEqual(before, after)
+        original = closure["strict_sha256"]
+        (self.root / "nested.ml").write_text((self.root / "nested.ml").read_text() + "(* edit *)\n")
+        source_edited = self.report()["preflight"]["closure"]["strict_sha256"]
+        self.assertNotEqual(original, source_edited)
+        (self.root / "code.o").write_bytes(b"changed object input")
+        self.assertNotEqual(source_edited, self.report()["preflight"]["closure"]["strict_sha256"])
+
+    def test_valid_disk_capture_does_not_hide_failed_warm_inventory_validation(self):
+        with mock.patch("hol_workbench.cli.leaf_needs.resolve_published_warm_profile",
+                        return_value=SimpleNamespace(root=self.root, cwd=self.root,
+                                                     legacy_holdir_roots=(), logical_source_roots=())), \
+             mock.patch("hol_workbench.cli.leaf_needs.decide_profile_satisfaction",
+                        side_effect=ProfileSatisfactionError("refused_profile_satisfaction_dependency_changed",
+                                                             "source differs from the shelf inventory")):
+            report = build_report(self.leaf, "light", deep=True)["preflight"]
+        self.assertEqual(report["disk_closure_status"], "complete")
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["warm_inventory"]["status"], "refused")
+        self.assertIn("differs from the shelf", report["transport_reason"])
+
+    def test_capture_uses_published_context_with_explicit_recipe_fallback(self):
+        (self.root / ".git").mkdir()
+        self.leaf.write_text('needs "fixture_src/helper.ml";;\n')
+        declarations = ({"alias": "fixture_src", "source_role": "entrypoint_repository",
+                         "source_subdir": ".", "project_subdir": ".", "execution_role": "none"},)
+        published = SimpleNamespace(root=self.root, cwd=self.root / "profile-cwd",
+                                    logical_source_roots=declarations,
+                                    legacy_holdir_roots=(self.root / "old-holdir",))
+        with mock.patch("hol_workbench.cli.leaf_needs.resolve_published_warm_profile", return_value=published), \
+             mock.patch("hol_workbench.cli.leaf_needs.capture_source_dependency_closure",
+                        wraps=capture_source_dependency_closure) as capture, \
+             mock.patch("hol_workbench.cli.leaf_needs.decide_profile_satisfaction",
+                        return_value=(None, "packaged", "all fixture inputs captured")):
+            report = build_report(self.leaf, "light", deep=True)["preflight"]
+        self.assertEqual(capture.call_args.kwargs["profile_cwd"], published.cwd)
+        self.assertEqual(capture.call_args.kwargs["legacy_holdir_roots"], published.legacy_holdir_roots)
+        self.assertEqual(report["closure"]["records"][0]["resolution"], "mounted_source")
+        self.assertEqual(report["closure"]["records"][0]["sha256"],
+                         sha256_bytes((self.root / "helper.ml").read_bytes()))
+        self.assertEqual(report["disk_closure_status"], "complete")
+        fallback = self.report()["preflight"]
+        self.assertEqual(fallback["disk_closure_status"], "incomplete")
+        self.assertEqual(fallback["warm_inventory"]["status"], "unavailable")
+        self.assertIn("no local shelf", fallback["warm_inventory"]["reason"])
+
+    def test_capture_runtime_refusal_has_no_traceback(self):
+        stderr = io.StringIO()
+        with mock.patch("hol_workbench.cli.leaf_needs.capture_source_dependency_closure",
+                        side_effect=RuntimeError("captured source context changed")), redirect_stderr(stderr):
+            status = main([str(self.leaf), "--profile", "light", "--deep"])
+        self.assertEqual(status, 2)
+        self.assertEqual(stderr.getvalue(), "leaf-needs: refused: captured source context changed\n")
+
+    def test_transitive_missing_and_dynamic_inputs_are_visible(self):
+        (self.root / "code.o").unlink()
+        report = self.report()["preflight"]
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["transport_status"], "project_input_missing")
+        self.assertEqual(report["closure"]["unresolved_artifact_count"], 1)
+        self.assertIn("code.o", report["transport_reason"])
+        (self.root / "nested.ml").write_text('let path = "hidden.ml";; needs path;;\n')
+        report = self.report()["preflight"]
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["transport_status"], "refused_dynamic")
+        self.assertEqual(report["closure"]["dynamic_loaders"][0]["declaring_file"], "nested.ml")
+        (self.root / "nested.ml").unlink()
+        report = self.report()["preflight"]
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["closure"]["records"][-1]["declared_path"], "nested.ml")
+        self.assertEqual(report["closure"]["records"][-1]["resolution"], "unresolved")
+
+    def test_nested_scanner_refusal_and_bounds_are_not_complete(self):
+        (self.root / "nested.ml").write_text('(* unterminated\n')
+        report = self.report()["preflight"]
+        self.assertEqual(report["status"], "incomplete")
+        self.assertTrue(report["closure"]["dynamic_loaders"])
+        for number in range(35):
+            filename = "nested.ml" if number == 0 else f"chain{number}.ml"
+            (self.root / filename).write_text(f'needs "chain{number + 1}.ml";;\n')
+        with self.assertRaisesRegex(SourceDependencyInferenceError, "depth bound exceeded"):
+            self.report()
+
+    def test_cli_prints_full_closure_and_returns_nonzero_for_blocker(self):
+        environment = {**os.environ, "HOL_WORKBENCH_PYTHON": sys.executable}
+        command = [str(ROOT / "hearth"), "leaf-needs", str(self.leaf), "--profile", "light", "--deep"]
+        complete = subprocess.run(command, env=environment, capture_output=True, text=True, timeout=30)
+        self.assertEqual(complete.returncode, 0, complete.stderr)
+        self.assertIn("DEEP PREFLIGHT: complete", complete.stdout)
+        self.assertIn("SOURCE EDGES: 2; ELF INPUTS: 1", complete.stdout)
+        self.assertIn("ELF nested.ml:1:", complete.stdout)
+        self.assertIn(sha256_bytes(b"original object input"), complete.stdout)
+        (self.root / "code.o").unlink()
+        blocked = subprocess.run([*command, "--json"], env=environment, capture_output=True, text=True, timeout=30)
+        self.assertEqual(blocked.returncode, 2, blocked.stderr)
+        self.assertEqual(json.loads(blocked.stdout)["preflight"]["status"], "incomplete")
 
 
 if __name__ == "__main__":

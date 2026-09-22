@@ -56,15 +56,15 @@ def committed_source_identity(root: Path, *, run: GitRunner = subprocess.run) ->
     resolved = root.expanduser().resolve()
     top = Path(_git(resolved, "rev-parse", "--show-toplevel", run=run)).resolve()
     if top != resolved:
-        raise RuntimeError(f"Workbench source root {resolved} is not its Git top-level {top}")
+        raise RuntimeError(f"Hearth source root {resolved} is not its Git top-level {top}")
     dirty = _git(resolved, "status", "--porcelain=v1", "--untracked-files=all", run=run)
     if dirty:
         entries = dirty.replace("\n", " | ")[:500]
-        raise RuntimeError(f"CRIU shelf publication requires clean committed Workbench source: {entries}")
+        raise RuntimeError(f"CRIU shelf publication requires clean committed Hearth source: {entries}")
     revision = _git(resolved, "rev-parse", "HEAD", run=run)
     tree = _git(resolved, "rev-parse", "HEAD^{tree}", run=run)
     if LOWER_GIT_OID.fullmatch(revision) is None or LOWER_GIT_OID.fullmatch(tree) is None:
-        raise RuntimeError("Workbench Git revision or tree is not a canonical object id")
+        raise RuntimeError("Hearth Git revision or tree is not a canonical object id")
     try:
         remote = _git(resolved, "config", "--get", "remote.origin.url", run=run)
     except RuntimeError:
@@ -198,10 +198,10 @@ def _source_identity_failures(record: object) -> list[str]:
     )
     data = record if isinstance(record, dict) else {}
     if data.get("clean") is not True:
-        failures.append("Workbench source identity is not clean")
+        failures.append("Hearth source identity is not clean")
     for field in ("revision", "tree"):
         if LOWER_GIT_OID.fullmatch(str(data.get(field) or "")) is None:
-            failures.append(f"Workbench source identity {field} is invalid")
+            failures.append(f"Hearth source identity {field} is invalid")
     return failures
 
 

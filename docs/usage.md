@@ -95,8 +95,8 @@ working directory. This lets ordinary imports define their ELF loaders before
 the source uses them, including when those loaders were absent from the warm
 profile. The source order and object bytes stay unchanged. Hearth selects this
 transport only when every object resolves to its captured location and the
-exact source closure has no directory-changing function references or native
-declarations. Other cases retain the existing ELF path wrappers. Receipts record
+exact source closure has no native declarations. Native declarations or uncertain
+artifact coordinates retain the existing ELF path wrappers. Receipts record
 the selected `literal_elf_transport`; project-basis admission checks it too.
 
 The configured HOL source and declared logical roots supply remaining library
@@ -107,6 +107,26 @@ the nearest such marker takes precedence. Without a marker or repository,
 Hearth retains its bounded relative-import root inference. Nested imports and
 spaces in filenames are supported. Dynamic or ambiguous loaders are refused
 when exact input capture cannot be established.
+
+Known file-loading routes around ordinary loaders are refused before execution,
+including HOL's `use_file`, `file_loader` and `load_on_path` entrypoints,
+`Toploop.use_file`, `Topdirs` and `Dynlink` loading, and directory
+changes such as `Sys.chdir` or `Unix.chdir`.
+This applies to the entrypoint and its captured imports. Module-qualified loaders
+such as `Hol.needs` and loaders under local module opens are also refused;
+use ordinary literal `needs`, `loadt` or `loads` instead. Bare references to the
+known execution modules (`Hol_loader`, `Toploop`, `Topdirs`, `Dynlink`, `Sys`, `Unix`) are
+refused too: aliases, opens, includes and module expressions can expose a file
+loader or directory change in another source. Ordinary qualified members such
+as `Sys.time` and `Toploop.parse_toplevel_phrase` remain supported. Refusals name
+the first source location and loader; `leaf-needs --deep` lists all blockers.
+Exact input identity
+covers supported declared source loaders and ELF objects; it does not attest
+arbitrary OCaml file I/O, subprocess effects, or source generated for in-memory
+evaluation through APIs such as `Toploop.execute_phrase`. General effect
+analysis is outside this contract: ordinary HOL libraries themselves define
+interpreter and process helpers. This is not an operating-system sandbox.
+Continue to run only source you trust.
 
 An error in an imported file rejects the complete source, including when main
 continues and some of its named theorems succeed. The receipt includes the
@@ -122,9 +142,19 @@ selected named probes; inspection describes this scope.
 ./hearth inspect /ABS/project/runs --tail 40
 ```
 
-The exact binding view includes its recorded status and original source span.
+The exact binding view includes its recorded status, probe strength, and original
+source span. A literal statement's probe checks that the theorem's conclusion
+matches the source quotation and that its hypotheses are empty. A computed
+statement's probe checks only that the binding has type `thm`; inspection shows
+`thm bound (conclusion and hypotheses not checked)`. The recorded `proved` status
+alone does not distinguish these checks. `successful_probe_counts` separates
+conclusion checks, type-only checks, and unknown strength across all bindings,
+including those hidden by the compact display limit. `--binding` and `--verbose`
+also show the exact `verification_kind`; older receipts without it have unknown
+probe strength.
 Verbose lists all discovered entrypoint bindings and captured input identities.
-JSON exposes the complete receipt for agents. An unrecorded binding is reported
+JSON exposes the complete, unchanged receipt, including each binding's recorded
+`verification_kind`, for agents. An unrecorded binding is reported
 as unrecorded; it is not inferred absent from the mathematical basis.
 
 Failure inspection includes a bounded exception block. Compiler locations in
@@ -212,8 +242,9 @@ and `origin.json` with the original receipt, source hash and byte spans.
 The copied dependencies retain their relative layout and exact bytes. The
 prefix retains the exact original bytes after a diagnostic provenance comment.
 
-The scratch imports that prefix, states `g` with the exact recorded quotation,
-and includes the complete original tactic in an inactive comment. Copy selected
+For portable local inputs, the scratch imports that prefix, states `g` with the
+exact recorded quotation, and includes the complete original tactic in an
+inactive comment. Copy selected
 tactic steps into `e (...)` commands and run the printed ordinary prove command.
 Inspect its transcript with `--tail 40` to see the assumptions and current goals.
 Reopen executes nothing, and opening the goal does not establish the theorem.
@@ -231,11 +262,25 @@ The supported form is a standalone `let NAME = [time] prove (quoted_goal,
 tactic);;`. It uses the existing strict source lexer; HOL remains the parser and
 execution authority.
 
-This first version preserves acyclic, captured local imports using relative
-`needs`, `loadt` and `loads`. It refuses mapped/library or unresolved profile
-imports, `#use`, bare `load`, and ELF-bearing sources rather than guess how to
-relocate them. Existing scratch files and companion directories are never
-overwritten. A refused command leaves no generated files. Choose a new output
+Assembly sources, project-root imports, and captured HOL library imports keep
+their original path coordinates. Set `--out` beside the original source, for
+example `/ABS/project/arm/proofs/TARGET_debug.ml`. In this mode the scratch
+contains the exact prefix directly. Reopen verifies every recorded dependency
+and ELF hash before publishing it; its companion directory holds verified
+reference copies. The next ordinary `prove` captures the current project and
+runtime inputs again, including any edits since reopening. Those archived
+copies are not substituted for the live project, and reopening does not
+establish that a different warm profile has the same basis.
+
+The printed command preserves the recorded timeout. When a recorded project
+basis is imported before the selected goal, it also preserves `--basis` and the
+existing run root. Ordinary prove still checks all basis identities before
+reuse; a changed runtime or source may require a new recorded preparation.
+
+Reopen supports acyclic, captured relative `needs`, `loadt` and `loads`. It
+refuses mapped or unresolved imports, `#use`, and bare `load`. Existing scratch
+files and companion directories are never overwritten. A refused command
+leaves no generated files. Choose a new output
 name for another attempt.
 
 ## Compare a leaf's needs with a profile recipe
@@ -246,19 +291,50 @@ the profile's checked-in recipe already names:
 ```sh
 ./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm
 ./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --receipt /ABS/runs
+./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --deep
+./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --deep --json
 ```
 
 The report scans the leaf and `profiles/PROFILE.ml` with the existing strict
 loader scanner and compares literal `needs` paths as exact text. It lists needs
 the recipe names, needs it does not name, other source loads (`loadt`, `loads`,
 `#use`, `load`, which run regardless), ELF artifact loads and dynamic loads.
-It does not follow the recipe's transitive loads or the leaf's local imports.
+The default report does not follow the recipe's transitive loads or the leaf's
+local imports.
 
-This is recipe text, not live shelf admission, not a proof, and not evidence
-that the warm image loaded those bytes. It starts no HOL process.
+`--deep` adds a read-only preflight of the leaf's full transitive source and ELF
+inputs using the same dependency capture as `prove`. It uses the configured HOL
+source root and the selected profile's declared logical roots, hashes the current
+files, and reports declaring files, source lines, resolution outcomes, dynamic
+loaders, missing inputs and scan bounds. Text output lists every captured edge
+and object with its SHA-256; JSON includes the complete canonical closure and its
+identity. For example, the P256 point-addition source has 106 source edges and
+seven ELF inputs, including those reached through imported proofs.
+
+The deep section is labeled `static_dependency_closure`. When the selected
+published shelf is available, a separate `verified_published_source_inventory`
+section applies the same exact loaded-source checks as `prove`. This resolves
+imports already supplied by a warm profile without treating recipe text as
+evidence. The disk closure retains its own completeness and identity; the warm
+inventory has a separate identity and lists satisfied edges with their hashes.
+If the shelf is unavailable, the report preserves the disk scan and the reason
+the warm inventory could not be checked. A static mismatch remains a blocker.
+
+This preflight cannot establish theorems, ISA semantics or caller contracts. It
+follows the bounded literal-loader contract; generic OCaml effects remain outside
+that contract. A complete scan with transportable inputs exits 0; unresolved,
+dynamic, unsupported or bounded-out inputs exit 2. When capture cannot produce a
+closure, the command prints the scanner refusal instead of a partial success
+report. It starts no HOL or CRIU process, acquires no queue admission or live
+execution grant, writes no lexical cache, and builds or fetches no missing inputs.
+
+The recipe comparison is text evidence, not live shelf admission, a proof, or
+evidence that the warm image loaded those bytes.
 `--receipt` optionally attaches an existing prove receipt's identities as
 `warm_exploration`. It refuses a receipt whose profile, source SHA-256 or
 recipe SHA-256 differs from the selected profile and current leaf bytes.
+This attachment does not compare the receipt's dependency identity to a deep
+preflight; it remains an identity check for the leaf and profile alone.
 
 ## Assembly projects on an existing profile
 
@@ -311,6 +387,13 @@ project inputs exist or that their contents match.
 Use an explicit known profile for project work and
 `./hearth status --profile light` to inspect queueing. Effective capacity
 reflects the physical broker; its processes and sockets are not proof slots.
+
+`status` is an informational snapshot: exit 0 means the report was collected,
+including when it reports `degraded`; inspect `--json` for individual profiles.
+For a readiness check, use `./hearth doctor --profile light`: it exits 0 when
+healthy, 1 when blocked or degraded, and 2 if diagnosis cannot be completed.
+`./hearth smoke` checks the installation's public command contract without
+starting HOL or CRIU; it does not establish runtime readiness or prove a theorem.
 
 The timeout is an explicit attempt budget. Queue wait is reported separately.
 The broker response deadline has a 15-second allowance with a 30-second minimum;

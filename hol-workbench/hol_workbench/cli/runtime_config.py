@@ -25,7 +25,7 @@ from hol_workbench.ubuntu_runtime_layout import CRIU_SHELF_ROOT_ENV, ORB_HOLDIR_
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Configure this Linux host for HOL Light Workbench")
+    parser = argparse.ArgumentParser(description="Configure this Linux host for HOL Hearth")
     subparsers = parser.add_subparsers(dest="command", required=True)
     configure = subparsers.add_parser("configure", help="atomically write the host-local runtime TOML")
     _add_runtime_arguments(configure)

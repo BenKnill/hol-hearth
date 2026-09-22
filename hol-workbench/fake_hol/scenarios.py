@@ -555,7 +555,7 @@ def feedback_lab_readme(manifest: dict[str, object]) -> str:
     table = "\n".join(rows)
     return (
         "# Fake HOL VM Feedback Lab\n\n"
-        "This lab is for reviewing HOL Light Workbench UX without real HOL Light.\n"
+        "This lab is for reviewing HOL Hearth UX without real HOL Light.\n"
         "It uses the explicit developer-only `proof-run` integration surface with\n"
         "a fake `HOLDIR`; it never invokes the public warm-only `prove` route.\n"
         "Results here exercise harness behavior only and are not theorem evidence.\n\n"
@@ -682,7 +682,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--self-test", action="store_true", help="Run deterministic in-process scenario checks")
     parser.add_argument("--suite", default="vm-feedback", help="Scenario suite for --materialize: vm-feedback or all")
     parser.add_argument("--materialize", help="Create a runnable fake-HOL feedback lab under this directory")
-    parser.add_argument("--workbench-root", help="Workbench root for generated run scripts; defaults to this checkout")
+    parser.add_argument("--workbench-root", help="Hearth root for generated run scripts; defaults to this checkout")
     parser.add_argument("--standalone-fake-hol", action="store_true", help="Copy fake_hol into generated fake HOLDIR")
     parser.add_argument("--out", help="Write scenario source to this path")
     parser.add_argument("--transcript", help="Write fake HOL transcript to this path")

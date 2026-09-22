@@ -19,7 +19,7 @@ REPLAY_SCHEMA = "hol-workbench.warm-vanilla-artifact.v1"
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="inspect",
-        description="Summarize a Workbench receipt or run directory without opening raw logs.",
+        description="Summarize a Hearth receipt or run directory without opening raw logs.",
         allow_abbrev=False,
     )
     parser.add_argument("run_dir", nargs="+")
@@ -79,6 +79,13 @@ def _bool(value: object) -> str:
 
 def _binding_card_label(row: dict[str, Any]) -> str:
     probe = str(row.get("status") or "unknown")
+    if probe == "proved":
+        kind = row.get("verification_kind")
+        if kind == "kernel_conclusion_and_empty_hypotheses":
+            return "proved (source conclusion matched; hypotheses empty)"
+        if kind == "binding_and_thm_type_only_nonliteral_statement":
+            return "thm bound (conclusion and hypotheses not checked)"
+        return "proved (probe strength not recorded or unrecognized)"
     if probe == "printed_unprobed":
         return "printed_unprobed (diagnostic only; no verified kernel probe)"
     if probe == "missing" and row.get("unverified_binding_like_text_observed") is True:
@@ -225,6 +232,16 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         binding_status = str(row.get("status") or "unknown")
         counts[binding_status] = counts.get(binding_status, 0) + 1
     print("binding_counts: " + " ".join(f"{name}={count}" for name, count in counts.items()))
+    probe_counts = dict.fromkeys(("conclusion_checked", "thm_type_only", "unknown"), 0)
+    probe_kinds = {
+        "kernel_conclusion_and_empty_hypotheses": "conclusion_checked",
+        "binding_and_thm_type_only_nonliteral_statement": "thm_type_only",
+    }
+    for row in dict_rows:
+        if row.get("status") == "proved":
+            kind = probe_kinds.get(str(row.get("verification_kind")), "unknown")
+            probe_counts[kind] += 1
+    print("successful_probe_counts: " + " ".join(f"{name}={count}" for name, count in probe_counts.items()))
     display_rows = selected if selected_names else sorted(dict_rows, key=lambda row: row.get("status") == "proved")
     visible = display_rows if args.verbose or selected_names else display_rows[:12]
     accounting = (receipt.get("transcript_accounting") or {}).get("claim_accounting") or []
@@ -235,6 +252,8 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         span = claim.get("source_span")
         location = f" source_line={span[0]}" if isinstance(span, list) and span else ""
         print(f"  {name}: {_binding_card_label(row)}{location}")
+        if (selected_names or args.verbose) and row.get("verification_kind"):
+            print(f"    verification_kind: {row['verification_kind']}")
         if row.get("status") == "printed_unprobed":
             printed = row.get("printed_output") or []
             if isinstance(printed, list):

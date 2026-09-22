@@ -18,6 +18,22 @@ SOURCE_LOADERS = frozenset({"needs", "loadt", "loads", "load", "#use"})
 ARTIFACT_LOADERS = frozenset({"define_from_elf", "define_assert_from_elf"})
 SUPPORTED_LOADERS = SOURCE_LOADERS | ARTIFACT_LOADERS
 
+# These file loaders bypass the literal package, and directory changes can
+# change its path resolution. Match references as well as calls: binding an
+# alias must not hide a later invocation. General in-memory evaluation and
+# process effects are outside this bounded contract, not analyzed here.
+_UNCAPTURED_EXECUTION_MEMBERS = {
+    "Hol_loader": frozenset({"file_loader", "use_file", "load_on_path"}),
+    "Toploop": frozenset({"use_file", "use_silently", "use_output", "use_module"}),
+    "Topdirs": frozenset({"dir_use", "dir_mod_use", "dir_load", "dir_load_rec",
+                           "dir_cd", "dir_directory", "dir_remove_directory"}),
+    "Dynlink": frozenset({"loadfile", "loadfile_private"}),
+    "Sys": frozenset({"chdir"}),
+    "Unix": frozenset({"chdir", "fchdir"}),
+}
+_UNCAPTURED_GLOBAL_EXECUTION = frozenset({"file_loader", "use_file", "load_on_path"})
+_UNCAPTURED_DIRECTIVES = frozenset({"mod_use", "load_rec", "cd", "directory", "remove_directory"})
+
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_TOKENS = 2_000_000
 MAX_NESTING = 4096
@@ -1000,8 +1016,69 @@ def _dynamic(
     )
 
 
-def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurrence, ...]:
+def _uncaptured_execution_occurrences(lexer: _Lexer, tokens: list[_Token]) -> list[LoaderOccurrence]:
     occurrences: list[LoaderOccurrence] = []
+    for index, token in enumerate(tokens):
+        if token.kind not in {"IDENT", "RAW_IDENT"}:
+            continue
+        members = _UNCAPTURED_EXECUTION_MEMBERS.get(token.value)
+        if members is not None:
+            # Permit ordinary qualified members, including HOL's parser and
+            # database helpers. Exposing the module itself (alias, include,
+            # open, ascription, packing or functor argument) could export a
+            # file loader into another source. Refuse at that origin instead
+            # of interpreting scopes or carrying inferred aliases across files.
+            member = tokens[index + 2] if index + 2 < len(tokens) else None
+            qualified_member = (
+                member is not None and tokens[index + 1].value == "."
+                and member.kind in {"IDENT", "RAW_IDENT"}
+                and not member.value[0].isupper()
+            )
+            if qualified_member:
+                if member.value not in members:
+                    continue
+                reference = _Token("IDENT", f"{token.value}.{member.value}",
+                                   ByteSpan(token.span.start, member.span.end))
+                reason = ("source_changes_working_directory" if member.value in {"chdir", "fchdir", "dir_cd"}
+                          else "uncaptured_file_execution")
+            else:
+                reference = token
+                reason = "uncaptured_execution_module_reference"
+            occurrences.append(_dynamic(lexer, reference, family="source", reason=reason))
+        elif (token.value in _UNCAPTURED_DIRECTIVES and index > 0
+              and tokens[index - 1].value == "#"):
+            reference = _Token("IDENT", "#" + token.value,
+                               ByteSpan(tokens[index - 1].span.start, token.span.end))
+            reason = ("source_changes_working_directory" if token.value == "cd"
+                      else "uncaptured_file_execution")
+            occurrences.append(_dynamic(lexer, reference, family="source", reason=reason))
+        elif token.value in _UNCAPTURED_GLOBAL_EXECUTION:
+            # HOL includes these lower-level file loaders in the toplevel.
+            # References can capture their functions/refs before a later call.
+            occurrences.append(_dynamic(lexer, token, family="source", reason="uncaptured_file_execution"))
+    return occurrences
+
+
+def _locally_opened_loaders(tokens: list[_Token]) -> set[int]:
+    """Find loader tokens inside M.(...), using the lexer's checked delimiters."""
+    stack: list[bool] = []
+    local_opens = 0
+    indexes: set[int] = set()
+    for index, token in enumerate(tokens):
+        if token.kind in _OPEN_TO_CLOSE:
+            opened = token.kind == "LPAREN" and index > 0 and tokens[index - 1].value == "."
+            stack.append(opened)
+            local_opens += opened
+        elif token.kind in _CLOSE_KINDS:
+            local_opens -= stack.pop()
+        elif token.kind == "LOADER" and local_opens:
+            indexes.add(index)
+    return indexes
+
+
+def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurrence, ...]:
+    occurrences = _uncaptured_execution_occurrences(lexer, tokens)
+    locally_opened = _locally_opened_loaders(tokens)
     tainted_loaders: set[str] = set()
     for index, token in enumerate(tokens):
         if token.kind != "LOADER":
@@ -1020,7 +1097,13 @@ def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurre
                 # artifact reference, but a same-file use is shadowed.
                 tainted_loaders.add(loader)
             continue
-        if _qualified_or_hash_prefixed(tokens, index):
+        if _qualified_or_hash_prefixed(tokens, index) or index in locally_opened:
+            # A module-qualified loader may alias the real loader, and it
+            # bypasses the unqualified transport wrappers. Never silently
+            # erase it from the dependency identity.
+            occurrences.append(
+                _dynamic(lexer, token, family=family, reason="qualified_loader_reference")
+            )
             continue
         if loader in tainted_loaders:
             occurrences.append(
@@ -1168,7 +1251,7 @@ def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurre
                 name_literal=name_literal,
             )
         )
-    return tuple(occurrences)
+    return tuple(sorted(occurrences, key=lambda item: item.loader_span.start))
 
 
 def scan_ocaml_loaders(source: bytes) -> LoaderScanResult:

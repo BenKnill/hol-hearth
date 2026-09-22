@@ -1,0 +1,2598 @@
+{
+  "schema": "hol-hearth.review-followup-evidence.v1",
+  "date": "2026-09-22",
+  "validation": "Local Linux checks and retained real warm replay receipts; no GitHub CI.",
+  "controller_stages": {
+    "pre_guard": {
+      "attribution": "Retained baseline checkout selected by the private driver; no execution-time clean commit/backend identity captured."
+    },
+    "intermediate_guard": {
+      "attribution": "Development checkout during guard integration; no execution-time clean commit/backend identity captured."
+    },
+    "intermediate_scratch": {
+      "attribution": "Intermediate dirty development checkout; exact runtime backend not captured. These real assembly attempts are not attributed to the later clean integration commit."
+    },
+    "clean_integration": {
+      "commit": "f9965ede0a0afd2456c8f96039ed101ae1cfcfb3",
+      "backend_sha256": "1b24d08822e15f6b2f59fd62cefebe40ccd5242902c10795279907e35ac48c91",
+      "runtime_python_matches_recorded_commit": true,
+      "backend_identity_rechecked": true,
+      "attribution": "Driver asserted a clean checkout before invoking these cases and recorded commit/backend; runtime Python bytes match the recorded commit and the backend was independently rechecked. Later documentation edits do not change this attribution."
+    },
+    "clean_delivery": {
+      "commit": "f4ba884fea8449fc765f7e00ee9143bbeee98919",
+      "backend_sha256": "63c7cc0a09be04bf08e615b6fea94d2cde97b6973c645a65f84ec26ce5f9ce20",
+      "runtime_python_matches_recorded_commit": true,
+      "backend_identity_rechecked": true,
+      "attribution": "Driver asserted a clean checkout before invoking delivery cases; reducer independently matches runtime Python bytes to that recorded commit and rechecks the backend. Later documentation edits do not alter the execution identity."
+    },
+    "clean_release": {
+      "commit": "e2df28477895e883750b72f0ccdeb7db99a12187",
+      "backend_sha256": "03feee15570bdfab58acddb4271e62386a0c2cb9d91f4cd1c70077c12bf52603",
+      "runtime_python_matches_recorded_commit": true,
+      "backend_identity_rechecked": true,
+      "attribution": "Release driver records its separate runtime identity; reducer matches controller Python bytes to that exact commit and rechecks the backend. Earlier NTT negative controls remain attributed to their own controllers."
+    }
+  },
+  "identity_regression": {
+    "finding": "Two accepted baseline replays used different helper bytes while the entrypoint and recorded dependency closure hashes stayed identical.",
+    "helper_hash_scope": "Helper hash captured by the private driver; old receipt closure omitted that helper.",
+    "receipts": [
+      {
+        "case": "old-a",
+        "controller_stage": "pre_guard",
+        "receipt_sha256": "564098881a7df1dcede49cdd6d61681950a035700960ef55ecfbe454d538e386",
+        "source_sha256": "97f550365f1e89786c1142bcc1399c08fde1dcac41c78d5b4814b72061e1e0ef",
+        "executed_source_sha256": "59a479d1087d6a30baa3525cd727b838ca722af65087cb764951f81cb6eeb83d",
+        "raw_transcript_sha256": "ac2f6b10fd31f2ef50c4c574c2f344e6d96147215ca57e0de3ae21ff52342bc1",
+        "source_dependency_closure_sha256": "836dc42bd9526cf28af54e4c68f7d9679c4410b04f0f36dbb95a305058ef5456",
+        "logical_profile": "light",
+        "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+        "eval_elapsed_seconds": 0.719,
+        "exit_status": 0,
+        "semantic_source_status": "succeeded",
+        "source_completed": true,
+        "completion_marker_valid": true,
+        "claims_complete": true,
+        "source_acceptance": "accepted",
+        "replay_accepted": true,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": false,
+        "broker_seat_reusable": true,
+        "bindings": [
+          {
+            "name": "HELPER_CHECK",
+            "status": "proved",
+            "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+            "evidence": "nonce_probe_binding_only"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "0e80e9e68ce0cf58e4ded36ca4deae4e60664efc56526ae21aedbc7c00d3a05a"
+      },
+      {
+        "case": "old-b",
+        "controller_stage": "pre_guard",
+        "receipt_sha256": "5aba4a00f80794b3210ccf0be38a4681e6c78bd9f3cbdfa51ab2c6ca0f01099e",
+        "source_sha256": "97f550365f1e89786c1142bcc1399c08fde1dcac41c78d5b4814b72061e1e0ef",
+        "executed_source_sha256": "0bfac2d380392ff48ce568eb7f7a119f867ea6f101f7dc6f8bf96c67925e3412",
+        "raw_transcript_sha256": "ec6a64808bed154be3175a073e8339ed5313765611d1f04a5921d447296831ac",
+        "source_dependency_closure_sha256": "836dc42bd9526cf28af54e4c68f7d9679c4410b04f0f36dbb95a305058ef5456",
+        "logical_profile": "light",
+        "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+        "eval_elapsed_seconds": 0.635,
+        "exit_status": 0,
+        "semantic_source_status": "succeeded",
+        "source_completed": true,
+        "completion_marker_valid": true,
+        "claims_complete": true,
+        "source_acceptance": "accepted",
+        "replay_accepted": true,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": false,
+        "broker_seat_reusable": true,
+        "bindings": [
+          {
+            "name": "HELPER_CHECK",
+            "status": "proved",
+            "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+            "evidence": "nonce_probe_binding_only"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "58a9f5ce35c2d80135108908b767324578cd44d38967b14113e5921b17196307"
+      },
+      {
+        "case": "guard",
+        "controller_stage": "intermediate_guard",
+        "receipt_sha256": "6346ff56970e1c19423d367be78db06bca2ad4db56799bce00ff7d1c2c50244d",
+        "source_sha256": "97f550365f1e89786c1142bcc1399c08fde1dcac41c78d5b4814b72061e1e0ef",
+        "executed_source_sha256": null,
+        "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_dependency_closure_sha256": "bdc2adfc1cfc860963cc565363ea42ad3efe42dcab92781bc0d5f885d9c00611",
+        "logical_profile": "light",
+        "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+        "eval_elapsed_seconds": null,
+        "exit_status": 2,
+        "semantic_source_status": "not_started",
+        "source_completed": false,
+        "completion_marker_valid": null,
+        "claims_complete": false,
+        "source_acceptance": "not_accepted",
+        "replay_accepted": false,
+        "source_preflight_status_recorded": null,
+        "transport_status": "not_started",
+        "dependency_transport_status": "refused_dynamic",
+        "included_file_error_observed": null,
+        "broker_seat_reusable": null,
+        "bindings": [],
+        "foundation_delta": {
+          "status": "not_recorded",
+          "new_axiom_count": null,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "58a9f5ce35c2d80135108908b767324578cd44d38967b14113e5921b17196307"
+      }
+    ]
+  },
+  "watch_regression": {
+    "finding": "Baseline kept its accepted display and created no new attempt during three seconds after a helper-only edit at a 0.2-second poll interval. The guarded watcher refused the hidden loader; after switching to literal needs, helper-only false and repaired edits produced rejection and acceptance with distinct closure identities.",
+    "attempts": [
+      {
+        "case": "old",
+        "watch_exit_status": 130,
+        "driver_stdout_sha256": "51898d84412af11f9936f50c2ad37996b190bfaa245af1f3f35fb4c7bc19be9c",
+        "receipts": [
+          {
+            "case": "watch-old-1",
+            "controller_stage": "pre_guard",
+            "receipt_sha256": "07d204dc0576327b163dcb0befe7f57920f6db90cfdad4084dac1c9a998c38c4",
+            "source_sha256": "b990ac3238b929b20eda7ef42680eb8f7a0002b7aaab2745ffe2a96c8c168587",
+            "executed_source_sha256": "6500a156975155bec0e16787262c89a075d87f788292213413f2b6f38f819919",
+            "raw_transcript_sha256": "a5769eebc0b19dabc30ea7c0a7fa411cfa86860d668851ab54adc26b13cfad3b",
+            "source_dependency_closure_sha256": "935c603d2ff4e2ea443bf77604f17c1ddca1c01bddaa7bd23099fb96fa10a212",
+            "logical_profile": "light",
+            "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+            "eval_elapsed_seconds": 0.307,
+            "exit_status": 0,
+            "semantic_source_status": "succeeded",
+            "source_completed": true,
+            "completion_marker_valid": true,
+            "claims_complete": true,
+            "source_acceptance": "accepted",
+            "replay_accepted": true,
+            "source_preflight_status_recorded": null,
+            "transport_status": "completed",
+            "dependency_transport_status": "packaged",
+            "included_file_error_observed": false,
+            "broker_seat_reusable": true,
+            "bindings": [
+              {
+                "name": "WATCH_CHECK",
+                "status": "proved",
+                "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+                "evidence": "nonce_probe_binding_only"
+              }
+            ],
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0,
+              "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+            },
+            "captured_elf_inputs": []
+          }
+        ]
+      },
+      {
+        "case": "fixed",
+        "watch_exit_status": 130,
+        "driver_stdout_sha256": "b45e77d016b61351b72045a7c0d853482aebd951a7ed8a33d773937057d87343",
+        "receipts": [
+          {
+            "case": "watch-fixed-1",
+            "controller_stage": "intermediate_guard",
+            "receipt_sha256": "6a2c0fe63a3d29ae118efbff593233e06b5a1327d35d691168f5dc9ac761d416",
+            "source_sha256": "b990ac3238b929b20eda7ef42680eb8f7a0002b7aaab2745ffe2a96c8c168587",
+            "executed_source_sha256": null,
+            "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "source_dependency_closure_sha256": "b345a1a1d697359da072e774a57e1829c84c9b0daaa557785fb8744e7fb34245",
+            "logical_profile": "light",
+            "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+            "eval_elapsed_seconds": null,
+            "exit_status": 2,
+            "semantic_source_status": "not_started",
+            "source_completed": false,
+            "completion_marker_valid": null,
+            "claims_complete": false,
+            "source_acceptance": "not_accepted",
+            "replay_accepted": false,
+            "source_preflight_status_recorded": null,
+            "transport_status": "not_started",
+            "dependency_transport_status": "refused_dynamic",
+            "included_file_error_observed": null,
+            "broker_seat_reusable": null,
+            "bindings": [],
+            "foundation_delta": {
+              "status": "not_recorded",
+              "new_axiom_count": null,
+              "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+            },
+            "captured_elf_inputs": []
+          },
+          {
+            "case": "watch-fixed-2",
+            "controller_stage": "intermediate_guard",
+            "receipt_sha256": "96b012a96e954893d64fe20646fd0f4f5871c829a94717abba8555dfe5c256a3",
+            "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+            "executed_source_sha256": "f01c99372331062a3a00a61916938b9a09fccc6981f3cc30473ea28bbe6135ff",
+            "raw_transcript_sha256": "bb83541cb5757eb5c28d2c62990119a51961e206f4032710dd40eb54f31317a6",
+            "source_dependency_closure_sha256": "3cb4c6937250cd37ba51e3607ab0967697aa145c131c7900da12afa937908cb0",
+            "logical_profile": "light",
+            "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+            "eval_elapsed_seconds": 0.314,
+            "exit_status": 0,
+            "semantic_source_status": "succeeded",
+            "source_completed": true,
+            "completion_marker_valid": true,
+            "claims_complete": true,
+            "source_acceptance": "accepted",
+            "replay_accepted": true,
+            "source_preflight_status_recorded": null,
+            "transport_status": "completed",
+            "dependency_transport_status": "packaged",
+            "included_file_error_observed": false,
+            "broker_seat_reusable": true,
+            "bindings": [
+              {
+                "name": "WATCH_CHECK",
+                "status": "proved",
+                "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+                "evidence": "nonce_probe_binding_only"
+              }
+            ],
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0,
+              "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+            },
+            "captured_elf_inputs": []
+          },
+          {
+            "case": "watch-fixed-3",
+            "controller_stage": "intermediate_guard",
+            "receipt_sha256": "607e1994b597eebc0c383b1a7a99f8e09e1a53cd371c5c0ad465f27fc95291da",
+            "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+            "executed_source_sha256": "11c80df9add491dc5bca2f07dc7bcdd14e8db376c6c79588950bde359f676b9c",
+            "raw_transcript_sha256": "8731d5e73e287588e8ab7e56425b81137b9e229da505e707a0223ac9a5c12e66",
+            "source_dependency_closure_sha256": "8b6bed40f8ec8cf79aafd4def49355a45e204605d4b5c390ff3ffdd3c8937c5f",
+            "logical_profile": "light",
+            "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+            "eval_elapsed_seconds": 0.309,
+            "exit_status": 1,
+            "semantic_source_status": "failed",
+            "source_completed": false,
+            "completion_marker_valid": false,
+            "claims_complete": false,
+            "source_acceptance": "not_accepted",
+            "replay_accepted": false,
+            "source_preflight_status_recorded": null,
+            "transport_status": "completed",
+            "dependency_transport_status": "packaged",
+            "included_file_error_observed": true,
+            "broker_seat_reusable": true,
+            "bindings": [
+              {
+                "name": "WATCH_CHECK",
+                "status": "missing",
+                "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+                "evidence": "nonce_probe_marker_missing"
+              }
+            ],
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0,
+              "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+            },
+            "captured_elf_inputs": []
+          },
+          {
+            "case": "watch-fixed-4",
+            "controller_stage": "intermediate_guard",
+            "receipt_sha256": "5ffa5b778d268a2fc522fd74516917b70f0b77f1c1a2887bbb6bfaa674277ccb",
+            "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+            "executed_source_sha256": "0d3c4665acc070591f6a15704ad68a3a1fa5a356e8d523cc1d0ef4478fa35be1",
+            "raw_transcript_sha256": "88326cc052c7de0b410fb667e6581873d3d1d382919bc72416b016f5c73c241e",
+            "source_dependency_closure_sha256": "a25ee0247cd6b4138004234b58abdc3dafeda9537cf10c9cf6b27e09c888174f",
+            "logical_profile": "light",
+            "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+            "eval_elapsed_seconds": 0.54,
+            "exit_status": 0,
+            "semantic_source_status": "succeeded",
+            "source_completed": true,
+            "completion_marker_valid": true,
+            "claims_complete": true,
+            "source_acceptance": "accepted",
+            "replay_accepted": true,
+            "source_preflight_status_recorded": null,
+            "transport_status": "completed",
+            "dependency_transport_status": "packaged",
+            "included_file_error_observed": false,
+            "broker_seat_reusable": true,
+            "bindings": [
+              {
+                "name": "WATCH_CHECK",
+                "status": "proved",
+                "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+                "evidence": "nonce_probe_binding_only"
+              }
+            ],
+            "foundation_delta": {
+              "status": "observed",
+              "new_axiom_count": 0,
+              "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+            },
+            "captured_elf_inputs": []
+          }
+        ]
+      }
+    ]
+  },
+  "binding_probe_display": {
+    "renderer_commit": "6a3f12e6716d91cb6d83488a723e35d09cadaee5",
+    "hol_replayed": false,
+    "results": [
+      {
+        "binding": "P256_MONTJADD_EQUIV",
+        "receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+        "exit_status": 0,
+        "receipt_unchanged": true,
+        "json_unchanged": true,
+        "rendered_summary": "successful_probe_counts: conclusion_checked=11 thm_type_only=1 unknown=0"
+      },
+      {
+        "binding": "P256_MONTJADD_UNOPT_CORE_CORRECT",
+        "receipt_sha256": "f48e34db07219bf7b37a47280c7fc5502886e18d04fd669e8b5870a981f8b260",
+        "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+        "exit_status": 0,
+        "receipt_unchanged": true,
+        "json_unchanged": true,
+        "rendered_summary": "successful_probe_counts: conclusion_checked=11 thm_type_only=1 unknown=0"
+      },
+      {
+        "binding": "P256_MONTJADD_SUBROUTINE_CORRECT",
+        "receipt_sha256": "1398ad0b651ee6262b483ed6ab9f2c6ba1ac138717bc1eea1d42e90935e73aca",
+        "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+        "exit_status": 0,
+        "receipt_unchanged": true,
+        "json_unchanged": true,
+        "rendered_summary": "successful_probe_counts: conclusion_checked=4 thm_type_only=1 unknown=0"
+      }
+    ]
+  },
+  "assembly_scratch": {
+    "receipts": [
+      {
+        "case": "assembly-failure",
+        "controller_stage": "intermediate_scratch",
+        "receipt_sha256": "bd5a2ffd3e55516f3b28b1112d81374630a9851d1387d8092333319c49dae2e8",
+        "source_sha256": "73ee12c86f3ff2f445df55b487c6300b415421cf98276af20d93b8a3228095db",
+        "executed_source_sha256": "3cdef23b72e916f3c809e0ffe73c0d482ae3b94bb5221971de920e1fdb2d9456",
+        "raw_transcript_sha256": "7c3c9b2e669a274b1485f914c45c7739b31907de8aa4906a4e90427985554dda",
+        "source_dependency_closure_sha256": "1528c7503794f30fa196f37023cee26334d8bd508ffe8dadec118d437006ba33",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": 4.683,
+        "exit_status": 1,
+        "semantic_source_status": "failed",
+        "source_completed": false,
+        "completion_marker_valid": false,
+        "claims_complete": false,
+        "source_acceptance": "not_accepted",
+        "replay_accepted": false,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": true,
+        "broker_seat_reusable": true,
+        "bindings": [
+          {
+            "name": "BIGNUM_SUB_P256_CORRECT",
+            "status": "missing",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+            "evidence": "nonce_probe_marker_missing"
+          },
+          {
+            "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+            "status": "missing",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+            "evidence": "nonce_probe_marker_missing"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [
+          {
+            "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+            "size_bytes": 1160,
+            "loader": "define_assert_from_elf"
+          }
+        ]
+      },
+      {
+        "case": "assembly-scratch",
+        "controller_stage": "intermediate_scratch",
+        "receipt_sha256": "81130ed92bd0957b8309f820dc73faa53ea5ecf34c5fef38c6a95e758751644a",
+        "source_sha256": "0e2192deef79ffbc885292e8c4563eaa8515b4ccba435bf4c82503cd6ca9e98b",
+        "executed_source_sha256": "4fb0d331f3a5994ef22ad756df8884003412386a7585e30e155d8a9ad178d911",
+        "raw_transcript_sha256": "d69759ea32be9edec7aac25c54be674ad52a40a632c1a0342f8bd01eae8b55c9",
+        "source_dependency_closure_sha256": "5c399e63a048183b0b0acad51dd1f6c40ce98122bdaaf96218a43166c636c9f0",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": 4.808,
+        "exit_status": 0,
+        "semantic_source_status": "succeeded",
+        "source_completed": true,
+        "completion_marker_valid": true,
+        "claims_complete": true,
+        "source_acceptance": "accepted",
+        "replay_accepted": true,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": false,
+        "broker_seat_reusable": true,
+        "bindings": [],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [
+          {
+            "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+            "size_bytes": 1160,
+            "loader": "define_assert_from_elf"
+          }
+        ]
+      },
+      {
+        "case": "assembly-completed",
+        "controller_stage": "intermediate_scratch",
+        "receipt_sha256": "aca4d17427d4716317186364482a841f2161d58ac1934409fd3078a512e86342",
+        "source_sha256": "28a43dbb5c7124ca80630bb73c9076d9cf65e57a55c4806bc4dc9c4acde93434",
+        "executed_source_sha256": "462ae433210300a16e34f6e22b352a09330d93949ac1453c42089ba6493cd854",
+        "raw_transcript_sha256": "9899466abb2d206ce8f3328a9d8926153a0735c46f62de6d67d4c229e347124d",
+        "source_dependency_closure_sha256": "3862d8dc8a472351533f5db72bc1c3007be0349af80a70313a8e1645409e5076",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": 8.595,
+        "exit_status": 0,
+        "semantic_source_status": "succeeded",
+        "source_completed": true,
+        "completion_marker_valid": true,
+        "claims_complete": true,
+        "source_acceptance": "accepted",
+        "replay_accepted": true,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": false,
+        "broker_seat_reusable": true,
+        "bindings": [
+          {
+            "name": "BIGNUM_SUB_P256_REOPENED",
+            "status": "proved",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+            "evidence": "nonce_probe_kernel_conclusion"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [
+          {
+            "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+            "size_bytes": 1160,
+            "loader": "define_assert_from_elf"
+          }
+        ]
+      }
+    ],
+    "interpretation": "The failed assembly proof, source-complete scratch with zero named claims, and completed named theorem remain separate evidence. Scratch execution alone is not a proved theorem.",
+    "p256_read_only_handoff": {
+      "kind": "read_only_reopen_and_recapture",
+      "target": "P256_MONTJADD_CORRECT",
+      "source_layout": "original_project",
+      "scratch_sha256": "a9736fd7089aaecb663adf08acb1fb5499b216cf911439ce3c7277839ca69917",
+      "source_edges": 102,
+      "elf_count": 7,
+      "original_prefix_bytes_exact": true,
+      "all_copied_bytes_verified": true,
+      "elf_hashes_unchanged": true,
+      "hol_run": false,
+      "controller_attribution": "Intermediate development checkout; clean commit/backend identity not captured."
+    }
+  },
+  "read_only_preflight": [
+    {
+      "case": "p256-full-source",
+      "report_sha256": "e7fcbf483d09286d0255c7041e704852757f30d0b57f9af791c813f5de22756b",
+      "controller_attribution": "No controller identity recorded in this report; not assigned to a clean commit.",
+      "evidence_class": "static_dependency_closure",
+      "leaf_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+      "profile": "s2n-arm",
+      "recipe_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "status": "complete",
+      "disk_closure_status": "complete",
+      "transport_status": "packaged",
+      "closure_sha256": "5746d03a50f9d08652a8547756249e365c49f62ac007eb1b5045237fe30e8c37",
+      "source_edges": 106,
+      "elf_count": 7,
+      "dynamic_loader_count": 0,
+      "disk_unresolved_or_external_count": 0,
+      "disk_semantic_identity_complete": true,
+      "warm_inventory_status": "verified",
+      "elf_inputs": [
+        {
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016,
+          "loader": "define_assert_from_elf"
+        },
+        {
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632,
+          "loader": "define_from_elf"
+        },
+        {
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344,
+          "loader": "define_assert_from_elf"
+        },
+        {
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648,
+          "loader": "define_from_elf"
+        },
+        {
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544,
+          "loader": "define_assert_from_elf"
+        },
+        {
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920,
+          "loader": "define_from_elf"
+        },
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160,
+          "loader": "define_assert_from_elf"
+        }
+      ],
+      "hol_run": false,
+      "boundary": "Read-only disk closure and separately verified published warm inventory; no queue admission, restore, theorem, or ISA/ABI audit.",
+      "warm_snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+    },
+    {
+      "case": "mlkem-ntt-functional",
+      "report_sha256": "6c8a247eea0b5b77220ede78d90264489ca31dcda2d24907da42e271dc24fffa",
+      "controller_attribution": "No controller identity recorded in this report; not assigned to a clean commit.",
+      "evidence_class": "static_dependency_closure",
+      "leaf_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+      "profile": "s2n-arm-mlkem",
+      "recipe_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+      "status": "complete",
+      "disk_closure_status": "incomplete",
+      "transport_status": "packaged_with_profile_satisfaction",
+      "closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+      "source_edges": 20,
+      "elf_count": 1,
+      "dynamic_loader_count": 0,
+      "disk_unresolved_or_external_count": 4,
+      "disk_semantic_identity_complete": false,
+      "warm_inventory_status": "verified",
+      "elf_inputs": [
+        {
+          "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+          "size_bytes": 1296,
+          "loader": "define_assert_from_elf"
+        }
+      ],
+      "hol_run": false,
+      "boundary": "Read-only disk closure and separately verified published warm inventory; no queue admission, restore, theorem, or ISA/ABI audit.",
+      "warm_snapshot_manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9"
+    },
+    {
+      "case": "p256-scratch",
+      "report_sha256": "896e58a649d311d4df05efec35a1c348878f9d885950ae61df8d1f1f76508d8d",
+      "controller_attribution": "No controller identity recorded in this report; not assigned to a clean commit.",
+      "evidence_class": "static_dependency_closure",
+      "leaf_sha256": "a9736fd7089aaecb663adf08acb1fb5499b216cf911439ce3c7277839ca69917",
+      "profile": "s2n-arm",
+      "recipe_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+      "status": "complete",
+      "disk_closure_status": "complete",
+      "transport_status": "packaged",
+      "closure_sha256": "8963e6ea2e829959857ffc251361918b575888c8d1c4ccd6e94ad8499b4b573a",
+      "source_edges": 102,
+      "elf_count": 7,
+      "dynamic_loader_count": 0,
+      "disk_unresolved_or_external_count": 0,
+      "disk_semantic_identity_complete": true,
+      "warm_inventory_status": "verified",
+      "elf_inputs": [
+        {
+          "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+          "size_bytes": 3016,
+          "loader": "define_assert_from_elf"
+        },
+        {
+          "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+          "size_bytes": 13632,
+          "loader": "define_from_elf"
+        },
+        {
+          "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+          "size_bytes": 1344,
+          "loader": "define_assert_from_elf"
+        },
+        {
+          "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+          "size_bytes": 1648,
+          "loader": "define_from_elf"
+        },
+        {
+          "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+          "size_bytes": 1544,
+          "loader": "define_assert_from_elf"
+        },
+        {
+          "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+          "size_bytes": 1920,
+          "loader": "define_from_elf"
+        },
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160,
+          "loader": "define_assert_from_elf"
+        }
+      ],
+      "hol_run": false,
+      "boundary": "Read-only disk closure and separately verified published warm inventory; no queue admission, restore, theorem, or ISA/ABI audit.",
+      "warm_snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+    }
+  ],
+  "clean_integration_cases": [
+    {
+      "case": "final-direct",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 1.179,
+      "receipts": [
+        {
+          "case": "final-direct",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "57c2d4be1366a135243fccbb45596016c684e3383e34d379c3cbb2ca292d05c5",
+          "source_sha256": "0c8fc869f70599232427e5742dff87a01877c95462a1c2ee3dc2f5b727b5e3d4",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "b0746394a008ccbf4c0af221d36d215e7b71cb96cff12a1d57a7042a72b994ca",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-include",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.615,
+      "receipts": [
+        {
+          "case": "final-include",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "08e653e1e755a0d74daae0a4fb0e14f798a5259761da5cb07288af0455e11a05",
+          "source_sha256": "d32d15ece2e3e936be9b30a6b8bd8fb7ff32fe6df6cdb07adbe381400aba1729",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "5552749414eb52cb8a391cc1d505e19dcbb294662e7902b9a26d60c426bb97ef",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-ascribed",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.616,
+      "receipts": [
+        {
+          "case": "final-ascribed",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "4aa74cf63623aed5b8e228d3782e2a42f2ed2bfed4b86ec6a3b542d8656b7932",
+          "source_sha256": "4f3f32bfa0bff9b3cc54c84988a72929b1e2d8ba80522e88fea617df23b2eb7a",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "aee202390e4737690d60b7b3071f783bb473b6fdd7dfac48845b36a60aff936f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-alias_import",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.716,
+      "receipts": [
+        {
+          "case": "final-alias_import",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "0a0b97f90b2e16f3a2183cb056a2fdd540823ce44214a59d1af3df6ac859c822",
+          "source_sha256": "c0ea7b5cbc92c21db942aa8f5796095628ca6d36dd829ed290f79b471b3f51a7",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "d18e9744077ab95819e5e063514c649a81aed8e7da07af7effeb50c07d56efb8",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "ntt-accepted",
+      "command_exit_status": 0,
+      "invocation": "direct_prove",
+      "wall_seconds": 296.24,
+      "receipts": [
+        {
+          "case": "ntt-accepted",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "948e46bb8a62200a12ddc210b1849debffa4bd0e08913d2f9f478ad046670040",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "executed_source_sha256": "2837f467745a3da01bfef2756eded5ecaa5e78c488df0a4302834c6c70066c7c",
+          "raw_transcript_sha256": "d78896b6072204bb6cb807c0b20a66e16da8aaac0ddf01be44bc0937be5f9d09",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 29.453,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "1b24d08822e15f6b2f59fd62cefebe40ccd5242902c10795279907e35ac48c91",
+            "preparation_receipt_sha256": "441604b13af5f40393316bb1c33e093bb14a1a95d0614d5d562f9553a78a8af2"
+          },
+          "receipt_role": "entrypoint"
+        },
+        {
+          "case": "ntt-accepted",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "441604b13af5f40393316bb1c33e093bb14a1a95d0614d5d562f9553a78a8af2",
+          "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+          "executed_source_sha256": "c2a3b104b9ebacddb0e5532674497cfcd48dcc7bc11da7d566b8404f7832e2a9",
+          "raw_transcript_sha256": "1b238aac981e3c91f5cd279739d031258a12cc4d565fec4239608bf57a1a1748",
+          "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 263.67,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "receipt_role": "basis_preparation"
+        }
+      ]
+    },
+    {
+      "case": "ntt-false-import",
+      "command_exit_status": 1,
+      "invocation": "direct_prove",
+      "wall_seconds": 30.932,
+      "receipts": [
+        {
+          "case": "ntt-false-import",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "6176f74c3a585141cba116a2c46d905beaf6f1bac8669e885fd4aa9f4a3db693",
+          "source_sha256": "45921f25cfebcf03776258c7b52f214f6063f5455dca9cf03ee27e299661a5f3",
+          "executed_source_sha256": "eead5807663f1f10cb720aadc9f5fb23cd509c98e3c44be6a7f663911ec18be7",
+          "raw_transcript_sha256": "7145c3a424b43e6cd685b0a1ddde306d09d6b894e2c30700df31e85e12f5c1e4",
+          "source_dependency_closure_sha256": "fc6c5d4e982f73986e6376691332d7e67d0ba61bac1cd716714e92fa82704380",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 29.685,
+          "exit_status": 1,
+          "semantic_source_status": "failed",
+          "source_completed": false,
+          "completion_marker_valid": false,
+          "claims_complete": true,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": true,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "1b24d08822e15f6b2f59fd62cefebe40ccd5242902c10795279907e35ac48c91",
+            "preparation_receipt_sha256": "441604b13af5f40393316bb1c33e093bb14a1a95d0614d5d562f9553a78a8af2"
+          },
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "ntt-repaired",
+      "command_exit_status": 0,
+      "invocation": "direct_prove",
+      "wall_seconds": 30.168,
+      "receipts": [
+        {
+          "case": "ntt-repaired",
+          "controller_stage": "clean_integration",
+          "receipt_sha256": "7845e491cf2d8cc7fc95d360ada943ff8eb56852ea328b67cb98d4a67ff97a3f",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "executed_source_sha256": "1496cdc4a889feac9703ca64c14e80926380f69535cdb21c3b37bab10bcd25cd",
+          "raw_transcript_sha256": "730c97a14d10b8bb95b715066fce3ab1f71055379b919aa3e2d135f5ff17c1ad",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 28.993,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "1b24d08822e15f6b2f59fd62cefebe40ccd5242902c10795279907e35ac48c91",
+            "preparation_receipt_sha256": "441604b13af5f40393316bb1c33e093bb14a1a95d0614d5d562f9553a78a8af2"
+          },
+          "receipt_role": "entrypoint"
+        }
+      ]
+    }
+  ],
+  "evidence_boundaries": [
+    "Every listed failed or refused attempt remains preserved; positive records do not replace negative controls.",
+    "The clean integration controller predates the follow-up display-metadata identity correction and timed-failure attribution correction. Its receipts are preserved with their original metadata, not relabeled as later controller results.",
+    "Guard refusal establishes no HOL execution or axiom measurement; a missing foundation observation is never converted to zero.",
+    "Only known file-loading APIs and supported declared literal source/ELF inputs are covered. Arbitrary OCaml I/O, subprocesses, and generated in-memory evaluation are outside this bounded contract.",
+    "Computed-goal bindings retain the historical receipt status while inspection distinguishes theorem type checks from conclusion and empty-hypothesis checks.",
+    "Warm development evidence and static dependency capture do not establish an independent ISA, ABI, alignment-premise, or caller-contract audit.",
+    "The long P256 proof was not rerun for these display, scanner, and handoff changes; existing checked receipts were inspected read-only.",
+    "Raw logs, external proof statements/sources, machine coordinates, and memory images are excluded from this public summary."
+  ],
+  "clean_delivery_cases": [
+    {
+      "case": "final-direct",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 1.017,
+      "receipts": [
+        {
+          "case": "final-direct",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "e7d5143c74d1ae6be0b49ff091c73391841d34a0610eb792d3f9c39b0765b53e",
+          "source_sha256": "68359d2bc84fdf1cac364dd9f5617a8a679360cf44baf8476b056a7dceac8602",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "601ae277981eba85f1a7cea0d5339ece290667db285c2115560195c3a0d98f03",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-include",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.869,
+      "receipts": [
+        {
+          "case": "final-include",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "86e9796c975cbedf95995406aff1f1992cc0d47d84f3d034d91f86e10c680c3b",
+          "source_sha256": "d32d15ece2e3e936be9b30a6b8bd8fb7ff32fe6df6cdb07adbe381400aba1729",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "5552749414eb52cb8a391cc1d505e19dcbb294662e7902b9a26d60c426bb97ef",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-ascribed",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.867,
+      "receipts": [
+        {
+          "case": "final-ascribed",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "fd8652a82907051727374ad88e6802a7dc1b16851ba5f9fbdc63018b71cba64b",
+          "source_sha256": "4f3f32bfa0bff9b3cc54c84988a72929b1e2d8ba80522e88fea617df23b2eb7a",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "aee202390e4737690d60b7b3071f783bb473b6fdd7dfac48845b36a60aff936f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-alias_import",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.816,
+      "receipts": [
+        {
+          "case": "final-alias_import",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "a1d0b26914c4e7fcbd195c64446469355aa04cc7397a6d8c80ce6d5df38b1dfc",
+          "source_sha256": "c0ea7b5cbc92c21db942aa8f5796095628ca6d36dd829ed290f79b471b3f51a7",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "d18e9744077ab95819e5e063514c649a81aed8e7da07af7effeb50c07d56efb8",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "ntt-accepted",
+      "command_exit_status": 0,
+      "invocation": "direct_prove",
+      "wall_seconds": 292.574,
+      "receipts": [
+        {
+          "case": "ntt-accepted",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "836bcd0408579c28a135770e32215c1da2baa69f8485ca39a76774236ffb898a",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "executed_source_sha256": "9b5fb49368184344a84e86eef36ab72ee032ff8db1c8c56f7d716935fe6be92b",
+          "raw_transcript_sha256": "d8a430b2768e72b40aa2a2ae5ec18b16377178d91fa96a131d428ca00d105384",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 36.423,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "63c7cc0a09be04bf08e615b6fea94d2cde97b6973c645a65f84ec26ce5f9ce20",
+            "preparation_receipt_sha256": "a115114214874db6126bfca9bcb3084e9e9db6a32d0583efbe1cb3fc89e57cfa"
+          },
+          "receipt_role": "entrypoint"
+        },
+        {
+          "case": "ntt-accepted",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "a115114214874db6126bfca9bcb3084e9e9db6a32d0583efbe1cb3fc89e57cfa",
+          "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+          "executed_source_sha256": "8c283e7534a11bdd8147635696536524dd92accb1e84a8953f293e3c6cdefb4b",
+          "raw_transcript_sha256": "883c50d637da5455ab3c406bbad92173d11ee1f52e7684fc6230a552569275c5",
+          "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 253.101,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "receipt_role": "basis_preparation"
+        }
+      ]
+    },
+    {
+      "case": "ntt-false-import",
+      "command_exit_status": 1,
+      "invocation": "direct_prove",
+      "wall_seconds": 39.939,
+      "receipts": [
+        {
+          "case": "ntt-false-import",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "d63d3726c513eb39d65b0d1a61fca658106381915d00ced7cc66e6951250ae17",
+          "source_sha256": "45921f25cfebcf03776258c7b52f214f6063f5455dca9cf03ee27e299661a5f3",
+          "executed_source_sha256": "bddb75aa4410ffa77bec93d81c326fb009c4c3478644519a418f48627cfa3b4a",
+          "raw_transcript_sha256": "cad042eb522f46d076e9b706efab28149e3b340dac19a44f6f98491c3fc87231",
+          "source_dependency_closure_sha256": "fc6c5d4e982f73986e6376691332d7e67d0ba61bac1cd716714e92fa82704380",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 37.933,
+          "exit_status": 1,
+          "semantic_source_status": "failed",
+          "source_completed": false,
+          "completion_marker_valid": false,
+          "claims_complete": true,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": true,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "63c7cc0a09be04bf08e615b6fea94d2cde97b6973c645a65f84ec26ce5f9ce20",
+            "preparation_receipt_sha256": "a115114214874db6126bfca9bcb3084e9e9db6a32d0583efbe1cb3fc89e57cfa"
+          },
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "ntt-repaired",
+      "command_exit_status": 0,
+      "invocation": "direct_prove",
+      "wall_seconds": 32.303,
+      "receipts": [
+        {
+          "case": "ntt-repaired",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "e961162f202a60dcd2c6bab8dfd8f8cf3dc690322f6caac1669bcb36337632cc",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "executed_source_sha256": "9f8a3a24159bc73b36a5bf3ebd842d8a1b1d1fe1c3840d4320c81315f4e45b0d",
+          "raw_transcript_sha256": "aae60ccf7eaf2f805a51a147a605eb5a0c8d8281b27666aecac1ef47310bfcac",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 30.7,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "63c7cc0a09be04bf08e615b6fea94d2cde97b6973c645a65f84ec26ce5f9ce20",
+            "preparation_receipt_sha256": "a115114214874db6126bfca9bcb3084e9e9db6a32d0583efbe1cb3fc89e57cfa"
+          },
+          "receipt_role": "entrypoint"
+        }
+      ]
+    }
+  ],
+  "clean_delivery_cycle_complete": true,
+  "clean_delivery_watch": [
+    {
+      "case": "fixed",
+      "watch_exit_status": 130,
+      "driver_stdout_sha256": "5b58c49c30d3950dc0d2e4db9f968df0f944c8d74c1d958b1550671b9333d68e",
+      "receipts": [
+        {
+          "case": "delivery-watch-1",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "db43d55f11425a5d4ceda637a3e8709b8e5049b69ebef3b9c00ceea9d01a54c9",
+          "source_sha256": "1da96b3904ee8a2587a30d6b2f7d57014e872cc6debabd9d852576086984efbf",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "3a08f7e25e67d2827f275352cfecf8645a4cf9841f128f56ee3a44e7f9762431",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        },
+        {
+          "case": "delivery-watch-2",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "83f35730320c6641efe4e6b7e9950324e0c680432e7e0a2f4ee40825ddbc0f32",
+          "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+          "executed_source_sha256": "4eba0b12cbc7b9f762b5fd34649ad652df0864a53d8a407f9ec811d3148e624a",
+          "raw_transcript_sha256": "a2fd1dad9d023761ca78b2f5520b38d99f7e0f47cd5421aa9e13ee3b2f9c32d4",
+          "source_dependency_closure_sha256": "3cb4c6937250cd37ba51e3607ab0967697aa145c131c7900da12afa937908cb0",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": 0.624,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "WATCH_CHECK",
+              "status": "proved",
+              "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+              "evidence": "nonce_probe_binding_only"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        },
+        {
+          "case": "delivery-watch-3",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "39f85c3477b4e75734a7a5e100b78d712fafb0364a237100418463ee89fe3158",
+          "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+          "executed_source_sha256": "f8926d7f9c94006fc74574a8cc393e01d5dd64a87aec0253e292d3f055324b33",
+          "raw_transcript_sha256": "4f645f06b8dd70403294dd67c04c0745000482118f7d103e595657e196510b78",
+          "source_dependency_closure_sha256": "8b6bed40f8ec8cf79aafd4def49355a45e204605d4b5c390ff3ffdd3c8937c5f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": 0.554,
+          "exit_status": 1,
+          "semantic_source_status": "failed",
+          "source_completed": false,
+          "completion_marker_valid": false,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged",
+          "included_file_error_observed": true,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "WATCH_CHECK",
+              "status": "missing",
+              "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+              "evidence": "nonce_probe_marker_missing"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        },
+        {
+          "case": "delivery-watch-4",
+          "controller_stage": "clean_delivery",
+          "receipt_sha256": "6b0d6a4cdf75d33bc62ccdfec613a62dffbbdfc4b7bdc3df2d8a1cc73689e02d",
+          "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+          "executed_source_sha256": "c99f83248913c4ea93c35806680a112fb6d1813af781b2511fbfab5e3d8dcf0f",
+          "raw_transcript_sha256": "8d4c0aa8dd3311dfb3fa3e21494316f0d20534b00e5bceb8bebf1d627d56daf1",
+          "source_dependency_closure_sha256": "a25ee0247cd6b4138004234b58abdc3dafeda9537cf10c9cf6b27e09c888174f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": 0.562,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "WATCH_CHECK",
+              "status": "proved",
+              "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+              "evidence": "nonce_probe_binding_only"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        }
+      ]
+    }
+  ],
+  "delivery_local_checks": {
+    "command": "./dev/check-all",
+    "log_sha256": "b4dbd619a22e635f8abec5a469e948dedc988460e352b52663e8721cfbff1144",
+    "harness_status": "passed",
+    "ruff_version": "0.15.7",
+    "lint_status": "passed",
+    "hol_or_criu_started_by_checks": false,
+    "display_metadata_identity_regressions": "Both historical Workbench and current Hearth explanatory labels preserve receipt identity; changing declaration status or path still refuses."
+  },
+  "saved_timed_failure_reaccount": {
+    "schema": "hol-hearth.diagnostic-reaccount.v1",
+    "authority": "diagnostic_only",
+    "boundary": "Re-accounting immutable saved transcript only; no HOL replay or new theorem evidence.",
+    "original_receipt_sha256": "bd5a2ffd3e55516f3b28b1112d81374630a9851d1387d8092333319c49dae2e8",
+    "raw_transcript_sha256": "7c3c9b2e669a274b1485f914c45c7739b31907de8aa4906a4e90427985554dda",
+    "source_sha256": "73ee12c86f3ff2f445df55b487c6300b415421cf98276af20d93b8a3228095db",
+    "diagnostic_code_commit": "3c604b036d4b43609b12beef8152254b06104826",
+    "diagnostic_code_dirty": false,
+    "diagnostic_code_sha256": "8a601a0342afcc6ae9f3418ab1a0f00afa858458c6af7b4de89b00609c04f363",
+    "acceptance_unchanged": true,
+    "source_completed": false,
+    "claims_complete": false,
+    "changed_accounting_keys": [
+      "failing_binding",
+      "proof_diagnostics"
+    ],
+    "report_sha256": "39aa4e08bc2e22b0e5c41c989d79e82c75e594298f4fbf1c3cdcbb287eecaec8",
+    "original_failing_binding_status": "unknown",
+    "corrected_failing_binding": {
+      "status": "identified",
+      "name": "BIGNUM_SUB_P256_CORRECT",
+      "source_line": 45,
+      "verification_kind": "compiler_callsite_diagnostic",
+      "authority": "diagnostic_only"
+    },
+    "hol_replayed": false
+  },
+  "clean_release_cases": [
+    {
+      "case": "final-direct",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 0.766,
+      "receipts": [
+        {
+          "case": "final-direct",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "f8291dcc3580a0695e723810218fecac1c8279cfa1f5f6cd223a689cc2bff69e",
+          "source_sha256": "77e10b1119c664e67513a8a1cb55984d3fd6b70f5dd2cbdc667a665999caaf36",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "4ffb12d361c67bc646ea9232e39586ad201784552ac75365101fd082396844d9",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-include",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 1.269,
+      "receipts": [
+        {
+          "case": "final-include",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "4f5ec8474c02f557f7210691465fe184a3f267c1a4ca3f0480ee307aec97c1fa",
+          "source_sha256": "d32d15ece2e3e936be9b30a6b8bd8fb7ff32fe6df6cdb07adbe381400aba1729",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "5552749414eb52cb8a391cc1d505e19dcbb294662e7902b9a26d60c426bb97ef",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-ascribed",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 1.076,
+      "receipts": [
+        {
+          "case": "final-ascribed",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "116a2b2b608b6a36a30a23c7f6f693d6efcb2bd2bf069f351f3df5c92267faed",
+          "source_sha256": "4f3f32bfa0bff9b3cc54c84988a72929b1e2d8ba80522e88fea617df23b2eb7a",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "aee202390e4737690d60b7b3071f783bb473b6fdd7dfac48845b36a60aff936f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "final-alias_import",
+      "command_exit_status": 2,
+      "invocation": "direct_prove",
+      "wall_seconds": 1.17,
+      "receipts": [
+        {
+          "case": "final-alias_import",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "82df3ba944daf5671707204a8261dd33b046ec0d9ccf0dae305f1c6ddacff536",
+          "source_sha256": "c0ea7b5cbc92c21db942aa8f5796095628ca6d36dd829ed290f79b471b3f51a7",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "d18e9744077ab95819e5e063514c649a81aed8e7da07af7effeb50c07d56efb8",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [],
+          "receipt_role": "entrypoint"
+        }
+      ]
+    },
+    {
+      "case": "ntt-accepted",
+      "command_exit_status": 0,
+      "invocation": "direct_prove",
+      "wall_seconds": 181.913,
+      "receipts": [
+        {
+          "case": "ntt-accepted",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "67efb302a7bf339b03db47819df2cc4cc1129f38e36b0ef8d2052297023163ff",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "executed_source_sha256": "8f8d5fbf0193a05f605854e1c7f54c133429a1f2c3840763a14564de353fbd54",
+          "raw_transcript_sha256": "590d25e19045e643aefe326f185102540ee9cfbb660cd29cff2f4b0bdfe679e7",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 18.35,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "03feee15570bdfab58acddb4271e62386a0c2cb9d91f4cd1c70077c12bf52603",
+            "preparation_receipt_sha256": "941c816bd57b7c03046600ed43c080c8cc6bc0f310838343cf16dbaed9b56678"
+          },
+          "receipt_role": "entrypoint"
+        },
+        {
+          "case": "ntt-accepted",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "941c816bd57b7c03046600ed43c080c8cc6bc0f310838343cf16dbaed9b56678",
+          "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+          "executed_source_sha256": "26e2253e578afdc9f71bfcde63c11e7dd3a25771d989be0d985b10ae49642e8e",
+          "raw_transcript_sha256": "940092342e457e3f596f1ccead46c3d0541aa31d3b27ef00fa5ea7894e68534c",
+          "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 160.915,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "receipt_role": "basis_preparation"
+        }
+      ]
+    },
+    {
+      "case": "ntt-repaired",
+      "command_exit_status": 0,
+      "invocation": "supplied_ready_wrapper",
+      "wall_seconds": 19.342,
+      "receipts": [
+        {
+          "case": "ntt-repaired",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "6a196fe150b206244810d0bb2e232fc6d660bb2ed63a065ea96e08a29c547011",
+          "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+          "executed_source_sha256": "b40cb3ec3f3653a557df5522caa86948706484228008b36ac1e7da146498fb1e",
+          "raw_transcript_sha256": "d33a287041db1222deaed8041d18322e16284eb185ee077ed8da05a603cb81d5",
+          "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+          "logical_profile": "s2n-arm-mlkem",
+          "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+          "eval_elapsed_seconds": 18.52,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged_with_profile_satisfaction",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_ENSURES_PRECONDITION",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            },
+            {
+              "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+              "status": "proved",
+              "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+              "evidence": "nonce_probe_kernel_conclusion"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": [
+            {
+              "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+              "size_bytes": 1296,
+              "loader": "define_assert_from_elf"
+            }
+          ],
+          "project_basis": {
+            "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+            "backend_sha256": "03feee15570bdfab58acddb4271e62386a0c2cb9d91f4cd1c70077c12bf52603",
+            "preparation_receipt_sha256": "941c816bd57b7c03046600ed43c080c8cc6bc0f310838343cf16dbaed9b56678"
+          },
+          "receipt_role": "entrypoint"
+        }
+      ]
+    }
+  ],
+  "clean_release_reuse_complete": true,
+  "clean_release_watch": [
+    {
+      "case": "fixed",
+      "watch_exit_status": 130,
+      "driver_stdout_sha256": "7158b6174a599e375be606242ad07ec69bdf58563c0bb48fb121248833fbb448",
+      "receipts": [
+        {
+          "case": "release-watch-1",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "20b3d49d985a6792c8ef6c29f74dce70ebde086ab1b0154ed32b3736758bb0f5",
+          "source_sha256": "d8e72861cceea4f5f2a20ad5ace1571d720611b1099e22ecc490c18990d9b41b",
+          "executed_source_sha256": null,
+          "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "source_dependency_closure_sha256": "8a128a557c164eb9ed551459af5417349f4716bc3c957ac79f246ed9626f0824",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": null,
+          "exit_status": 2,
+          "semantic_source_status": "not_started",
+          "source_completed": false,
+          "completion_marker_valid": null,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "not_started",
+          "dependency_transport_status": "refused_dynamic",
+          "included_file_error_observed": null,
+          "broker_seat_reusable": null,
+          "bindings": [],
+          "foundation_delta": {
+            "status": "not_recorded",
+            "new_axiom_count": null,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        },
+        {
+          "case": "release-watch-2",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "cefa9958549d24afcf0ae47541469d4340e181458ed3caf8580a9e01d5092d19",
+          "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+          "executed_source_sha256": "4d972ec1ac70607a9234a0ebd406170e429a410766f30fbe0a3900220a67f888",
+          "raw_transcript_sha256": "020e2ab61f1e05fa34d43282c0240425129e534bc694986e306008b4dc585a2b",
+          "source_dependency_closure_sha256": "3cb4c6937250cd37ba51e3607ab0967697aa145c131c7900da12afa937908cb0",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": 0.561,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "WATCH_CHECK",
+              "status": "proved",
+              "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+              "evidence": "nonce_probe_binding_only"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        },
+        {
+          "case": "release-watch-3",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "537b11a5927a92df740d3a6750f7641916e148f1083216fcc928127cf37372a7",
+          "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+          "executed_source_sha256": "f64780209492a1275494673c3f51f00f23653003970bd74d64b3693cd737cbac",
+          "raw_transcript_sha256": "3441c8ca1078c70bb5d4913c9eaefbde3b65ea8200ce5ffe4c72f40c1418fc45",
+          "source_dependency_closure_sha256": "8b6bed40f8ec8cf79aafd4def49355a45e204605d4b5c390ff3ffdd3c8937c5f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": 0.389,
+          "exit_status": 1,
+          "semantic_source_status": "failed",
+          "source_completed": false,
+          "completion_marker_valid": false,
+          "claims_complete": false,
+          "source_acceptance": "not_accepted",
+          "replay_accepted": false,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged",
+          "included_file_error_observed": true,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "WATCH_CHECK",
+              "status": "missing",
+              "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+              "evidence": "nonce_probe_marker_missing"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        },
+        {
+          "case": "release-watch-4",
+          "controller_stage": "clean_release",
+          "receipt_sha256": "a5968f0ff274509b45e9b914a488b9f96ab6abec8c5b759d0697b0489c35d4f7",
+          "source_sha256": "d112d99ff41a5c7b6d8d5c59c3da89607a3b4fac04fbe0f922354df2c6397cbb",
+          "executed_source_sha256": "b045aef2819781375430f8be64789d604125627b0e95e75c6d38d8c87f12d28b",
+          "raw_transcript_sha256": "4063f8acb6697f69370257dc0a024af5a9a990591170db10a62e5cf1c66977e9",
+          "source_dependency_closure_sha256": "a25ee0247cd6b4138004234b58abdc3dafeda9537cf10c9cf6b27e09c888174f",
+          "logical_profile": "light",
+          "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+          "eval_elapsed_seconds": 0.376,
+          "exit_status": 0,
+          "semantic_source_status": "succeeded",
+          "source_completed": true,
+          "completion_marker_valid": true,
+          "claims_complete": true,
+          "source_acceptance": "accepted",
+          "replay_accepted": true,
+          "source_preflight_status_recorded": null,
+          "transport_status": "completed",
+          "dependency_transport_status": "packaged",
+          "included_file_error_observed": false,
+          "broker_seat_reusable": true,
+          "bindings": [
+            {
+              "name": "WATCH_CHECK",
+              "status": "proved",
+              "verification_kind": "binding_and_thm_type_only_nonliteral_statement",
+              "evidence": "nonce_probe_binding_only"
+            }
+          ],
+          "foundation_delta": {
+            "status": "observed",
+            "new_axiom_count": 0,
+            "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+          },
+          "captured_elf_inputs": []
+        }
+      ]
+    }
+  ],
+  "release_local_checks": {
+    "command": "./dev/check-all --offline",
+    "controller_stage": "clean_release",
+    "log_sha256": "f653a76407070f09ad58520180cccccc15874338df3adb75fa8eca2802e18f16",
+    "harness_status": "passed",
+    "ruff_version": "0.15.7",
+    "lint_status": "passed",
+    "hol_or_criu_started_by_checks": false
+  },
+  "release_validation_scope": "Completed coverage includes fresh NTT basis preparation, accepted four-target leaf, unchanged leaf reuse, loader refusals, and the watcher. It does not repeat the NTT false-import control; two earlier controller stages retain those full acceptance/rejection/repair cycles.",
+  "standard_hol_loader_regression": {
+    "report_sha256": "ab0b114099782d68633b2edc14711f5fd69b731a6c073efce0e8eb84e0d5dc3d",
+    "runtimes": {
+      "before": {
+        "commit": "544ddef481d0143b0b39c1a0d3b24e1c9e83411d",
+        "backend_sha256": "c8cfd728b30a077d7592a8927eeb5d0b605921bdd13ba3fd0543ab5cf162c570",
+        "runtime_python_matches_recorded_commit": true,
+        "backend_identity_rechecked": true,
+        "actual_test_code_commit": "544ddef481d0143b0b39c1a0d3b24e1c9e83411d",
+        "public_runtime_equivalent_commit": "c8cda9d66ea08e1878563866d8464e72bb4b37be",
+        "equivalence_scope": "All controller Python files and the backend digest; this does not relabel the test launch commit."
+      },
+      "after": {
+        "commit": "f3185e05ec0604f99207f0dc481d0fcaa39a82b7",
+        "backend_sha256": "03feee15570bdfab58acddb4271e62386a0c2cb9d91f4cd1c70077c12bf52603",
+        "runtime_python_matches_recorded_commit": true,
+        "backend_identity_rechecked": true,
+        "actual_test_code_commit": "f3185e05ec0604f99207f0dc481d0fcaa39a82b7",
+        "public_runtime_equivalent_commit": "e2df28477895e883750b72f0ccdeb7db99a12187",
+        "equivalence_scope": "All controller Python files and the backend digest; this does not relabel the test launch commit.",
+        "retrospective_report_head": "3ba5a761bd8ec758a058e6e691dbfa07f8fb5449",
+        "retrospective_head_is_launch_commit": false
+      }
+    },
+    "controls": [
+      {
+        "case": "before-a",
+        "controller_stage": "standard_hol_loader_before",
+        "receipt_sha256": "3365c34fd8e26aeba42e8eb69bab24c9dfbad25fd9bd95171719c1af2a084b8a",
+        "source_sha256": "31706357307688dbb697acc43b6ac6bb4fc38f21f81e49cb6f78948cd1e86909",
+        "executed_source_sha256": "a8d999833ac4acba4ea87223d0e48fdf51f7387c6933457a30c657d3c171f14e",
+        "raw_transcript_sha256": "647e00fbf553a1e7523a6cb37b5230f96b73e5dff44b338c9d3a01a985870713",
+        "source_dependency_closure_sha256": "b2883314402865a4af8a204881a686fc8c80c306c1272efa197830407c82a218",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": 0.523,
+        "exit_status": 0,
+        "semantic_source_status": "succeeded",
+        "source_completed": true,
+        "completion_marker_valid": true,
+        "claims_complete": true,
+        "source_acceptance": "accepted",
+        "replay_accepted": true,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": false,
+        "broker_seat_reusable": true,
+        "bindings": [
+          {
+            "name": "LOW_LEVEL_IDENTITY",
+            "status": "proved",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+            "evidence": "nonce_probe_kernel_conclusion"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "94e8b1a1458c9323549b75f21320d147cbb5e85d31576d3e01c338cc1c910006"
+      },
+      {
+        "case": "before-b",
+        "controller_stage": "standard_hol_loader_before",
+        "receipt_sha256": "5e5e99bf3f8932c4f3fce69ffa2e82bc1fe88d7948e186a917175775effdbf57",
+        "source_sha256": "31706357307688dbb697acc43b6ac6bb4fc38f21f81e49cb6f78948cd1e86909",
+        "executed_source_sha256": "5bcc63957b68979997fe30ffe1e8bf3a3e36e443589f44399f36b7ec40c6b25b",
+        "raw_transcript_sha256": "8cce9a60679acf6a542c537fbae132c50059246cf0bd167a7f4c9579f3ff0581",
+        "source_dependency_closure_sha256": "b2883314402865a4af8a204881a686fc8c80c306c1272efa197830407c82a218",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": 0.235,
+        "exit_status": 0,
+        "semantic_source_status": "succeeded",
+        "source_completed": true,
+        "completion_marker_valid": true,
+        "claims_complete": true,
+        "source_acceptance": "accepted",
+        "replay_accepted": true,
+        "source_preflight_status_recorded": null,
+        "transport_status": "completed",
+        "dependency_transport_status": "packaged",
+        "included_file_error_observed": false,
+        "broker_seat_reusable": true,
+        "bindings": [
+          {
+            "name": "LOW_LEVEL_IDENTITY",
+            "status": "proved",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses",
+            "evidence": "nonce_probe_kernel_conclusion"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "63695d9f64edffc8d0818cc56c82825d87055429ccf97d90291227a0eb1afbf2"
+      },
+      {
+        "case": "after-a",
+        "controller_stage": "standard_hol_loader_after",
+        "receipt_sha256": "c374980aee274017cbeb7e548fbc11b7b1ebb0ee587a9520ed3d71879374b133",
+        "source_sha256": "31706357307688dbb697acc43b6ac6bb4fc38f21f81e49cb6f78948cd1e86909",
+        "executed_source_sha256": null,
+        "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_dependency_closure_sha256": "cb86435fafc5f97792bcb836f2c39ebad6b93a0111668bc83b2005d542613a9b",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": null,
+        "exit_status": 2,
+        "semantic_source_status": "not_started",
+        "source_completed": false,
+        "completion_marker_valid": null,
+        "claims_complete": false,
+        "source_acceptance": "not_accepted",
+        "replay_accepted": false,
+        "source_preflight_status_recorded": null,
+        "transport_status": "not_started",
+        "dependency_transport_status": "refused_dynamic",
+        "included_file_error_observed": null,
+        "broker_seat_reusable": null,
+        "bindings": [],
+        "foundation_delta": {
+          "status": "not_recorded",
+          "new_axiom_count": null,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "94e8b1a1458c9323549b75f21320d147cbb5e85d31576d3e01c338cc1c910006"
+      },
+      {
+        "case": "after-b",
+        "controller_stage": "standard_hol_loader_after",
+        "receipt_sha256": "dc44c0bbb5ce8376590ef0e82661913b8e9e1ea92ed7468b34a889c9a63a6667",
+        "source_sha256": "31706357307688dbb697acc43b6ac6bb4fc38f21f81e49cb6f78948cd1e86909",
+        "executed_source_sha256": null,
+        "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_dependency_closure_sha256": "cb86435fafc5f97792bcb836f2c39ebad6b93a0111668bc83b2005d542613a9b",
+        "logical_profile": "s2n-arm",
+        "profile_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "eval_elapsed_seconds": null,
+        "exit_status": 2,
+        "semantic_source_status": "not_started",
+        "source_completed": false,
+        "completion_marker_valid": null,
+        "claims_complete": false,
+        "source_acceptance": "not_accepted",
+        "replay_accepted": false,
+        "source_preflight_status_recorded": null,
+        "transport_status": "not_started",
+        "dependency_transport_status": "refused_dynamic",
+        "included_file_error_observed": null,
+        "broker_seat_reusable": null,
+        "bindings": [],
+        "foundation_delta": {
+          "status": "not_recorded",
+          "new_axiom_count": null,
+          "boundary": "Observed cardinality delta relative to the restored warm basis; no inventory of pre-existing axioms."
+        },
+        "captured_elf_inputs": [],
+        "helper_sha256_observed_by_driver": "63695d9f64edffc8d0818cc56c82825d87055429ccf97d90291227a0eb1afbf2"
+      }
+    ],
+    "covered_names": [
+      "use_file",
+      "file_loader",
+      "load_on_path",
+      "Hol_loader"
+    ],
+    "finding": "Standard HOL low-level file loading also allowed two helper byte versions under one accepted source/closure identity; both versions are now refused before HOL.",
+    "serious_source_preflights": [
+      {
+        "source": "p256",
+        "before_and_after_status": "complete",
+        "same_closure_sha256": "5746d03a50f9d08652a8547756249e365c49f62ac007eb1b5045237fe30e8c37",
+        "source_edges": 106,
+        "elf_inputs": 7
+      },
+      {
+        "source": "ntt",
+        "before_and_after_status": "complete",
+        "same_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+        "source_edges": 20,
+        "elf_inputs": 1
+      }
+    ]
+  },
+  "release_read_only_validation": {
+    "controller_stage": "clean_release",
+    "report_sha256": "615d4418a846b3f075b76a48ebb5bb5ff642d4425727ab5d0c9dc49cf22767f4",
+    "preflights": [
+      {
+        "case": "release-p256",
+        "report_sha256": "e7fcbf483d09286d0255c7041e704852757f30d0b57f9af791c813f5de22756b",
+        "controller_attribution": "clean_release; separately recorded runtime identity in read-only campaign summary",
+        "evidence_class": "static_dependency_closure",
+        "leaf_sha256": "f471b44633b9a985042f6c7bc4d62385409a7a5c2aa8e8327f72e698b17e7ade",
+        "profile": "s2n-arm",
+        "recipe_sha256": "765ddeba16e64be4202cec10231f94e0f9bd0cb3fc9bd25453f1605e29a17957",
+        "status": "complete",
+        "disk_closure_status": "complete",
+        "transport_status": "packaged",
+        "closure_sha256": "5746d03a50f9d08652a8547756249e365c49f62ac007eb1b5045237fe30e8c37",
+        "source_edges": 106,
+        "elf_count": 7,
+        "dynamic_loader_count": 0,
+        "disk_unresolved_or_external_count": 0,
+        "disk_semantic_identity_complete": true,
+        "warm_inventory_status": "verified",
+        "elf_inputs": [
+          {
+            "sha256": "ceb90e2b5ace8bde39875d13ee8964ba83c5338d8b25a29f8abd426a07ef6890",
+            "size_bytes": 3016,
+            "loader": "define_assert_from_elf"
+          },
+          {
+            "sha256": "c902cb14dc1f56decac09c60298bd5cd17f430bb9a61a3deca91023d8ad97d4f",
+            "size_bytes": 13632,
+            "loader": "define_from_elf"
+          },
+          {
+            "sha256": "3c3017ce426d1b49eda03888b932530b2475912d0ecf95d06f0eb30dbef1820a",
+            "size_bytes": 1344,
+            "loader": "define_assert_from_elf"
+          },
+          {
+            "sha256": "8bba41c523a1ee4ef30ea112b0d3fe55a22dc3604d20b83413992bb41eac70b6",
+            "size_bytes": 1648,
+            "loader": "define_from_elf"
+          },
+          {
+            "sha256": "b6e1538e092564ae7ef9d5b8d1746d0885610bacfedafde543d80e978f7c52d0",
+            "size_bytes": 1544,
+            "loader": "define_assert_from_elf"
+          },
+          {
+            "sha256": "2bd4284688a3118d5384e2a6bcab0e73e18ca0255d9d2acfbce05a67c0262bbe",
+            "size_bytes": 1920,
+            "loader": "define_from_elf"
+          },
+          {
+            "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+            "size_bytes": 1160,
+            "loader": "define_assert_from_elf"
+          }
+        ],
+        "hol_run": false,
+        "boundary": "Read-only disk closure and separately verified published warm inventory; no queue admission, restore, theorem, or ISA/ABI audit.",
+        "warm_snapshot_manifest_sha256": "2e29b47c387b9264d0eefea0f7109484953442d983bf2f5ab19a8f599bd88751"
+      },
+      {
+        "case": "release-ntt",
+        "report_sha256": "6c8a247eea0b5b77220ede78d90264489ca31dcda2d24907da42e271dc24fffa",
+        "controller_attribution": "clean_release; separately recorded runtime identity in read-only campaign summary",
+        "evidence_class": "static_dependency_closure",
+        "leaf_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "profile": "s2n-arm-mlkem",
+        "recipe_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "status": "complete",
+        "disk_closure_status": "incomplete",
+        "transport_status": "packaged_with_profile_satisfaction",
+        "closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+        "source_edges": 20,
+        "elf_count": 1,
+        "dynamic_loader_count": 0,
+        "disk_unresolved_or_external_count": 4,
+        "disk_semantic_identity_complete": false,
+        "warm_inventory_status": "verified",
+        "elf_inputs": [
+          {
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296,
+            "loader": "define_assert_from_elf"
+          }
+        ],
+        "hol_run": false,
+        "boundary": "Read-only disk closure and separately verified published warm inventory; no queue admission, restore, theorem, or ISA/ABI audit.",
+        "warm_snapshot_manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9"
+      }
+    ],
+    "historical_p256_handoff": {
+      "origin_receipt_sha256": "9623e99b4ada2721b586c1d16462369f1dd047c3a544578ea5d89f15e466975f",
+      "source_sha256": "9886c0313c27e12826eb648ed049c24da1bf08db6d931b8d249dd65dfa0e809e",
+      "binding": "P256_MONTJADD_CORRECT",
+      "prefix_byte_count": 1631,
+      "prefix_sha256": "a2ac3e49d9954eb40f92781b68c53c6a69c937f7b6c1378462369b83516ce5ca",
+      "dependency_closure_sha256": "4aaf1e021ff030ea84ad675825966c3e09c7ef168aa4c77302a03e603fcd6045",
+      "origin_manifest_sha256": "88a25d205e92be370ac07a6f18475221a3d961f29d5edc71e45b5b8c1ba12239",
+      "scratch_sha256": "a9736fd7089aaecb663adf08acb1fb5499b216cf911439ce3c7277839ca69917",
+      "exact_original_prefix_verified": true,
+      "hol_replayed": false
+    }
+  }
+}

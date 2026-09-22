@@ -1,5 +1,128 @@
 # Validation and development basis
 
+## Recorded results at a glance
+
+These are recorded authoring results, with the failed hard cases retained.
+Times are the receipt's **HOL evaluation durations**, not end-to-end wall times;
+queueing and project-basis preparation are separate costs. A timeout can include
+the controller response allowance and cleanup. A dash means no duration was
+recorded, not a zero-second run. Hashes and commits below are abbreviated; the
+linked JSON records retain their full values and exact inputs.
+
+| Case | Profile | Recorded result | HOL time (s) | Receipt SHA-256 prefix / evidence entry | Runtime commit |
+| --- | --- | --- | --- | --- | --- |
+| Complete ARM subtraction after alias-rebinding correction | `light` | Accepted; both literal targets, identical source/closure/profile identities | 281.084 | `9472ad5464d8` — [file-loader guards](file-loader-guard-evidence.json), `/final_repeat` | `0ed77f5116e5` |
+| Complete ARM subtraction after file-loader guards | `light` | Accepted; both literal targets, zero new axioms | 301.901 | `a7acf8f9cf9fa` — [file-loader guards](file-loader-guard-evidence.json), `/positive` | `5af553486dfd` |
+| Acoustic–elastic full shared-table root | `light` | Accepted; 73 discovered root bindings, zero new axioms | 642.844 | `d38c2e999ef0b` — [hard-authoring](hard-authoring-evidence.json), `/full_root` | Unknown during integration |
+| ML-KEM NTT layers 1–3, complete functional replay | `s2n-arm-mlkem` | Accepted; all four targets | 336.679 | `0f598abf97f9` — [assembly](assembly-authoring-evidence.json), `/iterations/0/functional_baseline` | Unknown during integration |
+| ML-KEM dependency preparation, ELF bootstrap campaign | `s2n-arm-mlkem` | Accepted; two targets, zero new axioms | 230.263 | `6fb72fe1cf94` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/7` | `564a0d2426a8` |
+| ML-KEM functional leaf on that prepared basis | `s2n-arm-mlkem` | Accepted; four targets, zero new axioms | 26.720 | `004e58099a48` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/6` | `564a0d2426a8` |
+| ML-KEM functional leaf, reuse | `s2n-arm-mlkem` | Accepted; same four targets | 33.679 | `6fc9126d3d8c` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/8` | `564a0d2426a8` |
+| P256 point addition, initial full attempt | `s2n-arm` | Rejected: imported missing object; no target accepted | 1,733.717 | `524d5c28f892` — [assembly](assembly-authoring-evidence.json), `/separate_p256_acceptance/receipt` | Unknown during integration |
+| P256 point addition, after object build | `s2n-arm` | Timed out; no nonce-proved target | 1,815.268 | `eecbdcee11fb` — [assembly](assembly-authoring-evidence.json), `/separate_p256_acceptance/retry_receipt` | Unknown during integration |
+| P256 preparation, before ELF bootstrap fix | `heavy` | Rejected before original source execution | 0.529 | `7c5304c0ed04` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/0` | `0fa3ef785bf3` |
+| P256 preparation, after bootstrap fix | `heavy` | Interrupted after imported errors; no remaining leaf accepted | — | `d5648c06b264` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/5` | `564a0d2426a8` |
+| Complete ARM subtraction, 18 instructions | `s2n-arm-mlkem` | Accepted; both literal targets | 13.493 | `daef7e1b8e6a` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/1` | `564a0d2426a8` |
+| Same complete subtraction source | `heavy` | Rejected in imported ARM infrastructure; neither target proved | 152.684 | `e7fa0789814c` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/4` | `564a0d2426a8` |
+| Same subtraction source, initially absent ELF loaders | `light` | Accepted after ordinary imports; both literal targets | 310.544 | `72282efead08` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/13` | `564a0d2426a8` |
+| ARM base preparation, then fresh subtraction leaf | `light` | Base source completed; leaf proved both literal targets | 300.505 + 28.719 | `d6192a149a1a`, `f2081a2713cd` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/11` and `/attempts/12` | `564a0d2426a8` |
+
+For the ELF bootstrap campaign, the commits were verified from clean checkouts
+independently of receipt client metadata, which reports an unknown revision.
+Earlier integration results do not certify later runtime code. The installation
+checks are [listed separately](#historical-clean-installation-evidence).
+
+## Review follow-up: input identity and assembly handoffs
+
+The [review follow-up evidence](review-followup-evidence.json) records the
+September 22 reproductions, refinements and final checks. Existing warm profiles
+worked throughout; failures were in input tracking and authoring handoffs.
+No published shelf was rebuilt. Validation ran locally with
+`./dev/check-all --offline`, including compiled OCaml diagnostic checks and
+pinned Ruff 0.15.7; no GitHub CI was used.
+
+Two successful replays consumed different helper bytes through `Toploop.use_file`
+while recording the same dependency hash. A watcher also missed a helper-only
+edit. The corrected path refuses uncaptured loaders before HOL, with the source
+location and guidance to use captured literal imports. Real watcher checks then
+preserved refusal, acceptance, helper-only failure and repair. Further testing
+found the same omission through standard HOL loader helpers; those before/after
+receipts are retained separately. The guard now also covers `use_file`,
+`file_loader`, `load_on_path`, and module exports that can hide known loaders.
+This bounded contract does not cover arbitrary OCaml I/O or generated-code effects.
+
+The final runtime, `e2df28477895`, checked the substantial ML-KEM NTT layers 1–3
+functional source on `s2n-arm-mlkem`:
+
+| Case | HOL time (s) | Literal conclusion/empty-hypothesis probes | Receipt SHA-256 prefix |
+| --- | ---: | ---: | --- |
+| Project dependency preparation | 160.915 | 2 | `941c816bd57b` |
+| Complete functional leaf | 18.350 | 4 | `67efb302a7bf` |
+| Unchanged leaf through the supplied authoring command | 18.520 | 4 | `6a196fe150b2` |
+
+All observed zero new axioms relative to their restored basis. Both leaf attempts
+used the same preparation receipt, source hash and dependency identity. Two
+earlier combined-controller cycles rejected a false import despite four successful
+target probes, then accepted the unchanged repaired leaf using the same prepared
+basis. Their actual controller identities remain separate; the final runtime did
+not repeat that NTT negative control. Final loader and watcher controls passed.
+
+Inspection now labels computed-goal bindings as
+`thm bound (conclusion and hypotheses not checked)` and counts probe strengths
+separately. Assembly `reopen` verifies recorded source/object bytes, places scratch
+beside the original source and retains the basis, run root and budget. A real ARM
+subtraction cycle recorded expected failure in 4.683 seconds, diagnostic scratch
+completion with no named theorem in 4.808 seconds, and the completed literal
+theorem in 8.595 seconds. These intermediate development runs are not attributed
+to the final clean runtime.
+
+Final read-only preflight captured 106 source edges and seven ELF inputs for
+P256, and 20 edges and one ELF input for NTT. NTT's four unresolved disk imports
+were satisfied by separately verified published warm inventory. Historical P256
+failure handoff preserved its exact prefix and object bytes without replaying the
+long proof. Warm execution and these static checks do not establish an independent
+ISA, ABI, alignment-premise or caller-contract audit.
+
+Integration also exposed two recoverability defects. Display-only branding no
+longer invalidates historical receipt identities; substantive metadata still
+does. A matching HOL timing line no longer hides the recorded failing binding.
+Re-accounting the saved ARM failure identifies `BIGNUM_SUB_P256_CORRECT` at source
+line 45, with acceptance unchanged and no HOL replay. External proof sources,
+objects and raw logs remain outside the public repository.
+
+## Soundness controls
+
+**A real warm-cache identity bug incorrectly accepted a source containing an
+edited false import in 0.345 seconds.** HOL skipped an already-loaded base, so
+the changed helper never executed. This was incorrect complete-source acceptance,
+not a kernel proof of the false statement. The before and after receipts have
+identical leaf and dependency hashes; the corrected path refuses before HOL.
+
+| Negative control | Expected result | Recorded observation | Evidence JSON entry |
+| --- | --- | --- | --- |
+| Rebind a file-loader module alias after using it | Preserve the earlier loading reference and refuse transport | `refused_dynamic` after HOL syntax preflight; no source execution | [file-loader guards](file-loader-guard-evidence.json), `/alias_rebinding_control` |
+| Hidden file-loading API, qualified loader, changed directory, or hidden loader in an import | Refuse before source execution | All four real ARM-project controls returned `refused_dynamic`; no HOL evaluation or profile restore requested | [file-loader guards](file-loader-guard-evidence.json), `/controls` |
+| False helper beneath an unchanged warm base | Reject changed source | Before: incorrect acceptance in 0.345 s. After: `refused_profile_satisfaction_dependency_changed`, no HOL execution | [assembly](assembly-authoring-evidence.json), `/iterations/3/hidden_false_import_before` and `/iterations/3/hidden_false_import_after` |
+| Unused false import in the substantial NTT source | Reject complete source even if named targets prove | Rejected; all four target probes still proved | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/1/receipt` |
+| False theorem added to a transitive prepared-basis helper | Invalidate reuse and reject new preparation | Preparation rejected; both basis targets missing | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/2/receipt` |
+| One executable ELF byte edited with proof source unchanged | Reject object/proof mismatch | Complete subtraction rejected in 0.459 s; neither target proved. Restoring exact bytes passed | [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/2` and `/attempts/3` |
+| Two missing ELF inputs in P256 closure | Refuse before HOL starts | `project_input_missing`, transport `not_started`, no target accepted | [assembly](assembly-authoring-evidence.json), `/iterations/3/p256_missing_objects_before_hol` |
+| Wrong node index, reversed normal, wrong weight | Reject the incorrect geometric contracts | All three rejected by HOL arithmetic contradiction failures | [hard-authoring](hard-authoring-evidence.json), `/negative_controls` |
+
+The history below retains the initial defects, timeouts, interrupted attempts
+and subsequent refinements. The ML-KEM and subtraction checks are separate
+from the completed P256 point-addition campaign and its retained failures.
+
+The file-loader guard checks used an existing `light` profile on x86-64 WSL
+Linux, without rebuilding it. Both complete ARM subtraction replays recorded
+zero new axioms; the second includes the alias-rebinding correction. Five
+project variants were refused before evaluation. Two earlier alias spellings
+were rejected by HOL's parser before reaching the loader guard; their receipts
+are retained in the same evidence record. These checks cover known file loaders
+and directory changes, not arbitrary OCaml subprocess or generated-code effects.
+Runtime revisions were independently checked before launch; checkout-relative
+receipt metadata itself still reports an unknown revision.
+
 ## Acceptance follows substantial proof work
 
 The most recent ancestor campaign examined was the September 8 acoustic–elastic

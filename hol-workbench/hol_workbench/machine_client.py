@@ -99,16 +99,16 @@ def read_authority(path: Path = DEFAULT_CONFIG) -> ClientAuthority:
         payload = json.loads(config_path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
         raise ClientAuthorityError(
-            f"machine Workbench authority is not installed: {config_path}; "
+            f"machine Hearth authority is not installed: {config_path}; "
             "run the canonical checkout's hol-workbench/dev/install-machine-client"
         ) from exc
     except (OSError, json.JSONDecodeError) as exc:
-        raise ClientAuthorityError(f"machine Workbench authority is unreadable: {config_path}: {exc}") from exc
+        raise ClientAuthorityError(f"machine Hearth authority is unreadable: {config_path}: {exc}") from exc
     if payload.get("schema") != AUTHORITY_SCHEMA:
-        raise ClientAuthorityError(f"machine Workbench authority has an unsupported schema: {config_path}")
+        raise ClientAuthorityError(f"machine Hearth authority has an unsupported schema: {config_path}")
     checkout_value = str(payload.get("checkout") or "")
     if not checkout_value:
-        raise ClientAuthorityError(f"machine Workbench authority has no checkout: {config_path}")
+        raise ClientAuthorityError(f"machine Hearth authority has no checkout: {config_path}")
     return ClientAuthority(
         checkout=Path(checkout_value).expanduser().resolve(),
         branch=str(payload.get("branch") or "main"),
@@ -121,10 +121,10 @@ def read_authority(path: Path = DEFAULT_CONFIG) -> ClientAuthority:
 def validate_authority(authority: ClientAuthority) -> dict[str, Any]:
     checkout = authority.checkout
     if not checkout.is_dir():
-        raise ClientAuthorityError(f"authoritative Workbench checkout is missing: {checkout}")
+        raise ClientAuthorityError(f"authoritative Hearth checkout is missing: {checkout}")
     top_level = Path(_git(checkout, "rev-parse", "--show-toplevel")).resolve()
     if top_level != checkout:
-        raise ClientAuthorityError(f"configured Workbench checkout resolves to {top_level}, expected {checkout}")
+        raise ClientAuthorityError(f"configured Hearth checkout resolves to {top_level}, expected {checkout}")
     branch = _git(checkout, "branch", "--show-current")
     if branch != authority.branch:
         raise ClientAuthorityError(
@@ -217,7 +217,7 @@ def dispatch_plan(
     frozen_client_root: Path | None = None,
 ) -> DispatchPlan:
     if not tool or Path(tool).name != tool or tool in {".", "..", DISPATCHER_NAME}:
-        raise ClientAuthorityError(f"unsupported Workbench tool name: {tool!r}")
+        raise ClientAuthorityError(f"unsupported Hearth tool name: {tool!r}")
     authority = read_authority(config_path)
     identity = validate_authority(authority)
     checkout_python = locked_checkout_python(authority.checkout)
@@ -239,7 +239,7 @@ def dispatch_plan(
         identity["execution_frozen"] = True
     executable = executable_root / "bin" / tool
     if not executable.is_file() or not os.access(executable, os.X_OK):
-        raise ClientAuthorityError(f"authoritative Workbench tool is missing or not executable: {executable}")
+        raise ClientAuthorityError(f"authoritative Hearth tool is missing or not executable: {executable}")
     env = dict(os.environ if environment is None else environment)
     # The frozen dispatcher intentionally contains executable launchers but no
     # copied virtual environment.  Bind it to the validated checkout's locked
@@ -339,7 +339,7 @@ def preferred_tool_command(
     dispatch identity, not the host operating system, decides authority.
     """
     if not tool or Path(tool).name != tool:
-        raise ValueError(f"unsafe Workbench tool name: {tool!r}")
+        raise ValueError(f"unsafe Hearth tool name: {tool!r}")
     selected_platform = sys.platform if platform is None else platform
     fallback = f"{PORTABLE_BIN}/{tool}"
     active_env = os.environ if environment is None else environment
@@ -421,7 +421,7 @@ def install(
     )
     if not tools:
         raise ClientAuthorityError(
-            f"authoritative Workbench bin directory contains no executable tools: {canonical_bin}"
+            f"authoritative Hearth bin directory contains no executable tools: {canonical_bin}"
         )
     prefix_root = prefix.expanduser()
     prefix_root.mkdir(parents=True, exist_ok=True)
@@ -431,10 +431,10 @@ def install(
         raise ClientAuthorityError(str(exc)) from exc
     if bin_dir.exists() or bin_dir.is_symlink():
         if not bin_dir.is_dir():
-            raise ClientAuthorityError(f"machine Workbench bin path is not a directory: {bin_dir}")
+            raise ClientAuthorityError(f"machine Hearth bin path is not a directory: {bin_dir}")
         for existing in bin_dir.iterdir():
             if not existing.is_symlink():
-                raise ClientAuthorityError(f"machine Workbench install will not overwrite non-symlink path: {existing}")
+                raise ClientAuthorityError(f"machine Hearth install will not overwrite non-symlink path: {existing}")
     installed_dispatcher = _install_machine_client(
         checkout=checkout,
         prefix=prefix,
@@ -457,7 +457,7 @@ def install(
                 replace=bin_dir.exists(),
             )
     except (OSError, PathContainmentError, TreePublicationError) as exc:
-        raise ClientAuthorityError(f"cannot publish machine Workbench front doors: {exc}") from exc
+        raise ClientAuthorityError(f"cannot publish machine Hearth front doors: {exc}") from exc
     atomic_write_json(
         config_path,
         {
@@ -472,11 +472,11 @@ def install(
 
 def _validate_front_door_candidate(candidate: Path, links: dict[str, Path]) -> None:
     if {path.name for path in candidate.iterdir()} != set(links):
-        raise ClientAuthorityError("staged machine Workbench front doors are incomplete")
+        raise ClientAuthorityError("staged machine Hearth front doors are incomplete")
     for name, target in links.items():
         link = candidate / name
         if not link.is_symlink() or link.resolve() != target.resolve():
-            raise ClientAuthorityError(f"staged machine Workbench front door is invalid: {link}")
+            raise ClientAuthorityError(f"staged machine Hearth front door is invalid: {link}")
 
 
 def installed_warm_hol_path(prefix: Path = DEFAULT_PREFIX) -> Path:
@@ -598,7 +598,7 @@ def _extract_git_archive(checkout: Path, revision: str, destination: Path, *path
     )
     if completed.returncode != 0:
         detail = completed.stderr.decode("utf-8", errors="replace").strip() or f"exit {completed.returncode}"
-        raise ClientAuthorityError(f"cannot freeze Workbench client at {revision[:12]}: {detail}")
+        raise ClientAuthorityError(f"cannot freeze Hearth client at {revision[:12]}: {detail}")
     destination.mkdir(parents=True, exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(completed.stdout), mode="r:") as archive:
         members = archive.getmembers()
@@ -606,7 +606,7 @@ def _extract_git_archive(checkout: Path, revision: str, destination: Path, *path
         for member in members:
             member_path = (destination / member.name).resolve()
             if not member_path.is_relative_to(root) or member.issym() or member.islnk() or member.isdev():
-                raise ClientAuthorityError(f"unsafe path in frozen Workbench client archive: {member.name}")
+                raise ClientAuthorityError(f"unsafe path in frozen Hearth client archive: {member.name}")
         archive.extractall(destination, members=members)
 
 
@@ -786,7 +786,7 @@ def main(argv: list[str] | None = None) -> int:
             frozen_client_root=Path(__file__).resolve().parents[1],
         )
     except ClientAuthorityError as exc:
-        print(f"machine Workbench refused: {exc}", file=sys.stderr)
+        print(f"machine Hearth refused: {exc}", file=sys.stderr)
         return 78
     os.execve(plan.executable, list(plan.argv), plan.environment)
     return 70
@@ -795,11 +795,11 @@ def main(argv: list[str] | None = None) -> int:
 def install_main(argv: list[str] | None = None) -> int:
     if sys.platform != "linux":
         print(
-            "machine Workbench install refused: Linux-only runtime; no macOS client was installed",
+            "machine Hearth install refused: Linux-only runtime; no macOS client was installed",
             file=sys.stderr,
         )
         return 2
-    parser = argparse.ArgumentParser(description="Install one machine-authoritative Workbench front door.")
+    parser = argparse.ArgumentParser(description="Install one machine-authoritative Hearth front door.")
     parser.add_argument("--checkout", type=Path, required=True)
     parser.add_argument("--prefix", type=Path, default=DEFAULT_PREFIX)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -807,10 +807,10 @@ def install_main(argv: list[str] | None = None) -> int:
     try:
         install(checkout=parsed.checkout, prefix=parsed.prefix, config_path=parsed.config)
     except ClientAuthorityError as exc:
-        print(f"machine Workbench install refused: {exc}", file=sys.stderr)
+        print(f"machine Hearth install refused: {exc}", file=sys.stderr)
         return 78
-    print(f"machine Workbench authority: {parsed.config.expanduser().resolve()}")
-    print(f"machine Workbench front doors: {parsed.prefix.expanduser().resolve() / 'bin'}")
+    print(f"machine Hearth authority: {parsed.config.expanduser().resolve()}")
+    print(f"machine Hearth front doors: {parsed.prefix.expanduser().resolve() / 'bin'}")
     return 0
 
 

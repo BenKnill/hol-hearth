@@ -17,4 +17,4 @@ def host_handoff_shell(shell: str) -> str:
 
 def displayed_cold_replay(replay_shell: str) -> str:
     _ = replay_shell
-    return "developer replay plan retained in internal JSON; send DETAILS to the Workbench dev lane"
+    return "developer replay plan retained in internal JSON; send DETAILS to the Hearth dev lane"

@@ -12,7 +12,9 @@ from hol_workbench.cli.orbstack_criu_vanilla_semantics import instrumented_sourc
 nonce = "a" * 32
 contract = {"nonce": nonce, "proof_diagnostics": {"nonce": nonce}}
 prefix = "__HOL_PROOF_DIAGNOSTIC__:" + nonce + ":"
-hx = lambda s: s.encode().hex()
+def hx(s):
+    return s.encode().hex()
+
 lines = [
     f"1:BEGIN:residual_goals:1:1:{hx('x = x + &1')}:{hx('Failure(unsolved)')}",
     f"1:GOAL:0:1:{hx('x = x + &1')}",
@@ -228,6 +230,42 @@ caught = analyze_overflow(failure_frame + b"\n" + failure_message.encode() + b"\
 assert caught["source_completed"] is True and caught["failing_binding"] is None
 assert caught["bindings"][0]["status"] == "proved"
 print("proof-diagnostics spacing: matching exceptions, bounded blank gaps and caught/malformed barriers passed")
+
+
+# HOL's `time prove` re-raises the same exception after its own timing report.
+# The report is transparent only for the exact framed exception, and consumes
+# the existing gap budget. It cannot establish success or bridge other output.
+def timing_record(duration="0.016663", exception=failure_exception):
+    return f"Failed after (user) CPU time of {duration}: {exception}\n".encode()
+
+for duration in ("0.016663", "0.", "1e-06", "1.2e+03"):
+    observed = assert_failure_context(
+        failure_frame + timing_record(duration) + failure_message.encode() + b"\n", "STUCK")
+    assert observed["proof_diagnostics"]["events"][0]["following_exception_transcript_line"] == 6
+assert_failure_context(failure_frame + b"\n" * (MAX_EXCEPTION_GAP_LINES - 1) +
+                       timing_record() + failure_message.encode() + b"\n", "STUCK")
+for intervening in (
+    timing_record(exception='Failure("different exception")'),
+    timing_record() + timing_record(),
+    b"# " + timing_record(),
+    b"continued after caught failure\n" + timing_record(),
+    timing_record() + b"val later : int = 1\n",
+    b"\n" * MAX_EXCEPTION_GAP_LINES + timing_record(),
+    *(timing_record(duration) for duration in ("nan", "inf", "-0.01", "0.01 seconds", "0")),
+):
+    assert_failure_context(failure_frame + intervening + failure_message.encode() + b"\n", None)
+assert_failure_context(failure_frame + timing_record() + b'Exception: Failure "unrelated".\n', None)
+for malformed_frame in (
+    failure_frame.replace(b"GOAL:0:0:", b"GOAL:3:0:"),
+    failure_frame.rsplit(prefix.encode(), 1)[0],
+    failure_frame.replace(nonce.encode(), b"b" * 32),
+):
+    result = analyze_overflow(malformed_frame + timing_record() + failure_message.encode() + b"\n")
+    assert result["failing_binding"]["status"] == "unknown"
+caught = analyze_overflow(failure_frame + timing_record() + failure_message.encode() + b"\n" + markers.encode())
+assert caught["source_completed"] is True and caught["failing_binding"] is None
+assert caught["bindings"][0]["status"] == "proved"
+print("proof-diagnostics timing: exact HOL report, unchanged bounds and failure/caught barriers passed")
 
 
 # Interruption records an entered call, never a failed/proved theorem. A return

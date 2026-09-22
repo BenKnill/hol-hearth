@@ -27,12 +27,19 @@ Every replay starts in a fresh child. Work on a small leaf; complete-source
 replay is not incremental proof-prefix reuse. Keep the warm seat after Ctrl-C.
 Do not recover by killing shared brokers, rebuilding profiles or cold-loading HOL.
 
-Use the existing HOL parser and dependency scanner. Do not introduce a second
-evaluator, ad hoc source-language parser, theorem-lookup backend or automatic
-proof-repair engine. HOL search and g/e exploration run as ordinary source;
-source execution and completed theorem bindings remain distinct.
+Use the existing HOL parser as the source-language authority. The existing
+bounded loader scanner conservatively finds dependency edges and refuses
+unsupported loader forms; extend that scanner when its contract needs fixing.
+Do not introduce a second evaluator, ad hoc source-language parser,
+theorem-lookup backend or automatic proof-repair engine. HOL search and g/e
+exploration run as ordinary source; source execution and completed theorem
+bindings remain distinct.
 
 ## Changes and validation
+
+Do not add, run or rely on GitHub CI. Use local validation. GitHub CI may only
+be reconsidered after Blacksmith is set up with Ben and he explicitly authorizes
+its use.
 
 Run ./hearth check after edits and exercise changed behavior with real project
 inputs on an existing profile. Preserve failed attempts and inspect the target

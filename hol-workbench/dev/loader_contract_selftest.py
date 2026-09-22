@@ -27,6 +27,9 @@ from hol_workbench.source_dependency_closure import (  # noqa: E402
     build_source_dependency_closure,
     literal_source_loads,
 )
+from hol_workbench.source_dependency_package import (  # noqa: E402
+    DependencyPackageError, dependency_transport_status, materialize_dependency_package,
+)
 
 
 @dataclass(frozen=True)
@@ -226,10 +229,11 @@ SOURCE_CASES = (
         status="refused",
     ),
     SourceCase("vertical-tab-is-not-blank", b'needs\v"decoy.ml";;', status="refused"),
-    SourceCase("qualified-decoy", b'M.needs "decoy.ml";;'),
-    SourceCase("local-open-qualified-decoy", b'M.(needs "decoy.ml");;'),
-    SourceCase("functor-local-open-qualified-decoy", b'F(X).(needs "decoy.ml");;'),
-    SourceCase("hash-decoy", b'#needs "decoy.ml";;'),
+    SourceCase("qualified-loader", b'M.needs "decoy.ml";;', dynamic=("needs",)),
+    SourceCase("local-open-qualified-loader", b'M.(needs "decoy.ml");;', dynamic=("needs",)),
+    SourceCase("functor-local-open-qualified-loader", b'F(X).(needs "decoy.ml");;', dynamic=("needs",)),
+    SourceCase("hash-prefixed-loader", b'#needs "decoy.ml";;', dynamic=("needs",)),
+    SourceCase("nested-local-open-loader", b'M.(ignore (needs "decoy.ml"));;', dynamic=("needs",)),
     SourceCase("longer-identifiers", 'myneeds "x";; needsé "y";; needś "z";;'.encode()),
     SourceCase("type-variable", b"let x : 'needs = value;; \"decoy.ml\";;"),
     SourceCase("invalid-utf8-atomic", b'needs "early.ml";;\xff', status="refused"),
@@ -481,6 +485,135 @@ def _span_and_escape_contract() -> None:
     assert quoted_newlines.literal_occurrences[0].path_literal.value_bytes == b"a\rb\nc\n.ml"
 
 
+def _uncaptured_execution_contract(root: Path) -> int:
+    controls = (
+        b'use_file "a.ml";;',
+        b'(!file_loader) "a.ml";;',
+        b'let invoke = !file_loader;; invoke "a.ml";;',
+        b'load_on_path ["."] "a.ml";;',
+        b'Hol_loader.use_file "a.ml";;',
+        b'(!Hol_loader.file_loader) "a.ml";;',
+        b'Hol_loader.load_on_path ["."] "a.ml";;',
+        b'module H = Hol_loader;;',
+        b'include Hol_loader;;',
+        b'open Hol_loader;;',
+        b'let packed = (module Hol_loader : Loader);;',
+        b'module H = Functor(Hol_loader);;',
+        b'Hol_loader.(use_file "a.ml");;',
+        b'\\#use_file "a.ml";;',
+        b'Toploop.use_file Format.std_formatter "a.ml";;',
+        b'include Toploop;; use_file Format.std_formatter "a.ml";;',
+        b'module File_loader = struct include Toploop end;;',
+        b'module File_loader : sig val use_file : unit end = Toploop;;',
+        b'module File_loader = (Toploop);;',
+        b'open (Toploop);;',
+        b'module File_loader = Toploop;;',
+        b'let packed = (module Toploop : Loader);;',
+        b'module File_loader = Functor(Toploop);;',
+        b'include Unix;; chdir "/tmp";;',
+        b'module Directory = Sys;;',
+        b'#cd "/tmp";;', b'#directory "/tmp";;', b'#remove_directory "/tmp";;',
+        b'Topdirs.dir_cd Format.std_formatter "/tmp";;',
+        b'Topdirs.dir_directory "/tmp";;',
+        b'Topdirs.dir_remove_directory "/tmp";;',
+        b'(Toploop.use_file) Format.std_formatter "a.ml";;',
+        b'let invoke = Toploop.use_file;; invoke Format.std_formatter "a.ml";;',
+        b'Topdirs.dir_use Format.std_formatter "a.ml";;',
+        b'Dynlink.loadfile "plugin.cmo";;',
+        b'#mod_use "a.ml";;', b'#load "plugin.cmo";;', b'#load_rec "plugin.cmo";;',
+        b'Hol.needs "a.ml";;',
+        b'let import = Hol.needs;; import "a.ml";;',
+        b'Sys.chdir "/tmp";; needs "a.ml";;',
+        b'let move = Unix.chdir;; move "/tmp";; needs "a.ml";;',
+        b'let move = Unix.fchdir;;',
+        b'let move = Sys.\\#chdir;;',
+        b'let module T = Toploop in T.use_file Format.std_formatter "a.ml";;',
+        b'module U = Unix;; module V = U;; V.chdir "/tmp";;',
+        b'open Toploop;; use_file Format.std_formatter "a.ml";;',
+        b'open! Unix;; chdir "/tmp";;',
+        b'Sys.(ignore (chdir "/tmp"));;',
+        b'Toploop.(ignore (use_file Format.std_formatter "a.ml"));;',
+        b'module T = Toploop;; T.use_file Format.std_formatter "a.ml";; module T = Sys;;',
+        b'module T = Sys;; T.chdir "/tmp";; module T = Toploop;;',
+        b'module T = Toploop;; module U = T;; U.use_file Format.std_formatter "a.ml";; '
+        b'module U = Sys;; module T = Sys;;',
+        b'module T = Sys;; module U = T;; U.chdir "/tmp";; '
+        b'module U = Toploop;; module T = Toploop;;',
+        b'module T = Toploop;; T.(use_file Format.std_formatter "a.ml");; module T = Sys;;',
+        b'module T = Sys;; T.(chdir "/tmp");; module T = Toploop;;',
+        b'module T = Toploop;; open T;; module T = Sys;; open T;; '
+        b'use_file Format.std_formatter "a.ml";;',
+        b'module T = Sys;; open T;; module T = Toploop;; open T;; chdir "/tmp";;',
+    )
+    helper = root / "a.ml"
+    helper.write_text("let helper = 1;;\n")
+    source = root / "execution.ml"
+    dependency = root / "execution-helper.ml"
+    count = 0
+    for control in controls:
+        scan = scan_ocaml_loaders(control)
+        assert scan.status == "ok" and scan.dynamic_occurrences, (control, scan)
+        for imported in (False, True):
+            dependency.write_bytes(control)
+            source.write_bytes(b'needs "execution-helper.ml";;' if imported else control)
+            closure = build_source_dependency_closure(source)
+            assert closure["dynamic_loader_count"] > 0, control
+            assert closure["semantic_identity_complete"] is False, control
+            status, reason = dependency_transport_status(closure)
+            assert status == "refused_dynamic", control
+            assert ("execution-helper.ml:1" if imported else "<entrypoint>:1") in reason, (control, reason)
+            assert "literal needs/loadt/loads" in reason and "leaf-needs --deep" in reason
+            destination = root / f"refused-package-{count}"
+            try:
+                materialize_dependency_package(source=source, closure=closure, destination=destination)
+            except DependencyPackageError as exc:
+                assert exc.status == "refused_dynamic", (control, exc)
+            else:
+                raise AssertionError(f"uncaptured execution was packaged: {control!r}")
+            assert not destination.exists(), control
+            count += 1
+
+    # The alias exporter must be rejected independently: per-file lexical
+    # scans do not carry OCaml module or open scopes into importing sources.
+    for module in ("Toploop", "Hol_loader"):
+        dependency.write_text(f'module File_loader = {module};;')
+        source.write_bytes(b'needs "execution-helper.ml";; File_loader.use_file "a.ml";;')
+        assert dependency_transport_status(build_source_dependency_closure(source))[0] == "refused_dynamic"
+        count += 1
+
+    harmless = (
+        b'(* Toploop.use_file Sys.command Unix.system Sys.chdir *)\n'
+        b'let text = "Toploop.execute_phrase";; let quoted = {|Unix.execv|};;\n'
+        b'let goal = `Sys.command /\\ Unix.chdir`;;\n'
+        b'let command = 1;; let system = 2;;\n'
+        b'let use_module = false;; if use_module then () else ();;\n'
+        b'let text = "Hol_loader.file_loader use_file load_on_path";;\n'
+        b'(* (!file_loader) "a.ml"; Hol_loader.use_file "a.ml" *)\n'
+        b'let configured_root = Hol_loader.hol_dir;;\n'
+        b'let timestamp = Unix.gettimeofday ();; let here = Sys.getcwd ();;\n'
+        b'let file = Unix.stat "a.ml";;\n'
+        b'needs "a.ml";;'
+    )
+    source.write_bytes(harmless)
+    assert not scan_ocaml_loaders(harmless).dynamic_occurrences
+    assert dependency_transport_status(build_source_dependency_closure(source))[0].startswith("packaged")
+    # HOL's database updater and arithmetic libraries define these helpers.
+    # Their bodies are valid dependencies; this scanner does not claim to
+    # establish the effects of arbitrary generated OCaml or subprocesses.
+    library_helpers = (
+        b'module Database = struct\n'
+        b'let exec s = (ignore o Toploop.execute_phrase false Format.std_formatter\n'
+        b'  o !Toploop.parse_toplevel_phrase o Lexing.from_string) s;;\nend;;\n'
+        b'let run_tool command = Sys.command command;;\n'
+        b'let replace_process executable argv = Unix.execv executable argv;;\n'
+    )
+    dependency.write_bytes(library_helpers)
+    source.write_bytes(b'needs "execution-helper.ml";;')
+    assert not scan_ocaml_loaders(library_helpers).dynamic_occurrences
+    assert dependency_transport_status(build_source_dependency_closure(source))[0].startswith("packaged")
+    return count + 2
+
+
 def _consumer_convergence(root: Path) -> int:
     exact = root / "profile-exact.ml"
     exact.write_bytes(b'needs "arm/proofs/foo.ml";;')
@@ -567,11 +700,12 @@ def main() -> int:
         source_cases = _source_tables(root)
         artifact_cases = _artifact_tables(root)
         _span_and_escape_contract()
+        execution_cases = _uncaptured_execution_contract(root)
         convergence_cases = _consumer_convergence(root)
     print(
         "loader_contract_selftest=passed "
         f"source_cases={source_cases} artifact_cases={artifact_cases} "
-        f"convergence_cases={convergence_cases}"
+        f"convergence_cases={convergence_cases} execution_cases={execution_cases}"
     )
     return 0
 
