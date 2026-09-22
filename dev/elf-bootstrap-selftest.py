@@ -16,6 +16,7 @@ from hol_workbench.source_dependency_closure import build_source_dependency_clos
 from hol_workbench.source_dependency_package import (
     DependencyPackageError,
     dependency_package_entrypoint,
+    dependency_transport_status,
     elf_package_transport,
     literal_elf_artifact_runtime_cwd,
     materialize_dependency_package,
@@ -148,12 +149,11 @@ class ElfBootstrap(unittest.TestCase):
         self.assertIn(b"let define_from_elf = hearth_basis_original_define_from_elf;;", restored)
         self.assertNotIn(b"define_assert_from_elf", saved + restored)
 
-    def test_source_or_imported_cwd_mutation_keeps_loader_mapping(self) -> None:
+    def test_source_or_imported_cwd_mutation_refuses_transport(self) -> None:
         controls = (
             'Sys.chdir "elsewhere";;\n',
             "let move = Unix.chdir;;\n",
             "let move = Unix.fchdir;;\n",
-            'external native_move : string -> unit = "custom_native_move";;\n',
         )
         for path in (self.source, self.decoder):
             original = path.read_bytes()
@@ -161,8 +161,14 @@ class ElfBootstrap(unittest.TestCase):
                 with self.subTest(source=path.name, control=control):
                     path.write_bytes(control.encode() + original)
                     closure = self.capture()
+                    self.assertEqual(dependency_transport_status(closure)[0], "refused_dynamic")
                     self.assertEqual(elf_package_transport(closure)["mode"], "mapped_loaders")
                     path.write_bytes(original)
+
+    def test_native_declarations_keep_conservative_loader_mapping(self) -> None:
+        self.source.write_text('external native_move : string -> unit = "custom_native_move";;\n'
+                               + self.source.read_text())
+        self.assertEqual(elf_package_transport(self.capture())["mode"], "mapped_loaders")
 
     def test_comments_and_strings_do_not_create_cwd_mutation(self) -> None:
         self.decoder.write_text(

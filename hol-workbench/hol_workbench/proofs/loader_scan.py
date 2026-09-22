@@ -18,6 +18,19 @@ SOURCE_LOADERS = frozenset({"needs", "loadt", "loads", "load", "#use"})
 ARTIFACT_LOADERS = frozenset({"define_from_elf", "define_assert_from_elf"})
 SUPPORTED_LOADERS = SOURCE_LOADERS | ARTIFACT_LOADERS
 
+# These file loaders bypass the literal package, and directory changes can
+# change its path resolution. Match references as well as calls: binding an
+# alias must not hide a later invocation. General in-memory evaluation and
+# process effects are outside this bounded contract, not analyzed here.
+_UNCAPTURED_EXECUTION_MEMBERS = {
+    "Toploop": frozenset({"use_file", "use_silently", "use_output", "use_module"}),
+    "Topdirs": frozenset({"dir_use", "dir_mod_use", "dir_load", "dir_load_rec"}),
+    "Dynlink": frozenset({"loadfile", "loadfile_private"}),
+    "Sys": frozenset({"chdir"}),
+    "Unix": frozenset({"chdir", "fchdir"}),
+}
+_UNCAPTURED_DIRECTIVES = frozenset({"mod_use", "load_rec"})
+
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_TOKENS = 2_000_000
 MAX_NESTING = 4096
@@ -1000,8 +1013,73 @@ def _dynamic(
     )
 
 
-def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurrence, ...]:
+def _uncaptured_execution_occurrences(lexer: _Lexer, tokens: list[_Token]) -> list[LoaderOccurrence]:
+    modules = {name: name for name in _UNCAPTURED_EXECUTION_MEMBERS}
+    opened_members: dict[str, str] = {}
+    # Resolve only literal module aliases. Opening a module conservatively
+    # makes its known execution names ambiguous throughout this source; no
+    # attempt is made to interpret scopes or to evaluate module expressions.
+    for index, token in enumerate(tokens):
+        if token.kind not in {"IDENT", "RAW_IDENT"} or token.value not in modules:
+            continue
+        owner = modules[token.value]
+        if (index >= 3 and tokens[index - 1].value == "="
+                and tokens[index - 2].kind == "IDENT" and tokens[index - 3].value == "module"):
+            modules[tokens[index - 2].value] = owner
+        is_open = index > 0 and tokens[index - 1].value == "open"
+        is_open = is_open or (index >= 2 and tokens[index - 1].value == "!"
+                              and tokens[index - 2].value == "open")
+        is_open = is_open or (index + 2 < len(tokens) and tokens[index + 1].value == "."
+                              and tokens[index + 2].kind == "LPAREN")
+        if is_open:
+            opened_members.update({member: owner for member in _UNCAPTURED_EXECUTION_MEMBERS[owner]})
+
     occurrences: list[LoaderOccurrence] = []
+    for index, token in enumerate(tokens):
+        if token.kind not in {"IDENT", "RAW_IDENT"}:
+            continue
+        owner = None
+        start = token.span.start
+        if index >= 2 and tokens[index - 1].value == ".":
+            candidate = modules.get(tokens[index - 2].value)
+            if candidate and token.value in _UNCAPTURED_EXECUTION_MEMBERS[candidate]:
+                owner = candidate
+                start = tokens[index - 2].span.start
+        else:
+            owner = opened_members.get(token.value)
+        if owner:
+            reference = _Token("IDENT", f"{owner}.{token.value}", ByteSpan(start, token.span.end))
+            reason = ("source_changes_working_directory" if token.value in {"chdir", "fchdir"}
+                      else "uncaptured_file_execution")
+            occurrences.append(_dynamic(lexer, reference, family="source", reason=reason))
+        elif (token.value in _UNCAPTURED_DIRECTIVES and index > 0
+              and tokens[index - 1].value == "#"):
+            reference = _Token("IDENT", "#" + token.value,
+                               ByteSpan(tokens[index - 1].span.start, token.span.end))
+            occurrences.append(_dynamic(lexer, reference, family="source", reason="uncaptured_file_execution"))
+    return occurrences
+
+
+def _locally_opened_loaders(tokens: list[_Token]) -> set[int]:
+    """Find loader tokens inside M.(...), using the lexer's checked delimiters."""
+    stack: list[bool] = []
+    local_opens = 0
+    indexes: set[int] = set()
+    for index, token in enumerate(tokens):
+        if token.kind in _OPEN_TO_CLOSE:
+            opened = token.kind == "LPAREN" and index > 0 and tokens[index - 1].value == "."
+            stack.append(opened)
+            local_opens += opened
+        elif token.kind in _CLOSE_KINDS:
+            local_opens -= stack.pop()
+        elif token.kind == "LOADER" and local_opens:
+            indexes.add(index)
+    return indexes
+
+
+def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurrence, ...]:
+    occurrences = _uncaptured_execution_occurrences(lexer, tokens)
+    locally_opened = _locally_opened_loaders(tokens)
     tainted_loaders: set[str] = set()
     for index, token in enumerate(tokens):
         if token.kind != "LOADER":
@@ -1020,7 +1098,13 @@ def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurre
                 # artifact reference, but a same-file use is shadowed.
                 tainted_loaders.add(loader)
             continue
-        if _qualified_or_hash_prefixed(tokens, index):
+        if _qualified_or_hash_prefixed(tokens, index) or index in locally_opened:
+            # A module-qualified loader may alias the real loader, and it
+            # bypasses the unqualified transport wrappers. Never silently
+            # erase it from the dependency identity.
+            occurrences.append(
+                _dynamic(lexer, token, family=family, reason="qualified_loader_reference")
+            )
             continue
         if loader in tainted_loaders:
             occurrences.append(
@@ -1168,7 +1252,7 @@ def _classify_tokens(lexer: _Lexer, tokens: list[_Token]) -> tuple[LoaderOccurre
                 name_literal=name_literal,
             )
         )
-    return tuple(occurrences)
+    return tuple(sorted(occurrences, key=lambda item: item.loader_span.start))
 
 
 def scan_ocaml_loaders(source: bytes) -> LoaderScanResult:

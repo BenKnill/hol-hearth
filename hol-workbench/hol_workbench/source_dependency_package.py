@@ -45,7 +45,9 @@ def dependency_transport_status(
         transport_status = str(project_inputs.get("transport_blocker_status") or "project_input_invalid")
         return transport_status, str(blockers[0] if blockers else "project input readiness is blocked")
     if closure.get("dynamic_loader_count"):
-        return "refused_dynamic", "dynamic source-loader calls are outside the literal package contract"
+        return ("refused_dynamic",
+                "uncaptured file execution, directory changes, or nonliteral loader references "
+                "are outside the literal package contract")
     if closure.get("dynamic_artifact_count"):
         return (
             "refused_dynamic_artifact",
