@@ -1699,7 +1699,7 @@ def main(
     admission_decision: StaticSnapshotAdmissionDecision | None = None,
     include_controller_attempt: bool = True,
 ) -> int:
-    parser = argparse.ArgumentParser(description="Restore a CRIU-backed HOL Workbench warm pool image.")
+    parser = argparse.ArgumentParser(description="Restore a CRIU-backed HOL Hearth warm pool image.")
     parser.add_argument("profile_root", type=Path, help="Profile artifact root containing criu-image/ and pool/")
     parser.add_argument(
         "--debug-criu",

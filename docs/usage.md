@@ -95,8 +95,8 @@ working directory. This lets ordinary imports define their ELF loaders before
 the source uses them, including when those loaders were absent from the warm
 profile. The source order and object bytes stay unchanged. Hearth selects this
 transport only when every object resolves to its captured location and the
-exact source closure has no directory-changing function references or native
-declarations. Other cases retain the existing ELF path wrappers. Receipts record
+exact source closure has no native declarations. Native declarations or uncertain
+artifact coordinates retain the existing ELF path wrappers. Receipts record
 the selected `literal_elf_transport`; project-basis admission checks it too.
 
 The configured HOL source and declared logical roots supply remaining library
@@ -107,6 +107,20 @@ the nearest such marker takes precedence. Without a marker or repository,
 Hearth retains its bounded relative-import root inference. Nested imports and
 spaces in filenames are supported. Dynamic or ambiguous loaders are refused
 when exact input capture cannot be established.
+
+Known file-loading routes around ordinary loaders are refused before execution,
+including `Toploop.use_file`, `Topdirs` and `Dynlink` loading, and directory
+changes such as `Sys.chdir` or `Unix.chdir`.
+This applies to the entrypoint and its captured imports. Module-qualified loaders
+such as `Hol.needs` and loaders under local module opens are also refused;
+use ordinary literal `needs`, `loadt` or `loads` instead. The bounded lexical
+scanner recognizes known references and simple aliases. Exact input identity
+covers supported declared source loaders and ELF objects; it does not attest
+arbitrary OCaml file I/O, subprocess effects, or source generated for in-memory
+evaluation through APIs such as `Toploop.execute_phrase`. General effect
+analysis is outside this contract: ordinary HOL libraries themselves define
+interpreter and process helpers. This is not an operating-system sandbox.
+Continue to run only source you trust.
 
 An error in an imported file rejects the complete source, including when main
 continues and some of its named theorems succeed. The receipt includes the
@@ -292,6 +306,13 @@ project inputs exist or that their contents match.
 Use an explicit known profile for project work and
 `./hearth status --profile light` to inspect queueing. Effective capacity
 reflects the physical broker; its processes and sockets are not proof slots.
+
+`status` is an informational snapshot: exit 0 means the report was collected,
+including when it reports `degraded`; inspect `--json` for individual profiles.
+For a readiness check, use `./hearth doctor --profile light`: it exits 0 when
+healthy, 1 when blocked or degraded, and 2 if diagnosis cannot be completed.
+`./hearth smoke` checks the installation's public command contract without
+starting HOL or CRIU; it does not establish runtime readiness or prove a theorem.
 
 The timeout is an explicit attempt budget. Queue wait is reported separately.
 The broker response deadline has a 15-second allowance with a 30-second minimum;

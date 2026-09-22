@@ -1,5 +1,8 @@
 # Linux setup
 
+On macOS, first enter an [OrbStack Linux machine](macos.md), then follow the
+Linux setup below from inside it.
+
 ## Tool checks
 
 Install Python 3.11+ and Bash through your distribution. For current Debian and

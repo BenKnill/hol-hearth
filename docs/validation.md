@@ -1,5 +1,56 @@
 # Validation and development basis
 
+## Recorded results at a glance
+
+These are recorded authoring results, with the failed hard cases retained.
+Times are the receipt's **HOL evaluation durations**, not end-to-end wall times;
+queueing and project-basis preparation are separate costs. A timeout can include
+the controller response allowance and cleanup. A dash means no duration was
+recorded, not a zero-second run. Hashes and commits below are abbreviated; the
+linked JSON records retain their full values and exact inputs.
+
+| Case | Profile | Recorded result | HOL time (s) | Receipt SHA-256 prefix / evidence entry | Runtime commit |
+| --- | --- | --- | --- | --- | --- |
+| Acoustic–elastic full shared-table root | `light` | Accepted; 73 discovered root bindings, zero new axioms | 642.844 | `d38c2e999ef0b` — [hard-authoring](hard-authoring-evidence.json), `/full_root` | Unknown during integration |
+| ML-KEM NTT layers 1–3, complete functional replay | `s2n-arm-mlkem` | Accepted; all four targets | 336.679 | `0f598abf97f9` — [assembly](assembly-authoring-evidence.json), `/iterations/0/functional_baseline` | Unknown during integration |
+| ML-KEM dependency preparation, latest recorded runtime | `s2n-arm-mlkem` | Accepted; two targets, zero new axioms | 230.263 | `6fb72fe1cf94` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/7` | `564a0d2426a8` |
+| ML-KEM functional leaf on that prepared basis | `s2n-arm-mlkem` | Accepted; four targets, zero new axioms | 26.720 | `004e58099a48` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/6` | `564a0d2426a8` |
+| ML-KEM functional leaf, reuse | `s2n-arm-mlkem` | Accepted; same four targets | 33.679 | `6fc9126d3d8c` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/8` | `564a0d2426a8` |
+| P256 point addition, initial full attempt | `s2n-arm` | Rejected: imported missing object; no target accepted | 1,733.717 | `524d5c28f892` — [assembly](assembly-authoring-evidence.json), `/separate_p256_acceptance/receipt` | Unknown during integration |
+| P256 point addition, after object build | `s2n-arm` | Timed out; no nonce-proved target | 1,815.268 | `eecbdcee11fb` — [assembly](assembly-authoring-evidence.json), `/separate_p256_acceptance/retry_receipt` | Unknown during integration |
+| P256 preparation, before ELF bootstrap fix | `heavy` | Rejected before original source execution | 0.529 | `7c5304c0ed04` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/0` | `0fa3ef785bf3` |
+| P256 preparation, after bootstrap fix | `heavy` | Interrupted after imported errors; no remaining leaf accepted | — | `d5648c06b264` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/5` | `564a0d2426a8` |
+| Complete ARM subtraction, 18 instructions | `s2n-arm-mlkem` | Accepted; both literal targets | 13.493 | `daef7e1b8e6a` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/1` | `564a0d2426a8` |
+| Same complete subtraction source | `heavy` | Rejected in imported ARM infrastructure; neither target proved | 152.684 | `e7fa0789814c` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/4` | `564a0d2426a8` |
+| Same subtraction source, initially absent ELF loaders | `light` | Accepted after ordinary imports; both literal targets | 310.544 | `72282efead08` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/13` | `564a0d2426a8` |
+| ARM base preparation, then fresh subtraction leaf | `light` | Base source completed; leaf proved both literal targets | 300.505 + 28.719 | `d6192a149a1a`, `f2081a2713cd` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/11` and `/attempts/12` | `564a0d2426a8` |
+
+For the ELF bootstrap campaign, the commits were verified from clean checkouts
+independently of receipt client metadata, which reports an unknown revision.
+Earlier integration results do not certify later runtime code. The installation
+checks are [listed separately](#historical-clean-installation-evidence).
+
+## Soundness controls
+
+**A real warm-cache identity bug incorrectly accepted a source containing an
+edited false import in 0.345 seconds.** HOL skipped an already-loaded base, so
+the changed helper never executed. This was incorrect complete-source acceptance,
+not a kernel proof of the false statement. The before and after receipts have
+identical leaf and dependency hashes; the corrected path refuses before HOL.
+
+| Negative control | Expected result | Recorded observation | Evidence JSON entry |
+| --- | --- | --- | --- |
+| False helper beneath an unchanged warm base | Reject changed source | Before: incorrect acceptance in 0.345 s. After: `refused_profile_satisfaction_dependency_changed`, no HOL execution | [assembly](assembly-authoring-evidence.json), `/iterations/3/hidden_false_import_before` and `/iterations/3/hidden_false_import_after` |
+| Unused false import in the substantial NTT source | Reject complete source even if named targets prove | Rejected; all four target probes still proved | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/1/receipt` |
+| False theorem added to a transitive prepared-basis helper | Invalidate reuse and reject new preparation | Preparation rejected; both basis targets missing | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/2/receipt` |
+| One executable ELF byte edited with proof source unchanged | Reject object/proof mismatch | Complete subtraction rejected in 0.459 s; neither target proved. Restoring exact bytes passed | [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/2` and `/attempts/3` |
+| Two missing ELF inputs in P256 closure | Refuse before HOL starts | `project_input_missing`, transport `not_started`, no target accepted | [assembly](assembly-authoring-evidence.json), `/iterations/3/p256_missing_objects_before_hol` |
+| Wrong node index, reversed normal, wrong weight | Reject the incorrect geometric contracts | All three rejected by HOL arithmetic contradiction failures | [hard-authoring](hard-authoring-evidence.json), `/negative_controls` |
+
+The history below retains the initial defects, timeouts, interrupted attempts
+and subsequent refinements. The successful ML-KEM and subtraction cases do not
+replace the unsuccessful P256 point-addition case.
+
 ## Acceptance follows substantial proof work
 
 The most recent ancestor campaign examined was the September 8 acoustic–elastic

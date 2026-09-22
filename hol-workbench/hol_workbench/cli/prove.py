@@ -42,7 +42,7 @@ def main(
     del holdir, scratch_pool_size
     args = list(sys.argv[1:] if argv is None else argv)
     if any(arg in {"-V", "--version"} for arg in args):
-        print("prove: use smoke for the installed Workbench identity", file=sys.stderr)
+        print("prove: use smoke for the installed Hearth identity", file=sys.stderr)
         return 2
     if sys.platform != "linux":
         print("prove: Linux-only runtime; no proof run was started", file=sys.stderr)
@@ -82,7 +82,7 @@ def main(
 
             return prove_help.main(["public"])
         if args[1] == "expert":
-            print("prove help expert: developer-only; use the Workbench development lane", file=sys.stderr)
+            print("prove help expert: developer-only; use the Hearth development lane", file=sys.stderr)
         else:
             print(f"prove help: unknown topic {args[1]!r}", file=sys.stderr)
         return 2

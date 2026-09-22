@@ -1,4 +1,4 @@
-"""Bounded, non-mutating diagnosis for the public Workbench path."""
+"""Bounded, non-mutating diagnosis for the public Hearth path."""
 
 from __future__ import annotations
 

@@ -787,7 +787,7 @@ def publication_identity_guard_manifest_failures(
     if preflight_expected.get("require_publication_provenance") is True and publication_provenance.get(
         "workbench_source"
     ) != preflight_observed.get("workbench_source"):
-        failures.append("publication identity guard Workbench revision differs from publication provenance")
+        failures.append("publication identity guard Hearth revision differs from publication provenance")
     return failures
 
 

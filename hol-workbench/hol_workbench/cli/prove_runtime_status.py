@@ -105,7 +105,7 @@ def _duration(seconds: object) -> str:
 def render_status(report: dict[str, Any]) -> list[str]:
     summary = report["summary"]
     lines = [
-        f"WORKBENCH: {report['status']} processes={summary.get('workers', 0)} "
+        f"HEARTH: {report['status']} processes={summary.get('workers', 0)} "
         f"active={summary['active']} queued={summary['queued']}",
         "PROFILE             STATE        PROCESSES ACTIVE/CAP  QUEUED  OLDEST",
     ]

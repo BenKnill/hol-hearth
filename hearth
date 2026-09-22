@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-[[ "$(uname -s)" == Linux ]] || { echo 'HOL Hearth requires Linux.' >&2; exit 2; }
+[[ "$(uname -s)" == Linux ]] || { echo 'HOL Hearth requires Linux. On macOS, see docs/macos.md (run inside an OrbStack Linux machine).' >&2; exit 2; }
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 export HOL_HEARTH_LAUNCHER="$root/hearth"
 operation=${1:---help}
@@ -11,6 +11,7 @@ case "$operation" in
 HOL Hearth — warm HOL Light proof checks on Linux
 
   hearth check                         Check the tool without starting HOL
+  hearth smoke                         Check the installation (no HOL or CRIU)
   hearth setup [--check]                Build the first light profile from source
   hearth prove FILE.ml --run-root DIR   Check a source and record a receipt
   hearth inspect DIR                   Read a recorded result

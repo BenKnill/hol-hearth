@@ -162,7 +162,7 @@ def guest_memory_summary(*, proc_root: Path = Path("/proc")) -> dict[str, Any]:
         "available": all(value is not None for value in wanted.values()),
         **wanted,
         "metric": "linux_proc_meminfo",
-        "meaning": "OrbStack guest-wide memory; not attributable to Workbench alone",
+        "meaning": "OrbStack guest-wide memory; not attributable to Hearth alone",
     }
 
 

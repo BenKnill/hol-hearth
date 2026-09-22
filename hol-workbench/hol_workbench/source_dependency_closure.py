@@ -78,7 +78,7 @@ class SourceDependencyInferenceError(OSError):
             "source dependency inference refused: "
             f"{limit_kind} bound exceeded while resolving {dependency} "
             f"(observed {observed}, maximum {maximum}); no proof evaluation was started. "
-            "Send the source path plus the bounded DETAILS receipt to the Workbench development lane; "
+            "Send the source path plus the bounded DETAILS receipt to the Hearth development lane; "
             f"developers must {marker_guidance}."
         )
 

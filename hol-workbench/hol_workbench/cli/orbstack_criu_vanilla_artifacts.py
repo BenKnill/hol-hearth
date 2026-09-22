@@ -120,7 +120,6 @@ def write_vanilla_artifacts(
             "observed_bindings": (semantic or {}).get("observed_bindings") or [],
             "bindings": (semantic or {}).get("bindings") or [],
             "binding_counts": (semantic or {}).get("binding_counts") or {},
-            "failing_binding": (semantic or {}).get("failing_binding"),
             "completion_marker_observed": (semantic or {}).get("completion_marker_observed"),
             "completion_marker_valid": (semantic or {}).get("completion_marker_valid"),
             "included_file_error_observed": (semantic or {}).get("included_file_error_observed"),

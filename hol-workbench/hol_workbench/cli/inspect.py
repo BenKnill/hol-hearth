@@ -19,7 +19,7 @@ REPLAY_SCHEMA = "hol-workbench.warm-vanilla-artifact.v1"
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="inspect",
-        description="Summarize a Workbench receipt or run directory without opening raw logs.",
+        description="Summarize a Hearth receipt or run directory without opening raw logs.",
         allow_abbrev=False,
     )
     parser.add_argument("run_dir", nargs="+")

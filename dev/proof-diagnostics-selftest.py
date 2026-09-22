@@ -12,7 +12,9 @@ from hol_workbench.cli.orbstack_criu_vanilla_semantics import instrumented_sourc
 nonce = "a" * 32
 contract = {"nonce": nonce, "proof_diagnostics": {"nonce": nonce}}
 prefix = "__HOL_PROOF_DIAGNOSTIC__:" + nonce + ":"
-hx = lambda s: s.encode().hex()
+def hx(s):
+    return s.encode().hex()
+
 lines = [
     f"1:BEGIN:residual_goals:1:1:{hx('x = x + &1')}:{hx('Failure(unsolved)')}",
     f"1:GOAL:0:1:{hx('x = x + &1')}",

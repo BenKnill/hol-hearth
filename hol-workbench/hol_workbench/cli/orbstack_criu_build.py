@@ -168,7 +168,7 @@ def publication_guard_preflight(
         failures.append("require_publication_provenance must be a Boolean")
         require_publication_provenance = False
     if require_publication_provenance and workbench_source.get("clean") is not True:
-        failures.append("committed Workbench source identity is not clean")
+        failures.append("committed Hearth source identity is not clean")
 
     for key in PUBLICATION_GUARD_SHA256_FIELDS:
         value = guard.get(key)
@@ -597,7 +597,7 @@ def main() -> int:
     try:
         workbench_source = committed_source_identity(WORKBENCH)
     except RuntimeError as exc:
-        print(f"orbstack-criu build: committed Workbench source preflight failed: {exc}", file=sys.stderr)
+        print(f"orbstack-criu build: committed Hearth source preflight failed: {exc}", file=sys.stderr)
         return 76
     print(f"criu_maintenance_preflight={criu_readiness.json()}")
     print(f"workbench_revision={workbench_source['revision']}")

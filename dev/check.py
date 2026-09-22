@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 WB = ROOT / "hol-workbench"
@@ -13,6 +14,13 @@ WB = ROOT / "hol-workbench"
 def main() -> int:
     if sys.platform != "linux" or sys.version_info < (3, 11):
         raise SystemExit("Linux and Python 3.11+ are required")
+    with (ROOT / "pyproject.toml").open("rb") as metadata:
+        version = tomllib.load(metadata)["project"]["version"]
+    displayed_version = subprocess.run(
+        [str(ROOT / "hearth"), "--version"], check=True, capture_output=True, text=True, timeout=10,
+    ).stdout.strip()
+    if displayed_version != f"HOL Hearth {version}":
+        raise SystemExit(f"Version mismatch: pyproject.toml={version!r}, launcher={displayed_version!r}")
     unexpected = set()
     modules = list((WB / "hol_workbench").rglob("*.py"))
     for path in modules:

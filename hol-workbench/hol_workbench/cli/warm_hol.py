@@ -69,7 +69,7 @@ def _parser() -> argparse.ArgumentParser:
         prog="warm-hol",
         description="Run one source file as raw HOL from a frozen installed warm-profile client.",
         epilog=(
-            "Development escape hatch only. This bypasses live Workbench checkout availability, "
+            "Development escape hatch only. This bypasses live Hearth checkout availability, "
             "but its output is never proof, semantic-probe, replay, or audit evidence."
         ),
     )

@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
-from hol_workbench.cli.reopen import ReopenError, reopen
+from hol_workbench.cli.reopen import reopen
 from hol_workbench.hashing import sha256_bytes
 from hol_workbench.proofs.loader_scan import scan_ocaml_loaders, scan_prove_bindings
 from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
