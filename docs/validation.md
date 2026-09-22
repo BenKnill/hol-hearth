@@ -11,6 +11,7 @@ linked JSON records retain their full values and exact inputs.
 
 | Case | Profile | Recorded result | HOL time (s) | Receipt SHA-256 prefix / evidence entry | Runtime commit |
 | --- | --- | --- | --- | --- | --- |
+| Complete ARM subtraction after file-loader guards | `light` | Accepted; both literal targets, zero new axioms | 301.901 | `a7acf8f9cf9fa` — [file-loader guards](file-loader-guard-evidence.json), `/positive` | `5af553486dfd` |
 | Acoustic–elastic full shared-table root | `light` | Accepted; 73 discovered root bindings, zero new axioms | 642.844 | `d38c2e999ef0b` — [hard-authoring](hard-authoring-evidence.json), `/full_root` | Unknown during integration |
 | ML-KEM NTT layers 1–3, complete functional replay | `s2n-arm-mlkem` | Accepted; all four targets | 336.679 | `0f598abf97f9` — [assembly](assembly-authoring-evidence.json), `/iterations/0/functional_baseline` | Unknown during integration |
 | ML-KEM dependency preparation, latest recorded runtime | `s2n-arm-mlkem` | Accepted; two targets, zero new axioms | 230.263 | `6fb72fe1cf94` — [ELF bootstrap](elf-bootstrap-evidence.json), `/attempts/7` | `564a0d2426a8` |
@@ -40,6 +41,7 @@ identical leaf and dependency hashes; the corrected path refuses before HOL.
 
 | Negative control | Expected result | Recorded observation | Evidence JSON entry |
 | --- | --- | --- | --- |
+| Hidden file-loading API, qualified loader, changed directory, or hidden loader in an import | Refuse before source execution | All four real ARM-project controls returned `refused_dynamic`; no HOL evaluation or profile restore requested | [file-loader guards](file-loader-guard-evidence.json), `/controls` |
 | False helper beneath an unchanged warm base | Reject changed source | Before: incorrect acceptance in 0.345 s. After: `refused_profile_satisfaction_dependency_changed`, no HOL execution | [assembly](assembly-authoring-evidence.json), `/iterations/3/hidden_false_import_before` and `/iterations/3/hidden_false_import_after` |
 | Unused false import in the substantial NTT source | Reject complete source even if named targets prove | Rejected; all four target probes still proved | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/1/receipt` |
 | False theorem added to a transitive prepared-basis helper | Invalidate reuse and reject new preparation | Preparation rejected; both basis targets missing | [assembly](assembly-authoring-evidence.json), `/iterations/4/clean_checkout/controls/2/receipt` |

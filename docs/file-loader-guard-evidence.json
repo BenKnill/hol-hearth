@@ -1,0 +1,180 @@
+{
+  "schema": "hol-hearth.file-loader-guard-evidence.v1",
+  "checked_on": "2026-09-22",
+  "runtime_revision_at_launch": "5af553486dfd1d51a7e68ff9d6eb537b88d6e7a6",
+  "revision_evidence": "Independently verified clean checkout before launch; checkout-relative receipt client metadata reports unknown revision and clean=false.",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "profile": "existing light; no rebuild or configuration changes"
+  },
+  "source": "Complete external s2n-bignum arm/proofs/bignum_sub_p256.ml, with its existing ELF object",
+  "positive": {
+    "receipt_sha256": "a7acf8f9cf9fa21bdea0c58eb39f60ccdf650c9f6c97c0e59d0fcfe5838c403c",
+    "source_sha256": "114715a8b94e75fec78e0fc966fcc22de23162aae7d99e60e2d5b7ac45791739",
+    "source_dependency_closure_sha256": "58a882d3bd0857683c65e38cd6922159c5b65a4dd221056edaba1450064d69aa",
+    "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+    "dependency_transport_status": "packaged",
+    "transport_status": "completed",
+    "source_completed": true,
+    "claims_complete": true,
+    "completion_marker_valid": true,
+    "exit_status": 0,
+    "eval_elapsed_seconds": 301.901,
+    "raw_transcript_sha256": "4da4bba9bbf4a88a9026415f42ee9769814446cc529c7a93b7bfbb7e1c9a6d14",
+    "binding_counts": {
+      "failed": 0,
+      "missing": 0,
+      "printed_unprobed": 0,
+      "proved": 2,
+      "unknown": 0
+    },
+    "bindings": [
+      {
+        "name": "BIGNUM_SUB_P256_CORRECT",
+        "status": "proved",
+        "evidence": "nonce_probe_kernel_conclusion",
+        "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+      },
+      {
+        "name": "BIGNUM_SUB_P256_SUBROUTINE_CORRECT",
+        "status": "proved",
+        "evidence": "nonce_probe_kernel_conclusion",
+        "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+      }
+    ],
+    "foundation_delta": {
+      "status": "observed",
+      "deltas": {
+        "axioms": 0,
+        "constants": 791,
+        "definitions": 773,
+        "types": 9
+      }
+    },
+    "artifacts": [
+      {
+        "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+        "size_bytes": 1160
+      }
+    ]
+  },
+  "controls": [
+    {
+      "case": "file_loader",
+      "receipt_sha256": "97f0f4d9d2abd58411b206620b07015bb5835df4f310a1bf2b0efb3504b67f1d",
+      "source_sha256": "cbc9c9ed608eae1401c676439d0589a0dff09aceebd9b3c9919f28a0c78addeb",
+      "source_dependency_closure_sha256": "6ee6158e0b866c87a25bca6175dbb764ddc3ee70675f0246c2819d447c244c27",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "dependency_transport_status": "refused_dynamic",
+      "transport_status": "not_started",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": null,
+      "exit_status": 2,
+      "eval_elapsed_seconds": null,
+      "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binding_counts": {},
+      "bindings": [],
+      "foundation_delta": {
+        "status": null,
+        "deltas": null
+      },
+      "artifacts": [
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ]
+    },
+    {
+      "case": "qualified_loader",
+      "receipt_sha256": "1c4d85e5aad000b26e0957953c3c623b86535012e6a4d10f7c4fb26a80dabc58",
+      "source_sha256": "28f2b9f967b37f6d362b1e5441cb896817b0b090b5a3061638b1df33156fe70e",
+      "source_dependency_closure_sha256": "ff27660db837bc48cf60e291f4c4f9930825da56eed84102ca6fb8dffaa46619",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "dependency_transport_status": "refused_dynamic",
+      "transport_status": "not_started",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": null,
+      "exit_status": 2,
+      "eval_elapsed_seconds": null,
+      "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binding_counts": {},
+      "bindings": [],
+      "foundation_delta": {
+        "status": null,
+        "deltas": null
+      },
+      "artifacts": [
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ]
+    },
+    {
+      "case": "directory_change",
+      "receipt_sha256": "d4faf40e73d79beaa0fb0d2a4bc3110e7a1a0e2d57c03eb0467b686633a811e8",
+      "source_sha256": "909c1bfc38194de12b75c0e2951754456a5e7671dbfe313114d06bcacef6388d",
+      "source_dependency_closure_sha256": "532ad901435f54e5199c58e140e91a4cf153f4b52d4e0c4d16228bc1bcc03a17",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "dependency_transport_status": "refused_dynamic",
+      "transport_status": "not_started",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": null,
+      "exit_status": 2,
+      "eval_elapsed_seconds": null,
+      "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binding_counts": {},
+      "bindings": [],
+      "foundation_delta": {
+        "status": null,
+        "deltas": null
+      },
+      "artifacts": [
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ]
+    },
+    {
+      "case": "transitive_file_loader",
+      "receipt_sha256": "9ae484c16bfd278c521ad48d009cc46bcb6b925a5bc8cdad440a41e8a5124883",
+      "source_sha256": "5cf56e19ee11876282905340d050195cde219117d00d248bf935e3584ad592d1",
+      "source_dependency_closure_sha256": "8f6650468a8d9f9432044fbabf818c6a5a1b1da1a24e88509ac383f0fa7b4488",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "dependency_transport_status": "refused_dynamic",
+      "transport_status": "not_started",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": null,
+      "exit_status": 2,
+      "eval_elapsed_seconds": null,
+      "raw_transcript_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "binding_counts": {},
+      "bindings": [],
+      "foundation_delta": {
+        "status": null,
+        "deltas": null
+      },
+      "artifacts": [
+        {
+          "sha256": "1ba29b3609d8e1d570d3690f70efa00ed6944d67f96ff18fed0c5115ee7dd2af",
+          "size_bytes": 1160
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "File-loader and input-identity regression evidence, not a replacement for the unsuccessful P256 point-addition acceptance case.",
+    "Controls use the same complete ARM project with added file-loading or directory-changing references; all are refused before HOL or profile restore.",
+    "Generic subprocess effects and in-memory evaluation remain outside the bounded scanner contract.",
+    "External proof sources, object files, runtime images, paths, raw transcripts and original receipts are not distributed.",
+    "This used an existing WSL Linux profile; it is not a fresh installation or OrbStack compatibility test."
+  ]
+}
