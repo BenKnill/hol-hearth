@@ -1014,41 +1014,50 @@ def _dynamic(
 
 
 def _uncaptured_execution_occurrences(lexer: _Lexer, tokens: list[_Token]) -> list[LoaderOccurrence]:
-    modules = {name: name for name in _UNCAPTURED_EXECUTION_MEMBERS}
-    opened_members: dict[str, str] = {}
+    modules = {name: {name} for name in _UNCAPTURED_EXECUTION_MEMBERS}
+    opened_members: dict[str, set[str]] = {}
     # Resolve only literal module aliases. Opening a module conservatively
     # makes its known execution names ambiguous throughout this source; no
     # attempt is made to interpret scopes or to evaluate module expressions.
+    # Rebinding must only add possible owners: a later alias cannot erase an
+    # earlier reference before the classification pass below sees it.
     for index, token in enumerate(tokens):
         if token.kind not in {"IDENT", "RAW_IDENT"} or token.value not in modules:
             continue
-        owner = modules[token.value]
+        owners = modules[token.value]
         if (index >= 3 and tokens[index - 1].value == "="
                 and tokens[index - 2].kind == "IDENT" and tokens[index - 3].value == "module"):
-            modules[tokens[index - 2].value] = owner
+            modules.setdefault(tokens[index - 2].value, set()).update(owners)
         is_open = index > 0 and tokens[index - 1].value == "open"
         is_open = is_open or (index >= 2 and tokens[index - 1].value == "!"
                               and tokens[index - 2].value == "open")
         is_open = is_open or (index + 2 < len(tokens) and tokens[index + 1].value == "."
                               and tokens[index + 2].kind == "LPAREN")
         if is_open:
-            opened_members.update({member: owner for member in _UNCAPTURED_EXECUTION_MEMBERS[owner]})
+            for owner in owners:
+                for member in _UNCAPTURED_EXECUTION_MEMBERS[owner]:
+                    opened_members.setdefault(member, set()).add(owner)
 
     occurrences: list[LoaderOccurrence] = []
     for index, token in enumerate(tokens):
         if token.kind not in {"IDENT", "RAW_IDENT"}:
             continue
-        owner = None
+        owners = set()
+        name = token.value
         start = token.span.start
         if index >= 2 and tokens[index - 1].value == ".":
-            candidate = modules.get(tokens[index - 2].value)
-            if candidate and token.value in _UNCAPTURED_EXECUTION_MEMBERS[candidate]:
-                owner = candidate
+            qualifier = tokens[index - 2].value
+            owners = {owner for owner in modules.get(qualifier, ())
+                      if token.value in _UNCAPTURED_EXECUTION_MEMBERS[owner]}
+            if owners:
+                name = f"{qualifier}.{token.value}"
                 start = tokens[index - 2].span.start
         else:
-            owner = opened_members.get(token.value)
-        if owner:
-            reference = _Token("IDENT", f"{owner}.{token.value}", ByteSpan(start, token.span.end))
+            owners = opened_members.get(token.value, set())
+            if len(owners) == 1:
+                name = f"{next(iter(owners))}.{token.value}"
+        if owners:
+            reference = _Token("IDENT", name, ByteSpan(start, token.span.end))
             reason = ("source_changes_working_directory" if token.value in {"chdir", "fchdir"}
                       else "uncaptured_file_execution")
             occurrences.append(_dynamic(lexer, reference, family="source", reason=reason))

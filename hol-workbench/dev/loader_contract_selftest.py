@@ -505,6 +505,17 @@ def _uncaptured_execution_contract(root: Path) -> int:
         b'open! Unix;; chdir "/tmp";;',
         b'Sys.(ignore (chdir "/tmp"));;',
         b'Toploop.(ignore (use_file Format.std_formatter "a.ml"));;',
+        b'module T = Toploop;; T.use_file Format.std_formatter "a.ml";; module T = Sys;;',
+        b'module T = Sys;; T.chdir "/tmp";; module T = Toploop;;',
+        b'module T = Toploop;; module U = T;; U.use_file Format.std_formatter "a.ml";; '
+        b'module U = Sys;; module T = Sys;;',
+        b'module T = Sys;; module U = T;; U.chdir "/tmp";; '
+        b'module U = Toploop;; module T = Toploop;;',
+        b'module T = Toploop;; T.(use_file Format.std_formatter "a.ml");; module T = Sys;;',
+        b'module T = Sys;; T.(chdir "/tmp");; module T = Toploop;;',
+        b'module T = Toploop;; open T;; module T = Sys;; open T;; '
+        b'use_file Format.std_formatter "a.ml";;',
+        b'module T = Sys;; open T;; module T = Toploop;; open T;; chdir "/tmp";;',
     )
     helper = root / "a.ml"
     helper.write_text("let helper = 1;;\n")
