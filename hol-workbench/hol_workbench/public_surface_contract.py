@@ -142,6 +142,15 @@ def main(argv: list[str]) -> int:
         raise SystemExit("usage: public_surface_contract.py REPOSITORY_ROOT")
     root = Path(argv[1]).resolve()
     workbench = root / "hol-workbench"
+    sys.path.insert(0, str(workbench))
+    from hol_workbench.cli.smoke import smoke_subprocess_environment
+
+    for inherited in ({}, {"PATH": "/custom/bin", "HOL_WORKBENCH_PYTHON": "/other/python3"}):
+        environment = smoke_subprocess_environment(inherited)
+        assert environment["PATH"] == "/usr/local/bin:/usr/bin:/bin"
+        assert environment["HOL_WORKBENCH_PYTHON"] == sys.executable
+        assert Path(environment["HOL_WORKBENCH_PYTHON"]).is_absolute()
+
     prove = workbench / "bin" / "prove"
     inspect = workbench / "bin" / "inspect"
     smoke = workbench / "bin" / "smoke"
