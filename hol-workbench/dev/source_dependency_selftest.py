@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import hashlib
+import copy
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from hol_workbench.profile_satisfied_dependencies import (
     ProfileSatisfactionError,
@@ -20,6 +22,124 @@ from hol_workbench.source_dependency_package import (
     literal_elf_artifact_package_prelude,
     materialize_dependency_package,
 )
+from hol_workbench.source_execution_plan import capture_source_dependency_closure, source_execution_prelude
+
+
+def repository_source_contract(root: Path) -> None:
+    """A selected clone owns root-relative imports before an ambient profile cwd."""
+    clone, ambient, holdir = (root / name for name in ("clone", "other-checkout", "holdir"))
+    for checkout in (clone, ambient):
+        (checkout / ".git").mkdir(parents=True)
+        (checkout / "arm/proofs").mkdir(parents=True)
+        (checkout / "arm/objects").mkdir(parents=True)
+    (holdir / "Library").mkdir(parents=True)
+    library = holdir / "Library" / "support.ml"
+    library.write_text("let library_support = 1;;\n")
+    source = clone / "arm/proofs/leaf.ml"
+    helper = clone / "arm/proofs/helper.ml"
+    nested = clone / "arm/proofs/nested.ml"
+    artifact = clone / "arm/objects/code.o"
+    source.write_text('needs "arm/proofs/helper.ml";;\nneeds "Library/support.ml";;\n')
+    helper.write_text('needs "arm/proofs/nested.ml";;\n')
+    nested.write_text('let code = define_assert_from_elf "code" "arm/objects/code.o" [];;\n')
+    artifact.write_bytes(b"selected clone object")
+    for name in ("helper.ml", "nested.ml"):
+        (ambient / "arm/proofs" / name).write_text('failwith "ambient checkout must not load";;\n')
+    (ambient / "arm/objects/code.o").write_bytes(b"ambient object must not substitute")
+
+    def capture() -> dict:
+        with patch("hol_workbench.source_execution_plan.machine_holdir_authority", return_value=holdir):
+            closure, _ = capture_source_dependency_closure(
+                source, profile_cwd=ambient, legacy_holdir_roots=(), logical_source_root_declarations=())
+        return closure
+
+    closure = capture()
+    assert closure["root"] == closure["project_root"] == str(clone)
+    assert closure["boundary"]["kind"] == "nearest_repository_root"
+    assert closure["semantic_identity_complete"]
+    assert dependency_transport_status(closure)[0] == "packaged"
+    assert {row["resolved_path"] for row in closure["records"]} == {str(helper), str(nested), str(library)}
+    assert closure["artifacts"][0]["resolved_path"] == str(artifact)
+    assert closure["records"][0]["resolution_base"] == "source_package_root"
+    assert closure["records"][1]["resolution_base"] == "source_package_root"
+    assert closure["records"][2]["resolution"] == "holdir_source"
+    package_root = root / "packaged"
+    entry, package = materialize_dependency_package(source=source, closure=closure, destination=package_root)
+    assert entry == package_root / "arm/proofs/leaf.ml"
+    assert (package_root / "arm/objects/code.o").read_bytes() == artifact.read_bytes()
+    prelude = source_execution_prelude(package_root=package_root, virtual_entrypoint=entry,
+                                       closure=closure, profile_satisfaction=None).decode()
+    assert f'("{package_root / "arm/proofs"}","arm/proofs/helper.ml")' in prelude
+    assert str(package_root / "arm/proofs/helper.ml") in prelude
+    assert str(ambient) not in prelude
+    modified_provenance = copy.deepcopy(closure)
+    modified_provenance["records"][0]["declaring_path"] = str(clone / "somewhere/else.ml")
+    assert source_dependency_closure_identity_matches(modified_provenance)
+    assert source_execution_prelude(package_root=package_root, virtual_entrypoint=entry,
+                                    closure=modified_provenance, profile_satisfaction=None).decode() == prelude
+
+    # Missing transitive ELF bytes fail the actual package admission before HOL.
+    artifact.unlink()
+    missing_object = capture()
+    assert missing_object["artifacts"][0]["resolution"] == "unresolved"
+    assert dependency_transport_status(missing_object)[0] != "packaged"
+    try:
+        materialize_dependency_package(source=source, closure=missing_object, destination=root / "missing-object")
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("missing transitive object must refuse package admission")
+    artifact.write_bytes(b"selected clone object")
+
+    # The local arm namespace owns a missing source, despite an ambient copy.
+    helper.unlink()
+    missing_source = capture()
+    assert missing_source["records"][0]["resolution"] == "unresolved_source_root"
+    assert dependency_transport_status(missing_source)[0] == "refused_missing_source_dependency"
+    assert all(not str(row.get("resolved_path", "")).startswith(str(ambient)) for row in missing_source["records"])
+    helper.write_text('needs "arm/proofs/nested.ml";;\n')
+
+    # Declaring-file siblings retain priority over root-relative names. The
+    # exact root mapping is keyed by declaring directory, never a global alias.
+    sibling = source.parent / "arm/proofs/helper.ml"
+    sibling.parent.mkdir(parents=True)
+    sibling.write_text("let sibling = 2;;\n")
+    sibling_closure = capture()
+    assert sibling_closure["records"][0]["resolved_path"] == str(sibling)
+    assert "resolution_base" not in sibling_closure["records"][0]
+    sibling.unlink()
+    sibling.mkdir()
+    directory_shadow = capture()
+    assert directory_shadow["records"][0]["resolved_path"] == str(helper)
+    assert directory_shadow["records"][0]["resolution_base"] == "source_package_root"
+    sibling.rmdir()
+
+    original_source = source.read_bytes()
+    sub_source = source.parent / "sub/foo.ml"
+    common = clone / "common/bar.ml"
+    sub_source.parent.mkdir()
+    common.parent.mkdir()
+    sub_source.write_text('needs "common/bar.ml";;\n')
+    common.write_text("let common = 3;;\n")
+    source.write_text('needs "./sub/foo.ml";;\n')
+    dotted_closure = capture()
+    assert dotted_closure["records"][1]["resolution_base"] == "source_package_root"
+    dotted_prelude = source_execution_prelude(
+        package_root=package_root, virtual_entrypoint=entry, closure=dotted_closure,
+        profile_satisfaction=None).decode()
+    assert f'("{package_root / "arm/proofs/sub"}","common/bar.ml")' in dotted_prelude
+    assert "proof_run_normalized_source_dir (Filename.dirname local_path)" in dotted_prelude
+    source.write_bytes(original_source)
+
+    # Explicit package boundaries still win; symlinked repository markers do not.
+    marker = source.parent / ".hol-workbench-source-root"
+    marker.write_text("explicit narrow package\n")
+    assert capture()["root"] == str(source.parent)
+    assert capture()["boundary"]["kind"] == "source_root_marker"
+    marker.unlink()
+    (clone / ".git").rmdir()
+    (clone / ".git").symlink_to(ambient / ".git", target_is_directory=True)
+    assert capture()["boundary"]["kind"] == "entrypoint_parent"
 
 
 def absolute_holdir_capture_contract(root: Path) -> None:
@@ -116,6 +236,7 @@ def absolute_holdir_capture_contract(root: Path) -> None:
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="holwb-source-dependency-") as temporary:
         absolute_holdir_capture_contract(Path(temporary))
+        repository_source_contract(Path(temporary) / "repository-contract")
         root = Path(temporary) / "mlkem-lane"
         stable = root / "stable.ml"
         stable.parent.mkdir(parents=True)
@@ -158,7 +279,7 @@ def main() -> int:
         artifact.write_bytes(b"exact-object-v2")
         assert build_source_dependency_closure(source)["strict_sha256"] != first_identity
 
-    print("source-dependency self-test: absolute warm identity, inferred closure and ELF transport passed")
+    print("source-dependency self-test: selected repository roots, absolute warm identity, inferred closure and ELF transport passed")
     return 0
 
 

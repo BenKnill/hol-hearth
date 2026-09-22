@@ -83,10 +83,21 @@ needs "support/definitions.ml";;
 needs "support/lemmas.ml";;
 ```
 
-A relative import resolves against its declaring file's directory, with the
-configured HOL source and declared logical roots supplying library imports.
-Nested imports and spaces in filenames are supported. Dynamic or ambiguous
-loaders are refused when exact input capture cannot be established.
+A relative import resolves against its declaring file's directory first.
+Within a Git checkout, bare paths such as `arm/proofs/helper.ml` then resolve
+from that checkout's nearest repository root. Hearth captures those exact
+sources and their transitive ELF inputs, even when the selected profile was
+prepared in another checkout. A missing file inside a local directory such as
+`arm/` is refused before evaluation; another checkout cannot fill the gap.
+
+The configured HOL source and declared logical roots supply remaining library
+imports, such as `Library/words.ml` when this checkout has no `Library/` tree.
+For a narrower package boundary or a source archive without Git metadata, place
+an ordinary `.hol-workbench-source-root` file at the intended package root;
+the nearest such marker takes precedence. Without a marker or repository,
+Hearth retains its bounded relative-import root inference. Nested imports and
+spaces in filenames are supported. Dynamic or ambiguous loaders are refused
+when exact input capture cannot be established.
 
 An error in an imported file rejects the complete source, including when main
 continues and some of its named theorems succeed. The receipt includes the

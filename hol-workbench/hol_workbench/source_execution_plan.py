@@ -124,6 +124,13 @@ def source_execution_prelude(
 ) -> bytes:
     """Build the one shared path/ELF prelude for replay or a disposable loop child."""
 
+    root_loads = tuple(dict.fromkeys(
+        ((package_root / (closure["entrypoint"]["package_path"] if record["declaring_file"] == "<entrypoint>"
+                          else record["declaring_file"])).parent,
+         str(record["declared_path"]), package_root / record["package_path"])
+        for record in closure.get("records") or []
+        if record.get("resolution") == "source_local" and record.get("resolution_base") == "source_package_root"
+    ))
     lines = [
         *source_package_runtime_prelude(
             literal_elf_runtime_cwd
@@ -132,7 +139,8 @@ def source_execution_prelude(
             if closure.get("literal_artifact_count")
             else None
         ),
-        *source_local_needs_prelude(virtual_entrypoint, source_context=virtual_entrypoint),
+        *source_local_needs_prelude(virtual_entrypoint, source_context=virtual_entrypoint,
+                                    source_root_loads=root_loads),
         *mounted_source_package_prelude(
             {
                 "package_root": str(package_root),

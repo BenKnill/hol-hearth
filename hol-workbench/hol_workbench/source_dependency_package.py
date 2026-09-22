@@ -84,6 +84,16 @@ def dependency_transport_status(
     for index, record in enumerate(closure.get("records") or []):
         resolution = record.get("resolution")
         declared = str(record.get("declared_path") or "")
+        if resolution == "unresolved_source_root":
+            return (
+                "refused_missing_source_dependency",
+                f"literal dependency is missing from the selected source package: {declared}",
+            )
+        if record.get("resolution_base") == "source_package_root" and record.get("loader") not in {"needs", "loadt", "loads"}:
+            return (
+                "refused_source_root_loader",
+                f"package-root-relative loads require needs, loadt, or loads: {declared}",
+            )
         if record.get("loader") == "load" and resolution in {"mounted_source", "unresolved_mounted_source"}:
             return (
                 "refused_mapped_bare_load",

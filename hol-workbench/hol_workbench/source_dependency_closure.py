@@ -34,10 +34,10 @@ from hol_workbench.proofs.source import (
 )
 from hol_workbench.secure_tree_read import read_regular_file_beneath
 
-DEPENDENCY_CLOSURE_SCHEMA = "proof-run.source-dependency-closure.v15"
+DEPENDENCY_CLOSURE_SCHEMA = "proof-run.source-dependency-closure.v16"
 DEPENDENCY_IDENTITY_SCOPE = (
     "declared source package entrypoint plus ordered statically resolved per-declaring-file source-local, "
-    "profile-declared logical source-root, explicit-marker-bounded package source, registered same-repository "
+    "profile-declared logical source-root, explicit-marker or nearest-repository-bounded package source, registered same-repository "
     "linked-worktree overlay, and exact "
     "cold-HOLDIR strict-token literal needs/loadt/loads/load/#use closure plus the same exact-literal, canonical-"
     "project-input-context-bound define_from_elf/define_assert_from_elf projection including lexical refusal, "
@@ -290,7 +290,7 @@ def _source_boundary(
     max_depth: int,
     max_files: int,
 ) -> tuple[Path, dict[str, Any]]:
-    """Return the nearest explicit package boundary or infer a bounded literal closure."""
+    """Prefer an explicit package marker, then the canonical repository boundary."""
     for candidate in (entrypoint.parent, *entrypoint.parent.parents):
         marker = candidate / SOURCE_ROOT_MARKER
         if marker.is_file() and not marker.is_symlink():
@@ -303,6 +303,12 @@ def _source_boundary(
                     "marker_sha256": digest,
                     "marker_size_bytes": marker.stat().st_size,
                 }
+    repository = nearest_repository_root(entrypoint)
+    if repository is not None:
+        return repository, {
+            "kind": "nearest_repository_root",
+            "policy": "nearest nonsymlink repository root is the source package boundary",
+        }
     return _implicit_literal_source_boundary(
         entrypoint,
         scan_entrypoint=scan_entrypoint,
@@ -767,6 +773,25 @@ def _resolve_edge(
                 return "external_resolved", logical_resolved, True, declaring_logical_alias
             return "mounted_source", logical_resolved, False, declaring_logical_alias
 
+    if _path_within(declaring_file, root) and _safe_holdir_literal(declared_path):
+        package_candidate = root / raw
+        package_resolved = _resolved_path(package_candidate)
+        package_symlinked = (
+            package_resolved is not None and Path(os.path.abspath(package_candidate)) != package_resolved
+        )
+        if package_candidate.is_symlink() or package_symlinked:
+            return "external_resolved", package_resolved, True, None
+        if package_resolved is not None and package_resolved.is_file():
+            if not _path_within(package_resolved, root):
+                return "external_resolved", package_resolved, True, None
+            return "source_local", package_resolved, False, None
+        # An existing local namespace owns its missing descendants too. An old
+        # checkout in profile cwd must not fill holes in the selected repository.
+        # Unowned Library/... names can still use the exact HOLDIR contract.
+        namespace = root / raw.parts[0]
+        if namespace.exists() or namespace.is_symlink():
+            return "unresolved_source_root", package_candidate, False, None
+
     if holdir_root is None or not _safe_holdir_literal(declared_path):
         if declaring_logical_root is not None:
             return "unresolved_mounted_source", None, False, declaring_logical_alias
@@ -843,6 +868,7 @@ def _strict_digest(
                 "resolved_file",
                 "package_path",
                 "runtime_literal_path",
+                "resolution_base",
                 "logical_source_root",
                 "sha256",
                 "size_bytes",
@@ -911,7 +937,7 @@ def _strict_digest(
 
 
 def _runtime_load_rule(*, logical_roots: bool, source_overlay: bool, cold_holdir: bool) -> str:
-    parts = ["declaring_file_directory"]
+    parts = ["declaring_file_directory", "captured_source_package_root"]
     if logical_roots:
         parts.append("profile_declared_logical_source_roots")
     if source_overlay:
@@ -1276,6 +1302,11 @@ def build_source_dependency_closure(
                     )
                     if resolution == "source_local":
                         record["package_path"] = resolved.relative_to(root).as_posix()
+                        declared = str(edge["declared_path"])
+                        if (_safe_holdir_literal(declared)
+                                and Path(os.path.abspath(resolution_source.parent / declared)) != resolved
+                                and root / declared == resolved):
+                            record["resolution_base"] = "source_package_root"
                 record_root = (
                     logical_roots[resolved_alias]
                     if resolution == "mounted_source" and resolved_alias is not None
