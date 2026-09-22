@@ -98,9 +98,9 @@ class Reopening(unittest.TestCase):
         self.out = self.outdir/"TARGET_debug.ml"
         self.capture()
 
-    def capture(self):
+    def capture(self, **closure_options):
         data = self.source.read_bytes()
-        closure = build_source_dependency_closure(self.source)
+        closure = build_source_dependency_closure(self.source, **closure_options)
         inventory = extract_hol_theorems_bytes(self.source, data)
         claims = [
             claim_doc(c, status="missing", evidence="nonce_probe_marker_missing",
@@ -162,6 +162,91 @@ class Reopening(unittest.TestCase):
         self.assertEqual(result.returncode,2)
         self.assertIn("changed",result.stderr)
         self.assert_no_outputs()
+
+    def assembly(self):
+        (self.project / ".hol-workbench-source-root").write_text("")
+        self.object = self.project / "support" / "code.o"
+        self.object.write_bytes(b"recorded object bytes")
+        self.prefix += 'let mc = define_from_elf "mc" "support/code.o";;\n'
+        self.source.write_text(self.prefix + theorem(tactic='failwith "control"'))
+        self.capture()
+
+    def test_assembly_keeps_exact_prefix_at_original_project_coordinates(self):
+        self.assembly()
+        self.out = self.source.with_name("TARGET_debug.ml")
+        result = self.command()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        origin = json.loads(Path(str(self.out) + ".reopen/origin.json").read_text())
+        self.assertEqual(origin["source_layout"], "original_project")
+        self.assertEqual(origin["copied_files_role"], "verified_reference")
+        start, end = origin["scratch_prefix_byte_span"]
+        self.assertEqual(self.out.read_bytes()[start:end], self.prefix.encode())
+        self.assertEqual(
+            Path(str(self.out) + ".reopen/inputs/support/code.o").read_bytes(), self.object.read_bytes()
+        )
+        self.assertIn("ordinary prove recaptures source and ELF bytes", result.stdout)
+        closure = build_source_dependency_closure(self.out)
+        self.assertEqual(closure["artifacts"][0]["resolved_path"], str(self.object))
+        self.assertEqual(closure["artifacts"][0]["sha256"], sha256_bytes(self.object.read_bytes()))
+        self.assertEqual(self.command().returncode, 2)
+
+    def test_assembly_relocation_is_refused_before_writes(self):
+        self.assembly()
+        result = self.command()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--out beside the original source", result.stderr)
+        self.assert_no_outputs()
+
+    def test_changed_assembly_object_is_refused_before_writes(self):
+        self.assembly()
+        self.out = self.source.with_name("TARGET_debug.ml")
+        self.object.write_bytes(b"different object bytes")
+        result = self.command()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("ELF artifact bytes changed", result.stderr)
+        self.assertFalse(self.out.exists())
+        self.assertFalse(Path(str(self.out) + ".reopen").exists())
+
+    def test_assembly_preserves_recorded_basis_and_run_root(self):
+        self.assembly()
+        self.out = self.source.with_name("TARGET_debug.ml")
+        self.payload["project_basis"] = {
+            "identity": {"source": str(self.helper), "source_sha256": sha256_bytes(self.helper.read_bytes())},
+            "preparation_receipt": str(self.receipt.parent.parent / "preparation" / "transcript.log.json"),
+        }
+        self.payload["requested_timeout_seconds"] = 3600.0
+        self.save()
+        result = self.command()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        origin = json.loads(Path(str(self.out) + ".reopen/origin.json").read_text())
+        self.assertEqual(origin["basis"], str(self.helper))
+        self.assertEqual(origin["run_root"], str(self.receipt.parent.parent))
+        self.assertIn("--basis", result.stdout)
+        self.assertIn("ordinary prove checks compatibility", result.stdout)
+        self.assertEqual(origin["timeout_seconds"], 3600.0)
+        self.assertIn("--timeout 3600.0", result.stdout)
+
+    def test_captured_library_import_is_verified_without_relocation(self):
+        holdir = self.root / "hol"
+        holdir.mkdir()
+        library = holdir / "library.ml"
+        library.write_text("let imported = 12;;\n")
+        self.prefix = 'needs "library.ml";;\n'
+        self.source.write_text(self.prefix + theorem())
+        self.capture(holdir_root=holdir)
+        self.out = self.source.with_name("TARGET_debug.ml")
+        result = self.command()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        origin = json.loads(Path(str(self.out) + ".reopen/origin.json").read_text())
+        self.assertEqual(origin["source_layout"], "original_project")
+        self.assertEqual(origin["copied_files_role"], "verified_reference")
+        self.out = self.source.with_name("TARGET_debug_changed.ml")
+        library.write_text("let imported = 13;;\n")
+        result = self.command()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("dependency bytes changed", result.stderr)
+        self.assertFalse(self.out.exists())
+        self.assertFalse(Path(str(self.out) + ".reopen").exists())
 
     def test_changed_transitive_dependency_has_no_partial_files(self):
         self.base.write_text("let helper = 8;;\n")

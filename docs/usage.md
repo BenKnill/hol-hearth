@@ -233,8 +233,9 @@ and `origin.json` with the original receipt, source hash and byte spans.
 The copied dependencies retain their relative layout and exact bytes. The
 prefix retains the exact original bytes after a diagnostic provenance comment.
 
-The scratch imports that prefix, states `g` with the exact recorded quotation,
-and includes the complete original tactic in an inactive comment. Copy selected
+For portable local inputs, the scratch imports that prefix, states `g` with the
+exact recorded quotation, and includes the complete original tactic in an
+inactive comment. Copy selected
 tactic steps into `e (...)` commands and run the printed ordinary prove command.
 Inspect its transcript with `--tail 40` to see the assumptions and current goals.
 Reopen executes nothing, and opening the goal does not establish the theorem.
@@ -252,11 +253,25 @@ The supported form is a standalone `let NAME = [time] prove (quoted_goal,
 tactic);;`. It uses the existing strict source lexer; HOL remains the parser and
 execution authority.
 
-This first version preserves acyclic, captured local imports using relative
-`needs`, `loadt` and `loads`. It refuses mapped/library or unresolved profile
-imports, `#use`, bare `load`, and ELF-bearing sources rather than guess how to
-relocate them. Existing scratch files and companion directories are never
-overwritten. A refused command leaves no generated files. Choose a new output
+Assembly sources, project-root imports, and captured HOL library imports keep
+their original path coordinates. Set `--out` beside the original source, for
+example `/ABS/project/arm/proofs/TARGET_debug.ml`. In this mode the scratch
+contains the exact prefix directly. Reopen verifies every recorded dependency
+and ELF hash before publishing it; its companion directory holds verified
+reference copies. The next ordinary `prove` captures the current project and
+runtime inputs again, including any edits since reopening. Those archived
+copies are not substituted for the live project, and reopening does not
+establish that a different warm profile has the same basis.
+
+The printed command preserves the recorded timeout. When a recorded project
+basis is imported before the selected goal, it also preserves `--basis` and the
+existing run root. Ordinary prove still checks all basis identities before
+reuse; a changed runtime or source may require a new recorded preparation.
+
+Reopen supports acyclic, captured relative `needs`, `loadt` and `loads`. It
+refuses mapped or unresolved imports, `#use`, and bare `load`. Existing scratch
+files and companion directories are never overwritten. A refused command
+leaves no generated files. Choose a new output
 name for another attempt.
 
 ## Compare a leaf's needs with a profile recipe

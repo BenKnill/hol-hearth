@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -61,18 +62,16 @@ def _recorded_binding(
     entry = closure.get("entrypoint") or {}
     if entry.get("path") != str(source):
         raise ReopenError("recorded entrypoint path does not match")
-    if closure.get("artifacts") or closure.get("dynamic_artifacts"):
-        raise ReopenError("artifact-bearing sources cannot yet be relocated by reopen")
     for record in closure.get("records") or []:
         if (
-            record.get("resolution") != "source_local"
+            record.get("resolution") not in {"source_local", "holdir_source", "source_overlay"}
             or record.get("loader") not in {"needs", "loadt", "loads"}
             or Path(str(record.get("declared_path") or "")).is_absolute()
             or record.get("traversal") not in {"followed", "already_seen"}
         ):
             raise ReopenError(
-                "reopen supports acyclic relative needs/loadt/loads within the recorded local source package; "
-                "mapped/library imports, #use and bare load are unsupported"
+                "reopen supports acyclic captured relative needs/loadt/loads; "
+                "mapped imports, #use and bare load are unsupported"
             )
     data = read_regular_file_beneath(Path(closure["root"]), source).data
     digest = sha256_bytes(data)
@@ -101,6 +100,44 @@ def _recorded_binding(
     ):
         raise ReopenError("recorded statement or source span does not match the selected source phrase")
     return source, data, closure, binding
+
+
+def _requires_original_project(closure: dict[str, Any]) -> bool:
+    """Keep ELF, project-root and captured library paths at their original coordinates."""
+    return bool(closure.get("artifacts")) or any(
+        row.get("resolution") != "source_local"
+        or row.get("resolution_base") == "source_package_root"
+        for row in closure.get("records") or []
+    )
+
+
+def _recorded_basis_handoff(
+    receipt: dict[str, Any], closure: dict[str, Any], binding: ProveBinding,
+) -> tuple[str | None, str | None]:
+    """Retain an explicit basis only when its exact needs import precedes the goal."""
+    basis = receipt.get("project_basis") or {}
+    if not isinstance(basis, dict):
+        return None, None
+    identity = basis.get("identity") or {}
+    if not isinstance(identity, dict):
+        return None, None
+    source = identity.get("source")
+    preparation = basis.get("preparation_receipt")
+    if not isinstance(source, str) or not Path(source).is_absolute():
+        return None, None
+    if not isinstance(preparation, str) or not Path(preparation).is_absolute():
+        return None, None
+    for row in closure.get("records") or []:
+        if (
+            row.get("resolved_path") == source
+            and row.get("sha256") == identity.get("source_sha256")
+            and row.get("loader") == "needs"
+            and row.get("declaring_file") == "<entrypoint>"
+            and isinstance(row.get("source_line"), int)
+            and row["source_line"] < binding.source_line
+        ):
+            return source, str(Path(preparation).parent.parent)
+    return None, None
 
 
 def _comment(text: str) -> str:
@@ -132,6 +169,12 @@ def reopen(run: Path, *, binding_name: str, out: Path) -> dict[str, Any]:
     bundle = out.with_name(out.name + ".reopen")
     if os.path.lexists(out) or os.path.lexists(bundle):
         raise ReopenError("output or its .reopen companion already exists; choose a new --out")
+    original_project = _requires_original_project(closure)
+    if original_project and parent != source.parent:
+        raise ReopenError(
+            "assembly and project-root/library imports require --out beside the original source "
+            f"to preserve path coordinates: {source.parent / out.name}"
+        )
     origin = (
         "DIAGNOSTIC ONLY: source execution does not establish the selected theorem.\n"
         f"Selected binding: {binding_name}\n"
@@ -158,9 +201,17 @@ def reopen(run: Path, *, binding_name: str, out: Path) -> dict[str, Any]:
         prefix_relative = Path(bundle.name) / "inputs" / entry_relative
         quote = binding.statement_span.bytes_from(data).decode("utf-8")
         tactic = binding.tactic_span.bytes_from(data).decode("utf-8")
-        scratch = (
-            _comment(origin + "Fresh diagnostic goal, not a recovered residual. No tactic is executed below.")
-            + f"needs {ocaml_string_literal(prefix_relative.as_posix())};;\n\n"
+        scratch_header = _comment(
+            origin + "Fresh diagnostic goal, not a recovered residual. The selected tactic stays inactive.\n"
+            + ("Original project coordinates: ordinary prove recaptures current dependency and ELF bytes."
+               if original_project else "Imports the copied prefix and dependencies below.")
+        ).encode("utf-8")
+        scratch_prefix = (
+            prefix if original_project
+            else f"needs {ocaml_string_literal(prefix_relative.as_posix())};;\n".encode("utf-8")
+        )
+        scratch = scratch_header + scratch_prefix + (
+            "\n"
             + f"g {quote};;\n\n"
             + _comment("Recorded tactic, inactive. Copy selected steps into e (...) and replay the scratch:\n"
                        + "e (" + tactic + ");;")
@@ -186,7 +237,19 @@ def reopen(run: Path, *, binding_name: str, out: Path) -> dict[str, Any]:
             "prefix": str(bundle / "inputs" / entry_relative),
             "scratch_sha256": sha256_bytes(scratch),
             "profile": receipt.get("logical_profile") or receipt.get("physical_profile"),
+            "source_layout": "original_project" if original_project else "copied_package",
+            "copied_files_role": "verified_reference" if original_project else "scratch_inputs",
+            "scratch_prefix_byte_span": (
+                [len(scratch_header), len(scratch_header) + len(prefix)] if original_project else None
+            ),
         }
+        basis_source, basis_run_root = _recorded_basis_handoff(receipt, closure, binding)
+        if original_project and basis_source:
+            metadata["basis"] = basis_source
+            metadata["run_root"] = basis_run_root
+        timeout = receipt.get("requested_timeout_seconds")
+        if type(timeout) in {int, float} and math.isfinite(timeout) and timeout > 0:
+            metadata["timeout_seconds"] = timeout
         (staging / "origin.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
         scratch_identity = scratch_path.stat()
         try:
@@ -232,12 +295,20 @@ def main(argv: list[str] | None = None) -> int:
     print(f"PREFIX: {result['prefix']}")
     print(f"ORIGIN: {result['scratch']}.reopen/origin.json")
     print("NOTE: no HOL was run; source success will not establish the selected theorem")
+    if result["source_layout"] == "original_project":
+        print("INPUTS: original project; ordinary prove recaptures source and ELF bytes; copied files are verified references")
     command = [result["scratch"]]
     if result.get("profile"):
         command.extend(["--profile", result["profile"]])
-    command.extend(["--run-root", result["scratch"] + ".runs"])
+    if result.get("basis"):
+        command.extend(["--basis", result["basis"]])
+        print("BASIS: recorded preparation requested; ordinary prove checks compatibility before reuse")
+    if result.get("timeout_seconds"):
+        command.extend(["--timeout", str(result["timeout_seconds"])])
+    run_root = result.get("run_root") or result["scratch"] + ".runs"
+    command.extend(["--run-root", run_root])
     print("NEXT: " + public_command("prove", *command))
-    print("GOALS: " + public_command("inspect", result["scratch"] + ".runs", "--tail", "40"))
+    print("GOALS: " + public_command("inspect", run_root, "--tail", "40"))
     return 0
 
 
