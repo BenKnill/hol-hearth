@@ -110,6 +110,9 @@ records their scope. Kernel versions were not retained in that record, so run
 The command layer uses Python 3.11+ standard library and Bash. No Node, Python
 packages, OPAM, Dune or separate live evaluator is required.
 `./hearth check` checks the tool without loading HOL.
+For local development checks including pinned lint, run `./dev/check-all`.
+It requires `uv`; the first run may fetch Ruff 0.15.7. See
+[local checking instructions](docs/setup.md#tool-checks), including offline use.
 
 ## Why this exists
 

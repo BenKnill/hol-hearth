@@ -63,7 +63,7 @@ def main() -> int:
                                 check=False, timeout=120)
         if result.returncode:
             return result.returncode
-    for path in [ROOT / "hearth", ROOT / "dev/linux", *(WB / "bin").iterdir()]:
+    for path in [ROOT / "hearth", ROOT / "dev/linux", ROOT / "dev/check-all", *(WB / "bin").iterdir()]:
         if path.is_file() and path.read_bytes().startswith(b"#!/"):
             subprocess.run(["bash", "-n", str(path)], check=True)
     print("HOL Hearth check: passed (harness evidence; HOL and CRIU were not started)")

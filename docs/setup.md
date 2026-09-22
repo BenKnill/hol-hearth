@@ -18,6 +18,19 @@ The launcher uses `python3` from PATH. An explicit absolute
 `HOL_WORKBENCH_PYTHON` may select another interpreter. There are no third-party
 Python runtime packages.
 
+For development, run the harness checks and pinned lint tool locally:
+
+```sh
+./dev/check-all
+```
+
+This runs `./hearth check`, then Ruff 0.15.7 through `uv tool run`. Install `uv`
+separately and put it on PATH. The first lint run may download the development
+tool into uv's cache; it does not add runtime dependencies or start HOL/CRIU.
+Once cached, `./dev/check-all --offline` prevents tool downloads. Either check
+failing makes the command fail. The script also works when invoked by absolute
+path from another directory. Use `./hearth check` alone for stdlib-only checks.
+
 ## Create the first profile
 
 Use a clean Git clone. The builder records its exact commit and refuses

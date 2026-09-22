@@ -37,6 +37,10 @@ bindings remain distinct.
 
 ## Changes and validation
 
+Do not add, run or rely on GitHub CI. Use local validation. GitHub CI may only
+be reconsidered after Blacksmith is set up with Ben and he explicitly authorizes
+its use.
+
 Run ./hearth check after edits and exercise changed behavior with real project
 inputs on an existing profile. Preserve failed attempts and inspect the target
 binding and complete-source result. Do not replace a failed hard acceptance case
