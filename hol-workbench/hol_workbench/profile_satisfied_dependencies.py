@@ -21,6 +21,7 @@ from hol_workbench.criu_snapshot_compat import (
 )
 from hol_workbench.fork_child_ocaml import ocaml_string_literal
 from hol_workbench.hashing import sha256_file
+from hol_workbench.secure_tree_read import read_regular_file_beneath
 
 PROFILE_SATISFACTION_SCHEMA = "hol-workbench.profile-satisfied-dependencies.v2"
 PROFILE_SATISFACTION_EVIDENCE = "warm_development_only"
@@ -386,6 +387,188 @@ def _validated_profile_cwd_edge(
     }
 
 
+def _captured_warm_sources(
+    closure: dict[str, Any], *, entries: list[dict[str, Any]],
+    host_holdir: Path | None, shelf_holdir: Path,
+    shelf_profile_cwd: Path | None,
+    satisfied_external_indexes: set[int],
+) -> list[dict[str, Any]]:
+    """Attest captured subtrees that HOL's basename/digest needs cache skips.
+
+    Relocation is by an exact project- or HOL-relative inventory coordinate.
+    Neither a matching basename nor a matching parent's bytes can establish the
+    identity of that parent's imported children.
+    """
+    from hol_workbench.source_dependency_closure import _portable_path
+
+    source_kinds = {"source_local", "source_overlay", "holdir_source", "mounted_source"}
+    records = closure.get("records") or []
+    project_root = Path(str(closure.get("project_root") or ""))
+    candidates: dict[int, dict[str, Any] | None] = {}
+    root_indexes: set[int] = set()
+
+    def source_key(record: dict[str, Any]) -> str:
+        # declaring_path is reporting-only and deliberately outside the closure
+        # digest. Link the graph using the portable coordinates that are bound.
+        resolution = record.get("resolution")
+        relative = Path(str(record.get("resolved_file") or ""))
+        source_root = Path(str(closure.get("root") or ""))
+        entrypoint = Path(str((closure.get("entrypoint") or {}).get("path") or ""))
+        trusted_root = Path(str(record.get("trusted_root_path") or ""))
+        overlay_root = None
+        logical_roots = None
+        if resolution == "source_local":
+            expected = entrypoint if str(relative) == "<entrypoint>" else source_root / relative
+        elif resolution == "holdir_source" and host_holdir is not None:
+            expected = host_holdir / relative
+        elif resolution == "source_overlay":
+            overlay_root = trusted_root
+            expected = trusted_root / relative
+        elif resolution == "mounted_source":
+            alias = str(record.get("logical_source_root") or "")
+            if not relative.parts or relative.parts[0] != alias:
+                raise ProfileSatisfactionError("refused_profile_satisfaction_mapping_alias",
+                    "captured logical source does not preserve its bound coordinate")
+            expected = trusted_root.joinpath(*relative.parts[1:])
+            logical_roots = {alias: trusted_root}
+        else:
+            raise ProfileSatisfactionError("refused_profile_satisfaction_mapping_alias",
+                "captured warm source has no bound portable coordinate")
+        if (relative.is_absolute() or ".." in relative.parts or not expected.is_absolute()
+                or str(expected) != record.get("resolved_path")):
+            raise ProfileSatisfactionError("refused_profile_satisfaction_mapping_alias",
+                "captured warm source does not preserve its bound portable coordinate")
+        return _portable_path(expected, entrypoint=entrypoint, root=source_root,
+            holdir_root=host_holdir, source_overlay_root=overlay_root, logical_source_roots=logical_roots)
+
+    def matched_inventory(record: dict[str, Any]) -> tuple[dict[str, Any], Path] | None:
+        source = Path(str(record.get("resolved_path") or ""))
+        if not source.is_absolute():
+            return None
+        relative = None
+        mapping = None
+        if host_holdir is not None:
+            try:
+                relative = source.relative_to(host_holdir)
+                mapping = "holdir"
+            except ValueError:
+                pass
+        if relative is None and record.get("resolution") == "source_overlay" and closure.get("source_overlay_enabled"):
+            relative = Path(str(record.get("resolved_file") or ""))
+            mapping = "holdir"
+        if relative is None and record.get("resolution") == "mounted_source":
+            logical = _candidate_logical_profile_relative_path({**record, "loader": "needs"}, closure)
+            if logical is not None:
+                relative, _alias = logical
+                mapping = "profile_cwd"
+        if relative is None and record.get("resolution") == "source_local" and project_root.is_absolute():
+            try:
+                relative = source.relative_to(project_root)
+                mapping = "profile_cwd"
+            except ValueError:
+                pass
+        if relative is None or relative.is_absolute() or not relative.parts or ".." in relative.parts:
+            return None
+        if mapping == "holdir":
+            shelf_path = shelf_holdir / relative
+            matches = [item for item in entries if item.get("path_kind") == "holdir_relative"
+                       and item.get("path") == relative.as_posix() and item.get("basename") == relative.name]
+        elif shelf_profile_cwd is not None:
+            shelf_path = shelf_profile_cwd / relative
+            entry = _matched_profile_cwd_entry(entries, relative=relative, shelf_profile_cwd=shelf_profile_cwd)
+            matches = [entry] if entry is not None else []
+        else:
+            return None
+        if len(matches) > 1:
+            raise ProfileSatisfactionError("refused_profile_satisfaction_ambiguous",
+                f"multiple loaded inputs match captured source coordinate: {relative}")
+        return (matches[0], shelf_path) if matches else None
+
+    def validate(index: int, *, required: bool) -> dict[str, Any] | None:
+        if index in candidates:
+            candidate = candidates[index]
+        else:
+            record = records[index]
+            match = matched_inventory(record)
+            source = Path(str(record.get("resolved_path") or ""))
+            try:
+                if record.get("symlinked") is not False:
+                    raise OSError("aliased captured source")
+                root = Path(str(record.get("trusted_root_path") or ""))
+                if not source.is_absolute() or not root.is_absolute():
+                    raise OSError("captured source has no trusted root")
+                data = read_regular_file_beneath(root, source).data
+            except OSError as exc:
+                raise ProfileSatisfactionError("refused_profile_satisfaction_dependency_missing",
+                    f"cannot revalidate captured warm dependency: {source}: {exc}") from exc
+            current_sha = hashlib.sha256(data).hexdigest()
+            current_md5 = hashlib.md5(data, usedforsecurity=False).hexdigest()
+            if current_sha != record.get("sha256") or len(data) != record.get("size_bytes"):
+                raise ProfileSatisfactionError("refused_profile_satisfaction_dependency_changed",
+                    f"captured source changed before warm dependency comparison: {source}")
+            if match is None:
+                if record.get("loader") == "needs" and any(
+                    item.get("basename") == source.name and item.get("loader_md5") == current_md5
+                    for item in entries
+                ):
+                    raise ProfileSatisfactionError("refused_profile_satisfaction_mapping_alias",
+                        f"needs would skip a loaded basename/digest without an exact source coordinate: {source}")
+                candidate = None
+            else:
+                entry, shelf_path = match
+                if (entry.get("sha256") != current_sha or entry.get("loader_md5") != current_md5
+                        or type(entry.get("size_bytes")) is not int or entry["size_bytes"] != len(data)):
+                    raise ProfileSatisfactionError("refused_profile_satisfaction_dependency_changed",
+                        f"captured source differs from the admitted warm inventory: {source}")
+                candidate = {
+                    "record_index": index, "loader": record.get("loader"),
+                    "host_path": str(source), "shelf_path": str(shelf_path),
+                    "sha256": current_sha, "loader_md5": current_md5, "size_bytes": len(data),
+                    "authority": "exact_loaded_source_inventory",
+                }
+            candidates[index] = candidate
+        if required and candidate is None:
+            raise ProfileSatisfactionError("refused_profile_satisfaction_uninventoried",
+                "a captured descendant of a warm-loaded needs has no exact shelf source inventory: "
+                + str(records[index].get("declared_path")))
+        return candidate
+
+    for index, record in enumerate(records):
+        if (isinstance(record, dict) and record.get("resolution") in source_kinds
+                and record.get("loader") == "needs"):
+            if validate(index, required=False) is not None:
+                root_indexes.add(index)
+    selected = set(root_indexes)
+    pending = [source_key(records[index]) for index in root_indexes]
+    visited: set[str] = set()
+    while pending:
+        source = pending.pop()
+        if source in visited:
+            continue
+        visited.add(source)
+        for artifact in closure.get("artifacts") or []:
+            if artifact.get("declaring_file") == source:
+                raise ProfileSatisfactionError("refused_profile_satisfaction_uninventoried_artifact",
+                    "a warm-loaded source would hide an ELF input without shelf object attestation: "
+                    + str(artifact.get("declared_path")))
+        for index, record in enumerate(records):
+            if not isinstance(record, dict) or record.get("declaring_file") != source:
+                continue
+            if record.get("resolution") not in source_kinds:
+                if index in satisfied_external_indexes:
+                    # Existing absolute-HOLDIR edges were already validated
+                    # against the same inventory; closure capture deliberately
+                    # does not descend into these shelf-satisfied inputs.
+                    continue
+                raise ProfileSatisfactionError("refused_profile_satisfaction_uninventoried",
+                    "a captured warm-loaded source has an unresolved or external descendant: "
+                    + str(record.get("declared_path")))
+            validate(index, required=True)
+            selected.add(index)
+            pending.append(source_key(record))
+    return [{**candidates[index], "subtree_root": index in root_indexes} for index in sorted(selected)]
+
+
 def build_profile_satisfaction(
     closure: dict[str, Any],
     *,
@@ -570,6 +753,11 @@ def build_profile_satisfaction(
                 )
                 if edge is not None:
                     edges.append(edge)
+    captured_warm_sources = _captured_warm_sources(
+        closure, entries=raw_entries, host_holdir=host_root, shelf_holdir=shelf_root,
+        shelf_profile_cwd=shelf_project_root,
+        satisfied_external_indexes={edge["record_index"] for edge in edges},
+    )
     document = {
         "schema": PROFILE_SATISFACTION_SCHEMA,
         "evidence": PROFILE_SATISFACTION_EVIDENCE,
@@ -591,6 +779,7 @@ def build_profile_satisfaction(
         "shelf_profile_cwd": str(shelf_project_root) if shelf_project_root is not None else None,
         "loaded_closure_sha256": loaded_closure_sha256,
         "edges": edges,
+        "captured_warm_sources": captured_warm_sources,
         "transported_bytes": 0,
     }
     document["strict_sha256"] = _canonical_digest(document)
@@ -627,12 +816,28 @@ def profile_satisfaction_identity_matches(document: object, closure: dict[str, A
         or document.get("transported_bytes") != 0
         or not isinstance(document.get("edges"), list)
         or not all(isinstance(edge, dict) for edge in document["edges"])
+        or not isinstance(document.get("captured_warm_sources", []), list)
         or not all(re.fullmatch(r"[0-9a-f]{64}", str(document.get(field) or "")) for field in digest_fields)
         or not all(
             str(document.get(field) or "") for field in ("logical_profile", "physical_profile", "profile_basis_id")
         )
     ):
         return False
+    seen: set[int] = set()
+    records = closure.get("records") or []
+    for row in document.get("captured_warm_sources", []):
+        if not isinstance(row, dict):
+            return False
+        index = row.get("record_index")
+        if type(index) is not int or not 0 <= index < len(records) or index in seen:
+            return False
+        seen.add(index)
+        record = records[index]
+        if (row.get("authority") != "exact_loaded_source_inventory" or type(row.get("subtree_root")) is not bool
+                or record.get("symlinked") is not False or row.get("host_path") != record.get("resolved_path")
+                or any(row.get(key) != record.get(key) for key in ("loader", "sha256", "size_bytes"))
+                or not re.fullmatch(r"[0-9a-f]{32}", str(row.get("loader_md5") or ""))):
+            return False
     payload = {key: value for key, value in document.items() if key != "strict_sha256"}
     return document.get("strict_sha256") == _canonical_digest(payload)
 
@@ -804,7 +1009,7 @@ def profile_satisfied_needs_prelude(document: dict[str, Any] | None) -> list[str
 
 
 def _revalidate_live_edge_files(document: dict[str, Any]) -> None:
-    for edge in document.get("edges") or []:
+    for edge in [*(document.get("edges") or []), *(document.get("captured_warm_sources") or [])]:
         host_path = Path(str(edge.get("host_path") or ""))
         try:
             resolved = host_path.resolve(strict=True)

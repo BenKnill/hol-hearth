@@ -27,10 +27,11 @@ class BasisReplay(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
         self.basis = self.root / "basis.ml"
-        self.helper = self.root / "helper.ml"
+        self.helper = self.root / "common/helper.ml"
+        self.helper.parent.mkdir()
         self.leaf = self.root / "leaf.ml"
         self.helper.write_text("let helper = 1;;\n")
-        self.basis.write_text('needs "helper.ml";;\nlet prepared = helper;;\n')
+        self.basis.write_text('needs "common/helper.ml";;\nlet prepared = helper;;\n')
         self.leaf.write_text('needs "basis.ml";;\nlet TARGET = prove (`T`, REWRITE_TAC[]);;\n')
         self.profile_root = self.root / "profile"
         self.profile_root.mkdir()
@@ -47,6 +48,10 @@ class BasisReplay(unittest.TestCase):
         self.stack.enter_context(redirect_stdout(self.output))
         self.stack.enter_context(redirect_stderr(self.errors))
         self.stack.enter_context(patch("hol_workbench.source_execution_plan.machine_holdir_authority", return_value=None))
+        # This orchestration fixture has no admitted shelf; inventory checks
+        # have real captured-source coverage in clone-satisfaction-selftest.
+        self.stack.enter_context(patch("hol_workbench.source_execution_plan.build_profile_satisfaction",
+                                       return_value={"edges": [], "captured_warm_sources": []}))
         self.stack.enter_context(patch.object(route, "bootstrap_prelude", return_value=b"saved transport\n"))
         self.bootstrap = self.stack.enter_context(patch.object(route, "bootstrap_postlude", side_effect=self.bootstrap_preparation))
         self.abort = self.stack.enter_context(patch.object(route, "abort_basis"))
@@ -135,7 +140,7 @@ class BasisReplay(unittest.TestCase):
         self.assertEqual(self.run_replay(self.leaf), 2)
         self.leaf.write_text('loadt "basis.ml";;\n')
         self.assertEqual(self.run_replay(), 2)
-        self.leaf.write_text('needs "helper.ml";;\n')
+        self.leaf.write_text('needs "common/helper.ml";;\n')
         self.assertEqual(self.run_replay(), 2)
         self.assertEqual(self.calls, [])
         self.bootstrap.assert_not_called()

@@ -94,7 +94,9 @@ def decide_profile_satisfaction(
     has_profile_needs_candidate = any(
         isinstance(record, dict)
         and record.get("loader") == "needs"
-        and record.get("resolution") in {"external_resolved", "mounted_source", "unresolved"}
+        and record.get("resolution") in {
+            "external_resolved", "mounted_source", "unresolved", "source_local", "source_overlay", "holdir_source",
+        }
         for record in closure.get("records") or []
     )
     if (holdir_root is not None or profile_cwd is not None) and has_profile_needs_candidate:
@@ -105,7 +107,7 @@ def decide_profile_satisfaction(
             host_holdir=holdir_root,
             host_profile_cwd=profile_cwd,
         )
-        if candidate.get("edges"):
+        if candidate.get("edges") or candidate.get("captured_warm_sources"):
             profile_satisfaction = candidate
             transport_status, transport_reason = dependency_transport_status(
                 closure,
