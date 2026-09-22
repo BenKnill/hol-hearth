@@ -10,7 +10,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
 
-from hol_workbench.proof_diagnostics import (
+from hol_workbench.proof_diagnostics import (  # noqa: E402
     ACTIVITY_PROTOCOL, MAX_ACTIVITY_CALLS, MAX_ACTIVITY_DEPTH,
     account_proof_activity, diagnostic_prelude,
 )

@@ -52,8 +52,8 @@ identical leaf and dependency hashes; the corrected path refuses before HOL.
 | Wrong node index, reversed normal, wrong weight | Reject the incorrect geometric contracts | All three rejected by HOL arithmetic contradiction failures | [hard-authoring](hard-authoring-evidence.json), `/negative_controls` |
 
 The history below retains the initial defects, timeouts, interrupted attempts
-and subsequent refinements. The successful ML-KEM and subtraction cases do not
-replace the unsuccessful P256 point-addition case.
+and subsequent refinements. The ML-KEM and subtraction checks are separate
+from the completed P256 point-addition campaign and its retained failures.
 
 The file-loader guard checks used an existing `light` profile on x86-64 WSL
 Linux, without rebuilding it. Both complete ARM subtraction replays recorded
