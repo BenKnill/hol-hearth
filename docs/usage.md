@@ -177,6 +177,14 @@ captured bytes and compiler location agree. `running_at_interruption` names
 where execution stopped; it does not declare that binding failed or was proved.
 Unsupported or ambiguous call sites remain unknown.
 
+Activity protocol v2 keeps recording after long sequences of completed calls.
+Its receipt retains only the active stack, up to 64 calls; completed-call
+history is not retained there. The raw transcript still grows with execution.
+Deeper nesting emits an explicit overflow span and makes current attribution
+unknown until the matching return restores the captured outer stack. Old v1
+receipts retain their original terminal 8192-call capture limit. Neither
+activity protocol changes source completion or theorem acceptance.
+
 ## Reopen a failed binding as a scratch proof
 
 Prepare the same prefix and the selected goal without running HOL:

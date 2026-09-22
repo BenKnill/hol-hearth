@@ -37,6 +37,7 @@ def main() -> int:
         [sys.executable, "-I", "-B", str(WB / "dev/python_syntax_selftest.py"), str(WB)],
         [sys.executable, "-I", "-B", str(WB / "dev/python_import_selftest.py"), str(WB)],
         [sys.executable, "-I", "-B", str(ROOT / "dev/proof-diagnostics-selftest.py")],
+        [sys.executable, "-I", "-B", str(ROOT / "dev/proof-activity-emitter-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/clone-satisfaction-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/project-basis-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/elf-bootstrap-selftest.py")],
