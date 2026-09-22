@@ -282,19 +282,50 @@ the profile's checked-in recipe already names:
 ```sh
 ./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm
 ./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --receipt /ABS/runs
+./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --deep
+./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --deep --json
 ```
 
 The report scans the leaf and `profiles/PROFILE.ml` with the existing strict
 loader scanner and compares literal `needs` paths as exact text. It lists needs
 the recipe names, needs it does not name, other source loads (`loadt`, `loads`,
 `#use`, `load`, which run regardless), ELF artifact loads and dynamic loads.
-It does not follow the recipe's transitive loads or the leaf's local imports.
+The default report does not follow the recipe's transitive loads or the leaf's
+local imports.
 
-This is recipe text, not live shelf admission, not a proof, and not evidence
-that the warm image loaded those bytes. It starts no HOL process.
+`--deep` adds a read-only preflight of the leaf's full transitive source and ELF
+inputs using the same dependency capture as `prove`. It uses the configured HOL
+source root and the selected profile's declared logical roots, hashes the current
+files, and reports declaring files, source lines, resolution outcomes, dynamic
+loaders, missing inputs and scan bounds. Text output lists every captured edge
+and object with its SHA-256; JSON includes the complete canonical closure and its
+identity. For example, the P256 point-addition source has 106 source edges and
+seven ELF inputs, including those reached through imported proofs.
+
+The deep section is labeled `static_dependency_closure`. When the selected
+published shelf is available, a separate `verified_published_source_inventory`
+section applies the same exact loaded-source checks as `prove`. This resolves
+imports already supplied by a warm profile without treating recipe text as
+evidence. The disk closure retains its own completeness and identity; the warm
+inventory has a separate identity and lists satisfied edges with their hashes.
+If the shelf is unavailable, the report preserves the disk scan and the reason
+the warm inventory could not be checked. A static mismatch remains a blocker.
+
+This preflight cannot establish theorems, ISA semantics or caller contracts. It
+follows the bounded literal-loader contract; generic OCaml effects remain outside
+that contract. A complete scan with transportable inputs exits 0; unresolved,
+dynamic, unsupported or bounded-out inputs exit 2. When capture cannot produce a
+closure, the command prints the scanner refusal instead of a partial success
+report. It starts no HOL or CRIU process, acquires no queue admission or live
+execution grant, writes no lexical cache, and builds or fetches no missing inputs.
+
+The recipe comparison is text evidence, not live shelf admission, a proof, or
+evidence that the warm image loaded those bytes.
 `--receipt` optionally attaches an existing prove receipt's identities as
 `warm_exploration`. It refuses a receipt whose profile, source SHA-256 or
 recipe SHA-256 differs from the selected profile and current leaf bytes.
+This attachment does not compare the receipt's dependency identity to a deep
+preflight; it remains an identity check for the leaf and profile alone.
 
 ## Assembly projects on an existing profile
 

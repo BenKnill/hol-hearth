@@ -48,6 +48,7 @@ def capture_source_dependency_closure(
     legacy_holdir_roots: tuple[Path, ...],
     logical_source_root_declarations: tuple[dict[str, str], ...],
     holdir_root_override: Path | None = None,
+    use_analysis_cache: bool = True,
 ) -> tuple[dict[str, Any], Path | None]:
     """Resolve and capture the exact recursive source/artifact closure once."""
 
@@ -80,7 +81,7 @@ def capture_source_dependency_closure(
         logical_project_roots=logical_project_roots,
         # Reuse only content-keyed lexical facts. Source bytes, path resolution,
         # object identities and profile satisfaction are checked on every capture.
-        analysis_cache_root=source_analysis_cache_root(),
+        analysis_cache_root=source_analysis_cache_root() if use_analysis_cache else None,
     )
     return closure, holdir_root
 

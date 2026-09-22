@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Compare a leaf's literal loads with a public profile recipe; never run HOL.
 
-This is recipe-text evidence only.  It does not inspect the live shelf, does not
-prove anything, and does not show that a warm image loaded any particular bytes.
+The default is recipe-text evidence only. Deep reports also read the canonical
+dependency closure and validated published source inventory; neither runs HOL.
 """
 
 from __future__ import annotations
@@ -14,8 +14,12 @@ from pathlib import Path
 from typing import Any
 
 from hol_workbench.cli.inspect import REPLAY_SCHEMA, _replay_receipt
+from hol_workbench.cli.published_profile import resolve_published_warm_profile
 from hol_workbench.hashing import sha256_bytes
+from hol_workbench.logical_source_roots import logical_source_root_declarations
 from hol_workbench.proofs.loader_scan import LoaderScanResult, scan_ocaml_loaders
+from hol_workbench.source_dependency_package import dependency_transport_status
+from hol_workbench.source_execution_plan import capture_source_dependency_closure, decide_profile_satisfaction
 
 REPORT_SCHEMA = "hol-hearth.leaf-needs-report.v1"
 REPORT_EVIDENCE = "static_recipe_text_comparison"
@@ -41,6 +45,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--profile", required=True, help="public profile name")
     parser.add_argument("--receipt", help="optional prove receipt or run directory for this exact leaf and profile")
     parser.add_argument("--json", action="store_true", help="print the report as JSON")
+    parser.add_argument("--deep", action="store_true",
+                        help="read the transitive source/ELF closure and published warm inventory; no HOL or cache writes")
     return parser
 
 
@@ -91,7 +97,7 @@ def _receipt_identity(value: str, *, profile: str, source_sha256: str, recipe_sh
     }
 
 
-def build_report(source: Path, profile: str, *, receipt: str | None = None,
+def build_report(source: Path, profile: str, *, receipt: str | None = None, deep: bool = False,
                  repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     if not source.is_file():
         raise LeafNeedsError(f"leaf source is not a regular file: {source}")
@@ -148,6 +154,56 @@ def build_report(source: Path, profile: str, *, receipt: str | None = None,
     if receipt is not None:
         report["receipt"] = _receipt_identity(
             receipt, profile=profile, source_sha256=report["leaf_sha256"], recipe_sha256=report["recipe_sha256"])
+    if deep:
+        closure, holdir = capture_source_dependency_closure(
+            source,
+            profile_cwd=None,
+            legacy_holdir_roots=tuple(Path(value) for value in entry.get("legacy_holdir_roots", [])),
+            logical_source_root_declarations=logical_source_root_declarations(
+                entry.get("logical_source_roots"), profile=profile),
+            use_analysis_cache=False,
+        )
+        if closure["entrypoint"]["sha256"] != report["leaf_sha256"]:
+            raise LeafNeedsError("leaf bytes changed during the dependency scan; run the report again")
+        status, reason = dependency_transport_status(closure)
+        satisfaction = None
+        inventory: dict[str, Any] = {"status": "unavailable"}
+        try:
+            published = resolve_published_warm_profile(repo_root / "hol-workbench" / "bin", profile)
+        except (OSError, RuntimeError, ValueError, SystemExit) as exc:
+            inventory["reason"] = str(exc)
+        else:
+            try:
+                satisfaction, status, reason = decide_profile_satisfaction(
+                    closure, profile_root=published.root, logical_profile=profile,
+                    profile_cwd=published.cwd, holdir_root=holdir,
+                )
+            except (OSError, RuntimeError, ValueError) as exc:
+                status = str(getattr(exc, "status", "refused_profile_satisfaction"))
+                reason = str(exc)
+                inventory = {"status": "refused", "reason": reason}
+            else:
+                inventory = {
+                    "status": "verified" if satisfaction is not None else "no_matching_dependencies",
+                    "evidence_class": "verified_published_source_inventory",
+                    "boundary": "Static published inventory validation only; no live execution grant or queue admission.",
+                    "profile_satisfaction": satisfaction,
+                }
+        report["preflight"] = {
+            "evidence_class": "static_dependency_closure",
+            "boundary": (
+                "Current disk inputs under the bounded literal-loader contract; any verified warm inventory is separate evidence. "
+                "No queue admission, restore, theorem, or ISA/ABI audit. Generic OCaml effects are outside this contract. "
+                "An attached receipt matches leaf/profile identities only; its dependency identity is not checked here."
+            ),
+            "status": "complete" if status in {"packaged", "packaged_with_profile_satisfaction"} else "incomplete",
+            "disk_closure_status": "complete" if closure["semantic_identity_complete"] else "incomplete",
+            "holdir": str(holdir) if holdir is not None else None,
+            "transport_status": status,
+            "transport_reason": reason,
+            "warm_inventory": inventory,
+            "closure": closure,
+        }
     return report
 
 
@@ -172,6 +228,38 @@ def print_report(report: dict[str, Any]) -> None:
     _rows("other source loads", report["non_needs_source_loads"], "not needs; HOL runs them whatever the recipe loaded")
     _rows("artifact loads", report["artifact_loads"], "object inputs; never covered by a recipe")
     _rows("dynamic loads", report["dynamic_loads"], "not compared")
+    if "preflight" in report:
+        preflight = report["preflight"]
+        closure = preflight["closure"]
+        print(f"DEEP PREFLIGHT: {preflight['status']} evidence_class={preflight['evidence_class']}")
+        print(f"BOUNDARY: {preflight['boundary']}")
+        print(f"DISK CLOSURE: {preflight['disk_closure_status']}; warm inventory checked separately")
+        print(f"DEPENDENCY SHA-256: {closure['strict_sha256']}")
+        print(f"SOURCE EDGES: {closure['literal_edge_count']}; ELF INPUTS: {closure['literal_artifact_count']}")
+        for kind, records in (("source", closure["records"]), ("ELF", closure["artifacts"])):
+            for row in records:
+                print(f"  {kind} {row['declaring_file']}:{row['source_line']}: "
+                      f"{row['loader']} {row['declared_path']} [{row['resolution']}] "
+                      f"sha={row.get('sha256') or '-'}")
+        print(f"STATIC TRANSPORT: {preflight['transport_status']}: {preflight['transport_reason']}")
+        inventory = preflight["warm_inventory"]
+        print(f"WARM INVENTORY: {inventory['status']}")
+        if inventory.get("reason"):
+            print(f"  {inventory['reason']}")
+        satisfaction = inventory.get("profile_satisfaction")
+        if satisfaction is not None:
+            print(f"  evidence_class={inventory['evidence_class']}; {inventory['boundary']}")
+            print(f"  satisfaction SHA-256: {satisfaction['strict_sha256']}")
+            for row in satisfaction["edges"]:
+                print(f"  {row['declaring_file']}:{row['source_line']}: {row['declared_path']} "
+                      f"[{row['resolution']}] sha={row['sha256']}")
+            print(f"  captured source edges attested against loaded inventory: {len(satisfaction['captured_warm_sources'])}")
+        for kind, rows in (("source", closure["dynamic_loaders"]), ("ELF", closure["dynamic_artifacts"])):
+            for row in rows:
+                print(f"  dynamic {kind} {row.get('declaring_file')}:{row.get('source_line')}: "
+                      f"{row.get('loader')} {row.get('reason')}")
+        for reason in [*closure["limit_reasons"], *closure["project_inputs"].get("blockers", [])]:
+            print(f"  blocker: {reason}")
     receipt = report["receipt"]
     if receipt is None:
         print("receipt: none")
@@ -185,7 +273,8 @@ def print_report(report: dict[str, Any]) -> None:
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
-        report = build_report(Path(args.source).expanduser().absolute(), args.profile, receipt=args.receipt)
+        report = build_report(Path(args.source).expanduser().absolute(), args.profile, receipt=args.receipt,
+                              deep=args.deep)
     except (ValueError, OSError) as exc:
         print(f"leaf-needs: refused: {exc}", file=sys.stderr)
         return 2
@@ -193,7 +282,9 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, indent=2))
     else:
         print_report(report)
-    return 0
+    preflight = report.get("preflight")
+    return 2 if preflight and (preflight["status"] != "complete" or
+                              not preflight["transport_status"].startswith("packaged")) else 0
 
 
 if __name__ == "__main__":
