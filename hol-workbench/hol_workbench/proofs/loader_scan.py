@@ -23,6 +23,7 @@ SUPPORTED_LOADERS = SOURCE_LOADERS | ARTIFACT_LOADERS
 # alias must not hide a later invocation. General in-memory evaluation and
 # process effects are outside this bounded contract, not analyzed here.
 _UNCAPTURED_EXECUTION_MEMBERS = {
+    "Hol_loader": frozenset({"file_loader", "use_file", "load_on_path"}),
     "Toploop": frozenset({"use_file", "use_silently", "use_output", "use_module"}),
     "Topdirs": frozenset({"dir_use", "dir_mod_use", "dir_load", "dir_load_rec",
                            "dir_cd", "dir_directory", "dir_remove_directory"}),
@@ -30,6 +31,7 @@ _UNCAPTURED_EXECUTION_MEMBERS = {
     "Sys": frozenset({"chdir"}),
     "Unix": frozenset({"chdir", "fchdir"}),
 }
+_UNCAPTURED_GLOBAL_EXECUTION = frozenset({"file_loader", "use_file", "load_on_path"})
 _UNCAPTURED_DIRECTIVES = frozenset({"mod_use", "load_rec", "cd", "directory", "remove_directory"})
 
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
@@ -1050,6 +1052,10 @@ def _uncaptured_execution_occurrences(lexer: _Lexer, tokens: list[_Token]) -> li
             reason = ("source_changes_working_directory" if token.value == "cd"
                       else "uncaptured_file_execution")
             occurrences.append(_dynamic(lexer, reference, family="source", reason=reason))
+        elif token.value in _UNCAPTURED_GLOBAL_EXECUTION:
+            # HOL includes these lower-level file loaders in the toplevel.
+            # References can capture their functions/refs before a later call.
+            occurrences.append(_dynamic(lexer, token, family="source", reason="uncaptured_file_execution"))
     return occurrences
 
 

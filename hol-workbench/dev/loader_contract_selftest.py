@@ -487,6 +487,20 @@ def _span_and_escape_contract() -> None:
 
 def _uncaptured_execution_contract(root: Path) -> int:
     controls = (
+        b'use_file "a.ml";;',
+        b'(!file_loader) "a.ml";;',
+        b'let invoke = !file_loader;; invoke "a.ml";;',
+        b'load_on_path ["."] "a.ml";;',
+        b'Hol_loader.use_file "a.ml";;',
+        b'(!Hol_loader.file_loader) "a.ml";;',
+        b'Hol_loader.load_on_path ["."] "a.ml";;',
+        b'module H = Hol_loader;;',
+        b'include Hol_loader;;',
+        b'open Hol_loader;;',
+        b'let packed = (module Hol_loader : Loader);;',
+        b'module H = Functor(Hol_loader);;',
+        b'Hol_loader.(use_file "a.ml");;',
+        b'\\#use_file "a.ml";;',
         b'Toploop.use_file Format.std_formatter "a.ml";;',
         b'include Toploop;; use_file Format.std_formatter "a.ml";;',
         b'module File_loader = struct include Toploop end;;',
@@ -561,16 +575,21 @@ def _uncaptured_execution_contract(root: Path) -> int:
 
     # The alias exporter must be rejected independently: per-file lexical
     # scans do not carry OCaml module or open scopes into importing sources.
-    dependency.write_bytes(b'module File_loader = Toploop;;')
-    source.write_bytes(b'needs "execution-helper.ml";; File_loader.use_file Format.std_formatter "a.ml";;')
-    assert dependency_transport_status(build_source_dependency_closure(source))[0] == "refused_dynamic"
-    count += 1
+    for module in ("Toploop", "Hol_loader"):
+        dependency.write_text(f'module File_loader = {module};;')
+        source.write_bytes(b'needs "execution-helper.ml";; File_loader.use_file "a.ml";;')
+        assert dependency_transport_status(build_source_dependency_closure(source))[0] == "refused_dynamic"
+        count += 1
 
     harmless = (
         b'(* Toploop.use_file Sys.command Unix.system Sys.chdir *)\n'
         b'let text = "Toploop.execute_phrase";; let quoted = {|Unix.execv|};;\n'
         b'let goal = `Sys.command /\\ Unix.chdir`;;\n'
         b'let command = 1;; let system = 2;;\n'
+        b'let use_module = false;; if use_module then () else ();;\n'
+        b'let text = "Hol_loader.file_loader use_file load_on_path";;\n'
+        b'(* (!file_loader) "a.ml"; Hol_loader.use_file "a.ml" *)\n'
+        b'let configured_root = Hol_loader.hol_dir;;\n'
         b'let timestamp = Unix.gettimeofday ();; let here = Sys.getcwd ();;\n'
         b'let file = Unix.stat "a.ml";;\n'
         b'needs "a.ml";;'
