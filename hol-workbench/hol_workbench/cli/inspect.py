@@ -256,6 +256,12 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
     for name in sorted(selected_names - {row.get("name") for row in selected}):
         print(f"  {name}: not recorded (not a claim of theorem absence)")
     _input_details(receipt, verbose=args.verbose)
+    basis = receipt.get("project_basis")
+    if isinstance(basis, dict):
+        identity = basis.get("identity") or {}
+        print(f"inherited_project_basis: {identity.get('source')} sha={short_sha256(identity.get('source_sha256'))}")
+        print(f"basis_preparation_receipt: {basis.get('preparation_receipt')}")
+        print("basis_scope: preparation was checked separately; this attempt checks the full leaf in a fresh child")
     if receipt.get("first_failure"):
         failure_line = receipt.get("first_failure_transcript_line")
         coordinate = f"transcript_line={failure_line} " if type(failure_line) is int else ""

@@ -27,6 +27,22 @@ from hol_workbench.vanilla_claims import (
 
 
 class AuthoringRegression(unittest.TestCase):
+    def test_inspection_exposes_inherited_preparation_scope(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt = Path(temporary) / "transcript.log.json"
+            _receipt(receipt, succeeded=True, recorded_exit_status=0, bindings=[])
+            row = json.loads(receipt.read_text())
+            row["project_basis"] = {
+                "identity": {"source": "/project/basis.ml", "source_sha256": "a" * 64},
+                "preparation_receipt": "/runs/prepared/transcript.log.json",
+            }
+            receipt.write_text(json.dumps(row))
+            result = self.inspect(receipt.parent)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("inherited_project_basis: /project/basis.ml sha=aaaaaaaaaaaa", result.stdout)
+            self.assertIn("basis_preparation_receipt: /runs/prepared/transcript.log.json", result.stdout)
+            self.assertIn("preparation was checked separately", result.stdout)
+
     def test_source_preflight_refusals_leave_receipts_without_restore(self):
         from hol_workbench.cli.orbstack_criu_vanilla import run
         for source_bytes in (
