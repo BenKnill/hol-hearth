@@ -582,8 +582,6 @@ def run(
             file=sys.stderr,
         )
         return 2
-    from hol_workbench.proof_diagnostics import attach_dependency_diagnostic_sources
-    attach_dependency_diagnostic_sources(probe_contract, closure, package_root)
     if preparation_package_root is not None:
         package["preparation_package_root"] = str(preparation_package_root)
     effective_capacity = restored_shelf_capacity(profile_root)
@@ -768,6 +766,12 @@ def run(
                     if display_transcript:
                         sys.stdout.write(displayed)
                         sys.stdout.flush()
+                # Map only compiler call sites actually needed by the recorded
+                # diagnostics, while this attempt's exact package still exists.
+                from hol_workbench.proof_diagnostics import attach_dependency_diagnostic_sources
+                attach_dependency_diagnostic_sources(
+                    probe_contract, closure, package_root, transcript=raw_transcript_bytes,
+                )
                 semantic = analyze_vanilla_transcript(
                     claims=claims,
                     transcript=raw_transcript_bytes,

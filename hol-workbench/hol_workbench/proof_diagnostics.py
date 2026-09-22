@@ -18,8 +18,9 @@ MAX_TEXT_BYTES = 2048
 
 def attach_dependency_diagnostic_sources(
     contract: dict[str, Any], closure: dict[str, Any], package_root: Path,
+    *, transcript: bytes | None = None,
 ) -> None:
-    """Map exact packaged imports for diagnostics, never add verified claims."""
+    """Map exact imports requested by bounded diagnostics, never verified claims."""
     from hol_workbench.hashing import sha256_bytes
     from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
     from hol_workbench.secure_tree_read import read_regular_file_beneath
@@ -36,7 +37,32 @@ def attach_dependency_diagnostic_sources(
         root = package_root.resolve(strict=True)
     except (OSError, RuntimeError, TypeError, ValueError):
         return
+    requested: set[Path] | None = None
+    if transcript is not None:
+        requested = set()
+        activity = account_proof_activity(transcript, contract)
+        diagnostics = account_proof_diagnostics(transcript, contract)
+        contexts = []
+        if activity.get("status") == "recorded":
+            contexts.extend(activity["active_calls"])
+        if diagnostics.get("status") == "recorded":
+            contexts.extend(diagnostics["events"])
+        for context in contexts:
+            for location in context["locations"]:
+                try:
+                    path = Path(location["file"])
+                    if not path.is_absolute():
+                        continue
+                    path = path.resolve(strict=False)
+                    if path.is_relative_to(root):
+                        requested.add(path)
+                except (OSError, RuntimeError, TypeError, ValueError):
+                    continue
+        if not requested:
+            descriptor["dependency_sources_status"] = "not_needed"
+            return
     mappings: dict[str, dict[str, Any]] = {}
+    claims_by_source: dict[tuple[Path, str], list[dict[str, Any]]] = {}
     rejected: set[str] = set()
     for row in closure["records"]:
         if row.get("resolution") not in {"source_local", "source_overlay", "holdir_source", "mounted_source"}:
@@ -50,6 +76,8 @@ def attach_dependency_diagnostic_sources(
                     or ".." in relative.parts or row.get("symlinked") is not False):
                 raise ValueError("unsafe diagnostic source path")
             packaged = root / relative
+            if requested is not None and packaged not in requested:
+                continue
             source = Path(str(row.get("resolved_path") or ""))
             trusted_root = Path(str(row.get("trusted_root_path") or ""))
             if not source.is_absolute() or not trusted_root.is_absolute():
@@ -59,11 +87,14 @@ def attach_dependency_diagnostic_sources(
             if (sha256_bytes(original) != row.get("sha256") or captured != original
                     or type(row.get("size_bytes")) is not int or len(captured) != row["size_bytes"]):
                 raise ValueError("diagnostic source bytes changed")
-            claims = [
-                {key: claim[key] for key in ("name", "source", "source_line", "statement_line")}
-                for claim in extract_hol_theorems_bytes(source, captured)
-                if claim.get("proof_constructor") == "prove"
-            ]
+            claim_key = (source, row["sha256"])
+            if claim_key not in claims_by_source:
+                claims_by_source[claim_key] = [
+                    {key: claim[key] for key in ("name", "source", "source_line", "statement_line")}
+                    for claim in extract_hol_theorems_bytes(source, captured)
+                    if claim.get("proof_constructor") == "prove"
+                ]
+            claims = claims_by_source[claim_key]
             mapping = {
                 "source": str(source), "packaged_source": str(packaged),
                 "source_sha256": row["sha256"], "source_line_offset": 0,

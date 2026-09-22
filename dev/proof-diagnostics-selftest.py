@@ -220,6 +220,7 @@ print("proof activity: interruption, return, nested/imported scope and bounded f
 # The imported claims stay outside entrypoint theorem verification.
 import copy
 import tempfile
+from unittest.mock import patch
 from hol_workbench.proof_diagnostics import attach_dependency_diagnostic_sources
 from hol_workbench.source_dependency_closure import build_source_dependency_closure
 from hol_workbench.source_dependency_package import materialize_dependency_package
@@ -234,8 +235,11 @@ with tempfile.TemporaryDirectory(prefix="hearth-imported-diagnostics-") as tempo
         b"let helper () = let LOCAL = prove (`T`,REWRITE_TAC[]) in LOCAL;;\n"
     )
     dependency.write_bytes(dependency_bytes)
+    (project / "unrelated.ml").write_bytes(b"let UNRELATED = prove (`T`,REWRITE_TAC[]);;\n")
     source = project / "entry.ml"
-    source.write_bytes(b'needs "nested/imported.ml";;\nlet ENTRY = prove (`T`,REWRITE_TAC[]);;\n')
+    source.write_bytes(
+        b'needs "nested/imported.ml";;\nneeds "nested/imported.ml";;\n'
+        b'needs "unrelated.ml";;\nlet ENTRY = prove (`T`,REWRITE_TAC[]);;\n')
     entry_claims = extract_hol_theorems_bytes(source, source.read_bytes())
     closure = build_source_dependency_closure(source)
     package = root / "package"
@@ -266,6 +270,50 @@ with tempfile.TemporaryDirectory(prefix="hearth-imported-diagnostics-") as tempo
     assert descriptor["dependency_sources_status"] == "recorded"
     assert descriptor["dependency_sources"][0]["source_line_offset"] == 0
     assert [row["name"] for row in descriptor["dependency_sources"][0]["claims"]] == ["IMPORTED"]
+
+    # Completed calls never trigger imported theorem scanning. Malformed,
+    # foreign and incomplete frames cannot request an imported attribution.
+    for frame in (
+        b"", imported_frame + activity_line(1, "LEAVE"),
+        imported_frame + imported_frame, imported_frame.rstrip(b"\n"),
+        imported_frame.replace(nonce.encode(), b"b" * 32),
+        activity_line(1, "ENTER", file="nested/imported.ml", name="IMPORTED", line=2),
+        activity_line(1, "ENTER", file=str(root / "other.ml"), name="IMPORTED", line=2),
+    ):
+        on_demand = copy.deepcopy(imported_contract)
+        with patch("hol_workbench.proofs.theorem_scan.extract_hol_theorems_bytes") as scanner:
+            attach_dependency_diagnostic_sources(on_demand, closure, package, transcript=frame)
+            scanner.assert_not_called()
+        assert on_demand["proof_diagnostics"]["dependency_sources"] == []
+        assert imported_result(frame, on_demand)["running_binding"]["status"] == "unknown"
+
+    # Normalize compiler paths and scan only the requested imported file, once
+    # even when the source contains duplicate needs edges or active locations.
+    on_demand = copy.deepcopy(imported_contract)
+    nested_imported = imported_frame + activity_line(
+        2, "ENTER", file=str(packaged_dependency), name="IMPORTED", line=2)
+    with patch("hol_workbench.proofs.theorem_scan.extract_hol_theorems_bytes",
+               wraps=extract_hol_theorems_bytes) as scanner:
+        attach_dependency_diagnostic_sources(on_demand, closure, package, transcript=nested_imported)
+        assert scanner.call_count == 1
+        assert scanner.call_args.args == (dependency, dependency_bytes)
+    assert len(on_demand["proof_diagnostics"]["dependency_sources"]) == 1
+    assert imported_result(nested_imported, on_demand)["running_binding"]["name"] == "IMPORTED"
+    assert [(row["name"], row["status"]) for row in imported_result(nested_imported, on_demand)["bindings"]] == [("ENTRY", "missing")]
+
+    # Complete bounded failure diagnostics request only their exact source.
+    failure_frame = overflow_frame.replace(hx("/package/stack.ml").encode(), hx(str(packaged_dependency)).encode())
+    failure_frame = failure_frame.replace(hx("STUCK").encode(), hx("IMPORTED").encode())
+    on_demand = copy.deepcopy(imported_contract)
+    with patch("hol_workbench.proofs.theorem_scan.extract_hol_theorems_bytes",
+               wraps=extract_hol_theorems_bytes) as scanner:
+        attach_dependency_diagnostic_sources(on_demand, closure, package, transcript=failure_frame)
+        assert scanner.call_count == 1
+    assert len(on_demand["proof_diagnostics"]["dependency_sources"]) == 1
+    with patch("hol_workbench.proofs.theorem_scan.extract_hol_theorems_bytes") as scanner:
+        attach_dependency_diagnostic_sources(on_demand, closure, package, transcript=failure_frame + failure_frame)
+        scanner.assert_not_called()
+    assert on_demand["proof_diagnostics"]["dependency_sources"] == []
     for frame in (
         activity_line(1, "ENTER", file=str(packaged_dependency), name="LOCAL", line=4),
         activity_line(1, "ENTER", file=str(packaged_dependency), name="IMPORTED", line=4),
