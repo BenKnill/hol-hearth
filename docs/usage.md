@@ -113,8 +113,13 @@ including `Toploop.use_file`, `Topdirs` and `Dynlink` loading, and directory
 changes such as `Sys.chdir` or `Unix.chdir`.
 This applies to the entrypoint and its captured imports. Module-qualified loaders
 such as `Hol.needs` and loaders under local module opens are also refused;
-use ordinary literal `needs`, `loadt` or `loads` instead. The bounded lexical
-scanner recognizes known references and simple aliases. Exact input identity
+use ordinary literal `needs`, `loadt` or `loads` instead. Bare references to the
+known execution modules (`Toploop`, `Topdirs`, `Dynlink`, `Sys`, `Unix`) are
+refused too: aliases, opens, includes and module expressions can expose a file
+loader or directory change in another source. Ordinary qualified members such
+as `Sys.time` and `Toploop.parse_toplevel_phrase` remain supported. Refusals name
+the first source location and loader; `leaf-needs --deep` lists all blockers.
+Exact input identity
 covers supported declared source loaders and ELF objects; it does not attest
 arbitrary OCaml file I/O, subprocess effects, or source generated for in-memory
 evaluation through APIs such as `Toploop.execute_phrase`. General effect

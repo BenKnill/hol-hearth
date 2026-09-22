@@ -29,6 +29,10 @@ depend on the host. The optional `hearth doctor --profile NAME` checks the
 configured shelf and queue without running a proof. See the
 [assembly workflow](docs/usage.md#assembly-projects-on-an-existing-profile).
 
+For a read-only view of a large leaf's transitive source and ELF inputs, use
+`./hearth leaf-needs /ABS/project/proofs/leaf.ml --profile s2n-arm --deep`.
+It reports captured hashes and warm inventory separately, without starting HOL.
+
 `--profile` selects the published warm environment. For a stable, expensive
 project import, `--basis` checks and retains that completed dependency:
 
@@ -73,7 +77,7 @@ status: succeeded
 source_acceptance: accepted
 source_completed: true
 claims_complete: true
-  MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY: proved source_line=108
+  MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY: proved (source conclusion matched; hypotheses empty) source_line=108
 ```
 
 Adding an unused false import produced this failure, even though the target
@@ -84,7 +88,7 @@ status: failed
 source_acceptance: not_accepted
 source_completed: false
 claims_complete: true
-  MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY: proved source_line=108
+  MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY: proved (source conclusion matched; hypotheses empty) source_line=108
 first_failure: transcript_line=231 Exception: Failure "TAC_PROOF: Unsolved goals".
 ```
 
