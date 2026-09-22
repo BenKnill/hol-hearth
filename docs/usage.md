@@ -147,6 +147,12 @@ locations. The prior successful-looking transcript binding does not identify
 the next failed theorem. A raw goal or printed theorem is not a nonce-bound
 binding check.
 
+Inspect an unexpected runner failure before repeating expensive work. Preserve
+its receipt, identify the cause, and make a concrete correction before retrying.
+A harness defect should also gain a regression check. A planned negative control
+followed by a repaired proof is a separate validation exercise; it is not an
+automatic recovery path.
+
 ## Find facts and examine a difficult goal
 
 Write exploratory HOL in a separate source that imports the same helpers:
@@ -174,9 +180,14 @@ snapshots, never theorem probes. They do not change source acceptance.
 
 The disposable child compiles source with location information. A unique compiler
 call site can identify an entrypoint's failing literal `let NAME = prove (...)`
-without guessing from the previous printed theorem. Unsupported call sites,
+without guessing from the previous printed theorem. Attribution permits up to
+eight blank output lines before a matching supported exception rendering;
+substantive intervening output blocks the link. Unsupported call sites,
 imported bindings, and caught failures followed by a different error remain
-unattributed. Exact source bytes are retained after the generated prefix.
+unattributed. This is diagnostic correlation, not proof of exception causality:
+a silent catch followed immediately by the identical exception is indistinguishable
+from propagation in the output. Exact source bytes are retained after the
+generated prefix.
 
 Diagnostics are bounded to eight failure events, eight goals per event, sixteen
 assumptions per goal, and about 2 KiB per term. The ordinary HOL parser and
@@ -190,6 +201,14 @@ call with no recorded return. This includes imported sources when their exact
 captured bytes and compiler location agree. `running_at_interruption` names
 where execution stopped; it does not declare that binding failed or was proved.
 Unsupported or ambiguous call sites remain unknown.
+
+Activity protocol v2 keeps recording after long sequences of completed calls.
+Its receipt retains only the active stack, up to 64 calls; completed-call
+history is not retained there. The raw transcript still grows with execution.
+Deeper nesting emits an explicit overflow span and makes current attribution
+unknown until the matching return restores the captured outer stack. Old v1
+receipts retain their original terminal 8192-call capture limit. Neither
+activity protocol changes source completion or theorem acceptance.
 
 ## Reopen a failed binding as a scratch proof
 

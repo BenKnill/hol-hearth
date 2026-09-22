@@ -49,8 +49,9 @@ from hol_workbench.proof_diagnostics import identify_failed_binding
 
 claim = {"name": "TARGET", "source": "/project/proof.ml", "source_line": 10, "statement_line": 11}
 location_contract = {"proof_diagnostics": {"packaged_entrypoint": "/package/proof.ml", "source_line_offset": 80}}
-event = {"end_transcript_line": 24, "locations": [{"file": "/package/proof.ml", "name": "TARGET", "line": 90}]}
-diagnostic = {"events": [event]}
+event = {"end_transcript_line": 24, "following_exception_transcript_line": 25,
+         "locations": [{"file": "/package/proof.ml", "name": "TARGET", "line": 90}]}
+diagnostic = {"status": "recorded", "events": [event]}
 attribution = identify_failed_binding(diagnostic, location_contract, [claim], 25)
 assert attribution["name"] == "TARGET" and attribution["source_line"] == 10
 assert identify_failed_binding(diagnostic, location_contract, [claim], 27) is None  # caught earlier
@@ -128,6 +129,30 @@ with redirect_stdout(view):
 assert "original tactic input" in view.getvalue()
 assert "earlier/caught proof context" not in view.getvalue()
 
+# Persisted pre-link receipts can retain an already identified adjacent failure
+# in their display. This compatibility path cannot create fresh attribution or
+# override a new explicit None produced by exception-link accounting.
+from copy import deepcopy
+legacy_receipt = deepcopy(uncaught)
+del legacy_receipt["proof_diagnostics"]["events"][0]["following_exception_transcript_line"]
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics(legacy_receipt, verbose=False)
+assert "earlier/caught proof context" not in view.getvalue()
+assert identify_failed_binding(legacy_receipt["proof_diagnostics"], overflow_contract, overflow_claims, 5) is None
+for legacy_variant in (
+    {**legacy_receipt, "failing_binding": {"status": "unknown", "name": None}},
+    {**legacy_receipt, "first_failure_transcript_line": 6},
+    {**legacy_receipt, "source_completed": True},
+    {**legacy_receipt, "proof_diagnostics": {**legacy_receipt["proof_diagnostics"], "capture_truncated": True}},
+    {**uncaught, "proof_diagnostics": {**uncaught["proof_diagnostics"], "events": [
+        {**uncaught["proof_diagnostics"]["events"][0], "following_exception_transcript_line": None}]}},
+):
+    view = StringIO()
+    with redirect_stdout(view):
+        print_proof_diagnostics(legacy_variant, verbose=False)
+    assert "earlier/caught proof context" in view.getvalue()
+
 # A caught diagnostic cannot be attributed to a later, unrelated overflow.
 later = analyze_overflow(overflow_frame + ("continued after caught failure\n" + overflow_message + "\n").encode())
 assert later["first_failure_transcript_line"] == 6
@@ -149,10 +174,69 @@ assert "caught proof failures; the source continued to completion" in view.getva
 print("proof-diagnostics overflow: exact callsite, unrelated failure and completed-source boundaries passed")
 
 
+# The P256 negative control exposed ordinary HOL output with one empty line
+# between diagnostic END and the matching uncaught Failure. Reproduce that
+# shape, including the distinct Printexc and toplevel exception renderings.
+from hol_workbench.proof_diagnostics import MAX_EXCEPTION_GAP_LINES
+
+failure_exception = 'Failure("solve_goal: Too deep")'
+failure_message = 'Exception: Failure "solve_goal: Too deep".'
+failure_frame = overflow_frame.replace(hx("Stack overflow").encode(), hx(failure_exception).encode())
+
+def assert_failure_context(raw, expected_name):
+    result = analyze_overflow(raw)
+    assert result["source_completed"] is False and result["effective_exit_status"] == 1
+    assert result["bindings"][0]["status"] == "missing"
+    assert result["failing_binding"]["name"] == expected_name
+    view = StringIO()
+    with redirect_stdout(view):
+        print_proof_diagnostics(result, verbose=False)
+    assert ("earlier/caught proof context" not in view.getvalue()) == bool(expected_name)
+    return result
+
+for blank_count in (0, 1, MAX_EXCEPTION_GAP_LINES):
+    observed = assert_failure_context(
+        failure_frame + b" \t\r\n" * blank_count + failure_message.encode() + b"\n", "STUCK")
+    assert observed["proof_diagnostics"]["events"][0]["following_exception_transcript_line"] == 5 + blank_count
+
+for intervening in (b"continued after caught failure\n", b"val helper : int = 1\n",
+                    b"# \n", b"__HOL_PROOF_ACTIVITY__:other:1:LEAVE\n"):
+    assert_failure_context(failure_frame + b"\n" + intervening + failure_message.encode() + b"\n", None)
+assert_failure_context(failure_frame + b"\n" * (MAX_EXCEPTION_GAP_LINES + 1) + failure_message.encode(), None)
+assert_failure_context(failure_frame + b'\nException: Failure "unrelated later failure".\n', None)
+assert_failure_context(failure_frame + b"\n" + overflow_message.encode() + b"\n", None)
+assert_failure_context(overflow_frame + b"\n" + failure_message.encode() + b"\n", None)
+assert_failure_context(overflow_frame + b"\n# " + overflow_message.encode() + b"\n", "STUCK")
+
+# Reject unknown exception printers and malformed or incomplete frames, even
+# when the printed failure immediately follows. Escaped strings compare as-is.
+for exception, message, expected in (
+    ('Invalid_argument("bad\\"argument")', 'Exception: Invalid_argument "bad\\"argument".', "STUCK"),
+    ("Not_found", "Exception: Not_found.", "STUCK"),
+    ('Custom_error("details")', 'Exception: Custom_error "details".', None),
+    ('Failure("unfinished... [truncated]', 'Exception: Failure "unfinished".', None),
+):
+    frame = overflow_frame.replace(hx("Stack overflow").encode(), hx(exception).encode())
+    assert_failure_context(frame + b"\n" + message.encode() + b"\n", expected)
+for malformed_frame in (
+    failure_frame.replace(b"GOAL:0:0:", b"GOAL:3:0:"),
+    failure_frame.rsplit(prefix.encode(), 1)[0],
+    failure_frame.replace(nonce.encode(), b"b" * 32),
+):
+    result = analyze_overflow(malformed_frame + b"\n" + failure_message.encode() + b"\n")
+    assert result["failing_binding"]["status"] == "unknown"
+
+caught = analyze_overflow(failure_frame + b"\n" + failure_message.encode() + b"\n" + markers.encode())
+assert caught["source_completed"] is True and caught["failing_binding"] is None
+assert caught["bindings"][0]["status"] == "proved"
+print("proof-diagnostics spacing: matching exceptions, bounded blank gaps and caught/malformed barriers passed")
+
+
 # Interruption records an entered call, never a failed/proved theorem. A return
 # (including a caught exception) clears the active call before later source work.
 from hol_workbench.proof_diagnostics import (
-    ACTIVITY_PREFIX, MAX_ACTIVITY_CALLS, account_proof_activity, identify_running_binding,
+    ACTIVITY_PREFIX, ACTIVITY_PROTOCOL, LEGACY_ACTIVITY_PROTOCOL, MAX_ACTIVITY_CALLS,
+    MAX_ACTIVITY_DEPTH, account_proof_activity, identify_running_binding,
 )
 from hol_workbench.cli.orbstack_criu_vanilla_semantics import displayed_transcript
 
@@ -208,14 +292,108 @@ for partial in (entered.rstrip(b"\n"), entered + activity_line(2, "ENTER")[:-12]
 assert account_proof_activity(entered.replace(nonce.encode(), b"b" * 32), overflow_contract)["status"] == "none"
 assert account_proof_activity(entered, contract)["status"] == "unavailable"
 
-# The bounded stream explicitly invalidates activity after capture is capped.
+# Old receipts retain their original terminal lifetime cap. The new protocol
+# must not reinterpret that marker as a recoverable nesting overflow.
 many_calls = b"".join(activity_line(call, "ENTER") + activity_line(call, "LEAVE")
                       for call in range(1, MAX_ACTIVITY_CALLS + 1))
 truncated_activity = many_calls + activity_line(MAX_ACTIVITY_CALLS + 1, "TRUNCATED")
-assert account_proof_activity(truncated_activity, overflow_contract)["status"] == "truncated"
+legacy_contract = {**overflow_contract, "proof_diagnostics": {
+    **overflow_contract["proof_diagnostics"], "activity_protocol": LEGACY_ACTIVITY_PROTOCOL}}
+legacy_activity = account_proof_activity(truncated_activity, legacy_contract)
+assert legacy_activity["status"] == "truncated" and legacy_activity["schema"] == LEGACY_ACTIVITY_PROTOCOL
+assert account_proof_activity(entered, legacy_contract)["status"] == "recorded"
+assert account_proof_activity(truncated_activity + left, legacy_contract)["status"] == "malformed"
+assert account_proof_activity(truncated_activity, overflow_contract)["status"] == "malformed"
 assert analyze_activity(truncated_activity)["running_binding"]["status"] == "unknown"
 assert b"original_prove (tm,observe)" in diagnostic_prelude(nonce)
 print("proof activity: interruption, return, nested/imported scope and bounded framing passed")
+
+# Thousands of completed calls consume no receipt history and never disable a
+# later call. Compiler locations can still identify an enclosing source binding
+# while an anonymous nested prove call is active.
+later_call = MAX_ACTIVITY_CALLS + 1
+long_activity = many_calls + activity_line(later_call, "ENTER")
+long_data = account_proof_activity(long_activity, overflow_contract)
+assert long_data["schema"] == ACTIVITY_PROTOCOL and long_data["status"] == "recorded"
+assert long_data["entered_call_count"] == later_call and len(long_data["active_calls"]) == 1
+assert long_data["completed_call_history_retained"] == 0
+assert long_data["history_retention"] == "active_calls_only"
+assert analyze_activity(long_activity)["running_binding"]["name"] == "STUCK"
+nested_history = entered + b"".join(
+    activity_line(call, "ENTER", name="anonymous") + activity_line(call, "LEAVE")
+    for call in range(2, MAX_ACTIVITY_CALLS + 4))
+assert analyze_activity(nested_history)["running_binding"]["name"] == "STUCK"
+nested_call = MAX_ACTIVITY_CALLS + 4
+nested_active = activity_line(nested_call, "ENTER", name="anonymous").rstrip(b"\n")
+nested_active += f":{hx('/package/stack.ml')}:{hx('STUCK')}:{callsite_line}\n".encode()
+assert analyze_activity(nested_history + nested_active)["running_binding"]["name"] == "STUCK"
+assert len(account_proof_activity(nested_history + nested_active, overflow_contract)["active_calls"]) == 2
+assert account_proof_activity(many_calls, overflow_contract)["active_calls"] == []
+
+# Bound simultaneous nesting, not elapsed work. Suppressed calls have an
+# explicit ordinal span; current attribution stays unknown until a valid resume.
+deep = b"".join(activity_line(call, "ENTER") for call in range(1, MAX_ACTIVITY_DEPTH + 1))
+overflow_call = MAX_ACTIVITY_DEPTH + 1
+overflow_begin = activity_line(overflow_call, "OVERFLOW")
+last_suppressed = MAX_ACTIVITY_CALLS + 100
+overflow_end = activity_line(overflow_call, f"RESUME:{last_suppressed}")
+unavailable_activity = account_proof_activity(deep + overflow_begin, overflow_contract)
+assert unavailable_activity["status"] == "depth_overflow" and unavailable_activity["active_calls"] == []
+assert not unavailable_activity["entered_call_count_complete"]
+assert not unavailable_activity["suppressed_call_count_complete"]
+assert analyze_activity(deep + overflow_begin)["running_binding"]["status"] == "unknown"
+resumed = account_proof_activity(deep + overflow_begin + overflow_end, overflow_contract)
+assert resumed["status"] == "recorded" and len(resumed["active_calls"]) == MAX_ACTIVITY_DEPTH
+assert resumed["overflow_span_count"] == 1
+assert resumed["suppressed_call_count"] == last_suppressed - overflow_call + 1
+assert resumed["entered_call_count"] == last_suppressed
+assert analyze_activity(deep + overflow_begin + overflow_end)["running_binding"]["name"] == "STUCK"
+returned = deep + overflow_begin + overflow_end + activity_line(MAX_ACTIVITY_DEPTH, "LEAVE")
+returned += activity_line(last_suppressed + 1, "ENTER")
+second_begin = activity_line(last_suppressed + 2, "OVERFLOW")
+second_end = activity_line(last_suppressed + 2, f"RESUME:{last_suppressed + 2}")
+assert account_proof_activity(returned + second_begin + second_end, overflow_contract)["overflow_span_count"] == 2
+for invalid in (
+    overflow_begin, deep + activity_line(overflow_call, "ENTER"), deep + overflow_begin + overflow_begin,
+    deep + overflow_begin + activity_line(MAX_ACTIVITY_DEPTH, "LEAVE"), deep + overflow_end,
+    deep + overflow_begin + activity_line(overflow_call + 1, f"RESUME:{last_suppressed}"),
+    deep + overflow_begin + activity_line(overflow_call, f"RESUME:{overflow_call - 1}"),
+    deep + overflow_begin + overflow_end + overflow_end,
+    deep + overflow_begin + overflow_end + activity_line(overflow_call + 1, "ENTER"),
+):
+    assert account_proof_activity(invalid, overflow_contract)["status"] == "malformed"
+    assert analyze_activity(invalid)["running_binding"]["status"] == "unknown"
+for partial in (deep + overflow_begin.rstrip(b"\n"), deep + overflow_begin + overflow_end.rstrip(b"\n")):
+    assert account_proof_activity(partial, overflow_contract)["status"] == "incomplete"
+    assert analyze_activity(partial)["running_binding"]["status"] == "unknown"
+
+# Exhaustion is explicit and terminal, never an integer-wrap attribution. A
+# small patched sequence limit exercises the same parser transition.
+from unittest.mock import patch
+with patch("hol_workbench.proof_diagnostics.MAX_ACTIVITY_SEQUENCE", 3):
+    sequence = b"".join(activity_line(call, "ENTER") + activity_line(call, "LEAVE") for call in range(1, 4))
+    exhausted = sequence + activity_line(3, "EXHAUSTED")
+    assert account_proof_activity(exhausted, overflow_contract)["status"] == "sequence_exhausted"
+    assert account_proof_activity(exhausted + activity_line(3, "EXHAUSTED"), overflow_contract)["status"] == "malformed"
+    assert account_proof_activity(activity_line(3, "EXHAUSTED"), overflow_contract)["status"] == "malformed"
+    assert account_proof_activity(sequence + activity_line(4, "ENTER"), overflow_contract)["status"] == "malformed"
+
+# Nonce/record limits still fail closed, including after long completed work.
+assert account_proof_activity(long_activity, {**overflow_contract, "nonce": "wrong"})["status"] == "invalid_contract"
+assert account_proof_activity(long_activity, {**overflow_contract, "proof_diagnostics": {
+    **overflow_contract["proof_diagnostics"], "activity_protocol": []}})["status"] == "unavailable"
+assert account_proof_activity(many_calls + activity_line(later_call, "ENTER", name="x" * 10000),
+                              overflow_contract)["status"] == "malformed"
+for ending in (b"\n", b"\r\n"):
+    assert account_proof_activity(entered.replace(b"\n", ending), overflow_contract)["status"] == "recorded"
+# Valid diagnostics, including overflow, cannot manufacture completion or failure.
+for frame in (long_activity, deep + overflow_begin, deep + overflow_begin + overflow_end):
+    successful = analyze_vanilla_transcript(
+        claims=[], transcript=frame + probe["completion_marker"].encode() + b"\n",
+        contract=probe, transport="completed", response={"exit_status": 0})
+    assert successful["source_completed"] and successful["effective_exit_status"] == 0
+    assert successful["running_binding"] is None and successful["failing_binding"] is None
+print("proof activity v2: long history, bounded nesting, recovery, sequence exhaustion and evidence boundaries passed")
 
 
 # Imported attribution requires byte-identical captured and packaged sources.

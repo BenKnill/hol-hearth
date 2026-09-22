@@ -29,11 +29,27 @@ depend on the host. The optional `hearth doctor --profile NAME` checks the
 configured shelf and queue without running a proof. See the
 [assembly workflow](docs/usage.md#assembly-projects-on-an-existing-profile).
 
-For a sustained edit session:
+`--profile` selects the published warm environment. For a stable, expensive
+project import, `--basis` checks and retains that completed dependency:
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --loop --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --profile s2n-arm \
+  --basis /ABS/project/proofs/completed_dependency.ml \
+  --timeout 7200 --run-root /ABS/project/runs
+```
+
+The leaf must import that file through literal `needs`. Keep the same run root
+to reuse its checked state. Edits to that dependency, its imports or its objects
+require preparation again. Preparation and leaf checks each retain a receipt
+and use the timeout separately. Every attempt still evaluates the whole leaf.
+See the [project workflow](docs/usage.md#reuse-a-completed-project-dependency).
+
+For a sustained edit session, add `--loop` to that same command:
+
+```sh
+./hearth prove /ABS/project/proofs/leaf.ml --loop --profile s2n-arm \
+  --basis /ABS/project/proofs/completed_dependency.ml \
+  --timeout 7200 --run-root /ABS/project/runs
 ```
 
 The watcher follows transitive source and artifact dependencies, marks changed
@@ -43,18 +59,11 @@ command. Ctrl-C stops its owned replay; the shared warm basis remains available.
 At a milestone, check the complete root with an appropriate budget:
 
 ```sh
-./hearth prove /ABS/project/proofs/complete.ml --profile light \
-  --timeout 1500 --run-root /ABS/project/milestones
+./hearth prove /ABS/project/proofs/complete.ml --profile s2n-arm \
+  --timeout 7200 --run-root /ABS/project/milestones
 ./hearth inspect /ABS/project/milestones --verbose
 ./hearth inspect /ABS/project/milestones --json
 ```
-
-Every attempt evaluates the whole requested source in a fresh child. For a
-stable, expensive project dependency, add `--basis /ABS/project/proofs/basis.ml`
-to prepare it once on the existing warm profile and reuse its checked state.
-The leaf must import that file through literal `needs`. Source or object edits
-invalidate reuse; preparation and leaf checks each retain a receipt. See the
-[project workflow](docs/usage.md#reuse-a-completed-project-dependency).
 
 Selected lines from actual target inspection of the recorded ML-KEM functional
 replay:

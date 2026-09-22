@@ -1,4 +1,7 @@
-"""Bounded, non-mutating diagnosis for the public Hearth path."""
+"""Optional checks of warm snapshot compatibility and queue state.
+
+This does not run proof source or validate its object files.
+"""
 
 from __future__ import annotations
 

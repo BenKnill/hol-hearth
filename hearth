@@ -14,12 +14,13 @@ HOL Hearth — warm HOL Light proof checks on Linux
   hearth smoke                         Check the installation (no HOL or CRIU)
   hearth setup [--check]                Build the first light profile from source
   hearth prove FILE.ml --run-root DIR   Check a source and record a receipt
+  hearth prove LEAF.ml --basis DEPS.ml --run-root DIR  Reuse a checked project dependency
   hearth inspect DIR                   Read a recorded result
   hearth reopen DIR --binding NAME --out FILE.ml  Prepare a diagnostic scratch
   hearth prove FILE.ml --loop           Record checks after project edits
   hearth leaf-needs FILE.ml --profile P  Compare a leaf's needs with a profile recipe
   hearth profiles                      List proof profiles
-  hearth doctor                        Inspect the configured runtime
+  hearth doctor [--profile PROFILE]     Optional snapshot and queue check
   hearth configure OPTIONS             Set local HOL and CRIU paths
   hearth status [--profile PROFILE]     Show active proofs and the admission queue
 

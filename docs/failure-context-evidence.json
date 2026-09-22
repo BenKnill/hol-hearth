@@ -1,0 +1,187 @@
+{
+  "schema": "hol-hearth.failure-context-validation.v1",
+  "checked_on": "2026-09-22",
+  "evidence_boundary": "Compiler-call-site diagnostic correlation and source acceptance remain separate. The saved assembly failure is re-accounted without another HOL replay or any change to the original receipt.",
+  "implementation_commit": "b1c4e18c127b1f070887d6ad5db0bd322dc9694e",
+  "correction": {
+    "maximum_blank_gap_lines": 8,
+    "requires_matching_supported_exception_rendering": true,
+    "substantive_intervening_output_blocks_link": true,
+    "unsupported_or_truncated_renderings_remain_unknown": true,
+    "legacy_display_preserves_only_previously_identified_adjacent_context": true,
+    "limitation": "Output alone cannot distinguish a silent catch followed immediately by the identical exception; attribution remains diagnostic only."
+  },
+  "saved_p256_reaccounting": {
+    "original_receipt_sha256": "9623e99b4ada2721b586c1d16462369f1dd047c3a544578ea5d89f15e466975f",
+    "raw_transcript_sha256": "69349fa7504c575b15db6e1863aa1392cd0405b9a9729a089d619394a8813ee7",
+    "source_sha256": "9886c0313c27e12826eb648ed049c24da1bf08db6d931b8d249dd65dfa0e809e",
+    "diagnostic_code_commit": "b1c4e18c127b1f070887d6ad5db0bd322dc9694e",
+    "acceptance_unchanged": true,
+    "source_completed": false,
+    "claims_complete": false,
+    "changed_accounting_keys": [
+      "failing_binding",
+      "proof_diagnostics"
+    ],
+    "original_failing_binding": {
+      "status": "unknown",
+      "name": null
+    },
+    "corrected_failing_binding": {
+      "status": "identified",
+      "name": "P256_MONTJADD_CORRECT",
+      "source_line": 38,
+      "verification_kind": "compiler_callsite_diagnostic",
+      "authority": "diagnostic_only"
+    },
+    "diagnostic_end_transcript_line": 1055,
+    "matching_exception_transcript_line": 1057,
+    "hol_replayed": false,
+    "original_receipt_modified": false
+  },
+  "real_light_controls": [
+    {
+      "control": "failure",
+      "receipt_sha256": "f08d5ce84f0b1a191108587606869dd411adbc6c00ab78d39c302da878e0db4f",
+      "source_sha256": "5c5e9d575cd3af2b69feefdca579d34915a9f0a4e71da42084fa7d5f91a165de",
+      "raw_transcript_sha256": "2c7b33769ac71f2a2a3f16cf4ebb10f959ce445119060b7942fd24d77433553d",
+      "transcript_sha256": "3bcae2a96d165540e84841cc2485a0d56a299de2612d3f09e9e375a22d30d7f8",
+      "source_dependency_closure_sha256": "c39ad662549af6de335ffd6a197439ae3f3817f9523397aee1c353d76e887611",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "logical_profile": "light",
+      "source_completed": false,
+      "claims_complete": false,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 1,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "eval_elapsed_seconds": 0.235,
+      "exit_status": 1,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "failing_binding": {
+        "status": "identified",
+        "name": "HEARTH_CONTEXT_FAILURE",
+        "source_line": 1,
+        "authority": "diagnostic_only",
+        "verification_kind": "compiler_callsite_diagnostic"
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      }
+    },
+    {
+      "control": "repair",
+      "receipt_sha256": "be6283d0788322455fa74a6c4c170e75106e1febc3c50a17e9c93967527077cd",
+      "source_sha256": "08fc69cac272281de256041404a2879ca60b5936da54869c41b51d7c3c8f1158",
+      "raw_transcript_sha256": "35d173b0595eac56dc7ff2f09c93fc096716b26c1252e35a1206967fa34c27ca",
+      "transcript_sha256": "0ce5b4718ced06531abaa693085f13b33f7696a570fcb7d598e423325b9551c8",
+      "source_dependency_closure_sha256": "e56356648e410f18a260a3e86ad41ad58a3f83a202464daa95949347cdb97da2",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "logical_profile": "light",
+      "source_completed": true,
+      "claims_complete": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "eval_elapsed_seconds": 0.237,
+      "exit_status": 0,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "failing_binding": {
+        "status": null,
+        "name": null,
+        "source_line": null,
+        "authority": null,
+        "verification_kind": null
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      }
+    },
+    {
+      "control": "caught",
+      "receipt_sha256": "7240ec2c9824d642c80f5214a5e29d232c735e0ce8a461296b0601abdbe2a659",
+      "source_sha256": "2bbbac9c541994fc87a6e59dd16ece8f68aacf3a75228376d0944c3773a883c9",
+      "raw_transcript_sha256": "53151bd47042a3ef486952a33c9c6bba924248dce325c562697ff847952bef7b",
+      "transcript_sha256": "128f3d5f8bf6a2a768715b74e97e869d7a8fc3d73e06aec321cbee52913718a4",
+      "source_dependency_closure_sha256": "f8ce51295ddf049d0114be52bbc2baf660cfda4dcf78ce35928e877a8e679925",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "logical_profile": "light",
+      "source_completed": true,
+      "claims_complete": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "eval_elapsed_seconds": 0.235,
+      "exit_status": 0,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "failing_binding": {
+        "status": null,
+        "name": null,
+        "source_line": null,
+        "authority": null,
+        "verification_kind": null
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      }
+    },
+    {
+      "control": "unrelated",
+      "receipt_sha256": "7b8f8a6abd96fce0fb0d2f66b4c1b0fa8908b590704d3393dec49bd4e846feaa",
+      "source_sha256": "a9bc9493935bfd3ece06b52660f6e6ac263b8f2228feb359a4374600021e0943",
+      "raw_transcript_sha256": "feba26728aba878188eaf44d28cb2174ea68877a5c8d6da2b4b43b5ff360f5d7",
+      "transcript_sha256": "0dbe2c9358c3065bc6707d2b5dfeef926d0975947dde805c3029ea83d4c6da72",
+      "source_dependency_closure_sha256": "3818d2581bef5fd6c3f3a69e9f5b8086cbe8e27f58e61ec42df32292937a955c",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "logical_profile": "light",
+      "source_completed": false,
+      "claims_complete": false,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 1,
+        "proved": 0,
+        "unknown": 0
+      },
+      "eval_elapsed_seconds": 0.24,
+      "exit_status": 1,
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "failing_binding": {
+        "status": "unknown",
+        "name": null,
+        "source_line": null,
+        "authority": null,
+        "verification_kind": null
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      }
+    }
+  ],
+  "control_runtime_identity": "These four small diagnostic controls ran in the implementation worktree before commit and before a legacy-display-only refinement. Exact runtime source hashes were not captured at execution. They are not relabeled as final-commit HOL validation; final-commit harness checks and saved-transcript re-accounting passed, and substantial final-runtime replay is recorded separately.",
+  "checks": [
+    "Full hearth check after final code refinement",
+    "Bounded blank gaps, exact exception matching, malformed and foreign-nonce frames, truncation, substantive output, caught failures, and legacy display regressions",
+    "Immutable P256 re-accounting preserves all non-diagnostic accounting fields"
+  ],
+  "external_data_distribution": "External sources, object files, machine paths, raw transcripts, private generators and original receipts remain outside the public repository."
+}

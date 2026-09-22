@@ -1,0 +1,469 @@
+{
+  "schema": "hol-hearth.long-proof-activity-validation.v1",
+  "checked_on": "2026-09-22",
+  "status": "completed_diagnostic_control",
+  "environment": "Linux; existing light and s2n-arm-mlkem warm shelves; no shelf rebuilt",
+  "evidence_boundary": "Recorded warm diagnostic controls plus the unchanged 256-cell ARM NTT functional source. Diagnostic attribution is not theorem evidence; source acceptance does not establish independent publication authority.",
+  "runtime_commit_independently_verified": "38eb1196f9db46d3ff7024c80a0a572ec00a57f4",
+  "runtime_identity_note": "Receipt client metadata reports unknown revision and is not authoritative; clean=false is preserved below. Runtime commit identity is supplied by an independent clean Git-worktree check. This merge differs from checked implementation commit 96eca9476cf4700f36f77dd26338180a9c4544ac only in documentation.",
+  "external_source_distribution": "Proof inputs, raw transcripts, original receipts, runtime images and machine configuration remain outside the public repository.",
+  "motivation": {
+    "observed_legacy_protocol": "hol-hearth.proof-activity.v1",
+    "observed_legacy_entered_call_limit": 8192,
+    "observed_legacy_status": "truncated",
+    "scope": "Live P256 diagnostic snapshot only; no source-completion or theorem-acceptance claim."
+  },
+  "protocol": {
+    "schema": "hol-hearth.proof-activity.v2",
+    "authority": "diagnostic_only",
+    "completed_call_history_retained": 0,
+    "history_retention": "active_calls_only",
+    "max_active_calls": 64,
+    "overflow_policy": "Explicit overflow suppresses deeper call locations; attribution resumes after returning to the recorded depth. Unavailable or malformed diagnostics cannot supply theorem evidence.",
+    "legacy_v1_receipts_supported": true,
+    "storage_boundary": "Accounting retains active calls, not completed call history. The raw transcript still grows with emitted events."
+  },
+  "attempts": [
+    {
+      "name": "timeout",
+      "receipt_sha256": "3c47a594f3e0651d3b86aec4e738dab567a24f99be543cffc01b4f8e37bb4871",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "696f3ea0bd5a457efa4882aa34228df66aa49492e09dfb1085fcee53ad4f5bd3",
+      "source_dependency_closure_sha256": "2e115fc9650a69feed4c8de8572637138f67a85f31547e9f05644930016579f4",
+      "executed_source_sha256": "28cb504a48ce43ee66e6d25b58b98e6da72767d1a5cd6cdc4201e0e913a08daa",
+      "transcript_sha256": "71e61effd3a7dc544484b9acd16f22da3dffe59591dd9b1586c73bb2d6630b0e",
+      "raw_transcript_sha256": "98dcd20e915f65e066cf8d0b75cc07068169b330492001cf8e515105285a5d40",
+      "requested_timeout_seconds": 20.0,
+      "controller_response_timeout_seconds": 35.0,
+      "eval_elapsed_seconds": 35.129,
+      "exit_status": 124,
+      "semantic_exit_status": 1,
+      "semantic_source_status": "not_completed",
+      "transport_status": "timeout",
+      "worker_status": "timeout",
+      "source_completed": false,
+      "claims_complete": false,
+      "completion_marker_valid": false,
+      "controller_cancellation_reason": "controller_response_timeout",
+      "timeout_kind": "controller_response_timeout",
+      "termination_kind": "explicit_cancel",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 1,
+        "printed_unprobed": 0,
+        "proved": 0,
+        "unknown": 0
+      },
+      "foundation_delta": {
+        "status": "missing",
+        "new_axiom_count": null
+      },
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "proof_activity": {
+        "authority": "diagnostic_only",
+        "boundary": "An entered prove call without a recorded return; neither failure nor theorem evidence.",
+        "completed_call_history_retained": 0,
+        "entered_call_count": 8301,
+        "history_retention": "active_calls_only",
+        "max_active_calls": 64,
+        "overflow_span_count": 0,
+        "schema": "hol-hearth.proof-activity.v2",
+        "status": "recorded",
+        "suppressed_call_count": 0,
+        "suppressed_call_count_complete": true,
+        "active_calls": [
+          {
+            "call": 8301,
+            "entered_transcript_line": 33220
+          }
+        ]
+      },
+      "running_binding": {
+        "authority": "diagnostic_only",
+        "entered_transcript_line": 33220,
+        "name": "HEARTH_AFTER_ACTIVITY_LIMIT",
+        "reason": "unique exactly captured prove call entered without a recorded return before interruption; not failure or proof evidence",
+        "source_line": 2,
+        "status": "running_at_interruption",
+        "verification_kind": "compiler_callsite_diagnostic"
+      },
+      "claims": [
+        {
+          "theorem": "HEARTH_AFTER_ACTIVITY_LIMIT",
+          "statement": "T",
+          "statement_sha256": "e632b7095b0bf32c260fa4c539e9fd7b852d0de454e9be26f24d0d6f91d069d3",
+          "statement_quote_sha256": "c72ac912bf6b2c6cf233052fe08c431b796a76f5c4df4e5a41b0b4eb31f757cc",
+          "source_span": [
+            2,
+            2
+          ],
+          "status": "missing",
+          "evidence": "nonce_probe_marker_missing",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ]
+    },
+    {
+      "name": "repair",
+      "receipt_sha256": "e81181dab98617f60447bd3d6c0c5e8da9443f899faac9125da4c96b6f44400b",
+      "logical_profile": "light",
+      "profile_basis_id": "hol.light.default.v3",
+      "profile_sha256": "52a80fa1603a6e858d1d04af20dcd6a1aa447cdc9537e4fef4f0e8727af11fb6",
+      "source_sha256": "6fbed1d6bf3df6371b4ad6fa09b7112b23821235944a12afd091339305e5f148",
+      "source_dependency_closure_sha256": "0779a365e81bbb5cf692023efb4ca530fe721794511d94a6cae5aa60baa32699",
+      "executed_source_sha256": "e1a568264dbed478fc00527b284892c47087a01e42760c2217ed3e21f22bb726",
+      "transcript_sha256": "fa33a3e85f57adb04957e9b54cfc0e02f95b777e5cc214c0f00a84a441eb32bb",
+      "raw_transcript_sha256": "54fd769bb5aded13b574c6217b29aadbf64a06090a868ef322479f183877999a",
+      "requested_timeout_seconds": 120.0,
+      "controller_response_timeout_seconds": 135.0,
+      "eval_elapsed_seconds": 3.61,
+      "exit_status": 0,
+      "semantic_exit_status": 0,
+      "semantic_source_status": "succeeded",
+      "transport_status": "completed",
+      "worker_status": "ok",
+      "source_completed": true,
+      "claims_complete": true,
+      "completion_marker_valid": true,
+      "controller_cancellation_reason": null,
+      "timeout_kind": null,
+      "termination_kind": "child_exited",
+      "broker_child_quiescent": true,
+      "broker_seat_reusable": true,
+      "binding_counts": {
+        "failed": 0,
+        "missing": 0,
+        "printed_unprobed": 0,
+        "proved": 1,
+        "unknown": 0
+      },
+      "foundation_delta": {
+        "status": "observed",
+        "new_axiom_count": 0
+      },
+      "receipt_client_identity": {
+        "revision": "unknown",
+        "clean": false,
+        "authoritative": false
+      },
+      "proof_activity": {
+        "authority": "diagnostic_only",
+        "boundary": "An entered prove call without a recorded return; neither failure nor theorem evidence.",
+        "completed_call_history_retained": 0,
+        "entered_call_count": 8301,
+        "history_retention": "active_calls_only",
+        "max_active_calls": 64,
+        "overflow_span_count": 0,
+        "schema": "hol-hearth.proof-activity.v2",
+        "status": "recorded",
+        "suppressed_call_count": 0,
+        "suppressed_call_count_complete": true,
+        "active_calls": []
+      },
+      "running_binding": null,
+      "claims": [
+        {
+          "theorem": "HEARTH_AFTER_ACTIVITY_LIMIT",
+          "statement": "T",
+          "statement_sha256": "e632b7095b0bf32c260fa4c539e9fd7b852d0de454e9be26f24d0d6f91d069d3",
+          "statement_quote_sha256": "c72ac912bf6b2c6cf233052fe08c431b796a76f5c4df4e5a41b0b4eb31f757cc",
+          "source_span": [
+            2,
+            2
+          ],
+          "status": "proved",
+          "evidence": "nonce_probe_kernel_conclusion",
+          "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "implementation_commit": "96eca9476cf4700f36f77dd26338180a9c4544ac",
+    "hearth_check": "passed",
+    "hearth_check_log_sha256": "ab7d99fa55be8d1547b6590244da48ba91aa6243cd7287c9a5fc0a5b4f6b0d71",
+    "harness_boundary": "The full check does not start HOL or CRIU. It includes a separately compiled plain OCaml emitter regression, not a second HOL implementation.",
+    "plain_ocaml_emitter": "passed: long call history, nesting overflow and recovery, exception propagation",
+    "accounting_regressions": "passed: legacy v1, long v2 history, bounded nesting, recovery, sequence exhaustion, malformed and incomplete records, exact source mapping and theorem-evidence boundaries",
+    "independent_review": "completed; no additional finding reported"
+  },
+  "assembly_validation": {
+    "runtime": {
+      "frozen_execution_commit_independently_verified": "7b9933845b2e334ec73af9fa9a1dfa21a807ad7f",
+      "verification_head_commit": "7b9933845b2e334ec73af9fa9a1dfa21a807ad7f",
+      "head_differs_only_in_documentation": false,
+      "code_worktree_clean_verified": true,
+      "uncommitted_documentation_present": false,
+      "non_documentation_git_tree_sha256": "c35b5c75e7f2fb322e9eca16b6d6958383c0118ccf656934bd58becd45998321",
+      "backend_sha256": "1a9281b85de692567fbb6e4cb52d9d943afb058f0dd2743411fa59e89ac43165",
+      "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7"
+    },
+    "source_identity": {
+      "functional_leaf_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+      "preparation_source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+      "elf_sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+      "preservation": "Exact source and object hashes match the prior recorded functional case; no theorem premise or frame is weakened."
+    },
+    "attempts": [
+      {
+        "runtime": "long_diagnostics",
+        "role": "complete_functional_leaf",
+        "attempt_started_utc": "20260922T160415Z",
+        "runtime_commit_independently_verified": "7b9933845b2e334ec73af9fa9a1dfa21a807ad7f",
+        "runtime_backend_sha256_independently_verified": "1a9281b85de692567fbb6e4cb52d9d943afb058f0dd2743411fa59e89ac43165",
+        "receipt_sha256": "8a3cb72d26bfde54d4934ef1c0619f852bec8f8d0ccb58287d0cc07db9a446f4",
+        "semantic_outcome": "accepted",
+        "accepted": true,
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "49961bb339c9cb024c4c58a58d4fdf792a6bc061fe6a9995209f00efd4df816b",
+        "executed_source_sha256": "db79ba22fec3f97f55a7accc21ef8d5242aacdb14eada36be2479ffa7d21bc78",
+        "source_dependency_closure_sha256": "4f16341c3fd65fd79627265ee0d45c5969a92059d630426b591ded5db2034767",
+        "transcript_sha256": "fa37d9ff957f3f8d1e26d65dbd8985ee5681905335a7245e93bcaff003286f0f",
+        "raw_transcript_sha256": "4d7cfec3ae5c47e5cd338569282c0b528eda355ed615a53bc409b883b52792d5",
+        "eval_elapsed_seconds": 18.323,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 1273.738,
+        "transport_status": "completed",
+        "worker_status": "ok",
+        "semantic_source_status": "succeeded",
+        "exit_status": 0,
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "included_file_error_observed": false,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "binding_counts": {
+          "failed": 0,
+          "missing": 0,
+          "printed_unprobed": 0,
+          "proved": 4,
+          "unknown": 0
+        },
+        "termination_kind": "child_exited",
+        "timeout_kind": null,
+        "source_dependency_resolved_literal_closure": false,
+        "source_dependency_semantic_identity_complete": false,
+        "bindings": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "status": "proved",
+            "evidence": "nonce_probe_kernel_conclusion",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "status": "proved",
+            "evidence": "nonce_probe_kernel_conclusion",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "status": "proved",
+            "evidence": "nonce_probe_kernel_conclusion",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "status": "proved",
+            "evidence": "nonce_probe_kernel_conclusion",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          }
+        ],
+        "target_source_quotation_hashes": [
+          {
+            "name": "MLKEM_CLEAN_RAW_SETUP_QCONST",
+            "statement_quote_sha256": "fff4991fe1fc805cdbb9c95513034cc227716d0c5c411c2643cfac62ecad1422",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_ENSURES_PRECONDITION",
+            "statement_quote_sha256": "55c0e8997ddacbc9433cb1cc6c5e1ec4b696c62511ab2d0e9caa2d7208c8cb2e",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_PREAMBLE",
+            "statement_quote_sha256": "168b0de2784b21716fa167e0c15903f994484ea75e6996f740f6bcea5a7ae3f3",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_FUNCTIONAL_ENTRY",
+            "statement_quote_sha256": "dfeb8c3a864b3ab9552bf7d715d024d5b80d113c27edb5f6aaac2ca7baa330c6",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "deltas": {
+            "axioms": 0,
+            "constants": 2,
+            "definitions": 2,
+            "types": 0
+          }
+        },
+        "profile_snapshot": {
+          "manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+          "loaded_closure_sha256": "5740737531e7c9f2d3fac73125fc6711aac53ed20986b148227e3e16cc72797f",
+          "snapshot_environment_sha256": "8b56203538341c9106305742c703f3f72c7bdb5bed388385b4bd7b56f620dd90"
+        },
+        "exact_objects": [
+          {
+            "name": "mlkem_ntt_clean_manual_st4_mc",
+            "loader": "define_assert_from_elf",
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "receipt_client_identity": {
+          "revision": "unknown",
+          "clean": false,
+          "authoritative": false
+        },
+        "diagnostic_activity": {
+          "schema": "hol-hearth.proof-activity.v2",
+          "status": "recorded",
+          "authority": "diagnostic_only",
+          "entered_call_count": 5
+        },
+        "project_basis": {
+          "status": "ready",
+          "identity_sha256": "68ac2314fcc27fd0782742807f2963dee0bae9b01c05d7480c63c596eb9a4e2b",
+          "preparation_receipt_sha256": "b6ca91ee27157f38744153dad8d7592a78c1c632b93a16f486af4977aa800b3e",
+          "preparation_eval_elapsed_seconds": 194.827,
+          "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+          "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+          "backend_sha256": "1a9281b85de692567fbb6e4cb52d9d943afb058f0dd2743411fa59e89ac43165",
+          "broker_runtime_sha256": "4e6281597b0f7fe538190dc100bfebfd6fdf16e150e7fdcf724f6b633ddc6cb7",
+          "snapshot_manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+          "elf_transport": {
+            "cwd_from_package_root": null,
+            "mode": "mapped_loaders",
+            "wrapped_loaders": [
+              "define_assert_from_elf"
+            ]
+          }
+        },
+        "complete_leaf_attempt_number": 1,
+        "same_preparation_receipt_as_first_leaf": false
+      },
+      {
+        "runtime": "long_diagnostics",
+        "role": "preparation",
+        "attempt_started_utc": "20260922T160416Z",
+        "runtime_commit_independently_verified": "7b9933845b2e334ec73af9fa9a1dfa21a807ad7f",
+        "runtime_backend_sha256_independently_verified": "1a9281b85de692567fbb6e4cb52d9d943afb058f0dd2743411fa59e89ac43165",
+        "receipt_sha256": "b6ca91ee27157f38744153dad8d7592a78c1c632b93a16f486af4977aa800b3e",
+        "semantic_outcome": "accepted",
+        "accepted": true,
+        "logical_profile": "s2n-arm-mlkem",
+        "profile_basis_id": "hol.s2n.arm.mlkem.v1",
+        "profile_sha256": "97dfec8acbd86b9032ddf5bf6aea0bf3d34f72f929d1a3220ec0f9718a9a2299",
+        "source_sha256": "4970a7459427d6e11cb396ed07e0d61c5acb6a9d13e078687ed191af9c352568",
+        "executed_source_sha256": "500d18848d246e6d513f1a392d08f1d64b10f4e9d86aa7ffdfe3a31875b27f8b",
+        "source_dependency_closure_sha256": "cd0ef965e53ac88c2e6511794097bd95ef9ef3ad88200440c0dc57cbe12834db",
+        "transcript_sha256": "44ffbe708485199cc4e158171c48a337e94f4ba7d05e359f3d81cbfb2e4ff051",
+        "raw_transcript_sha256": "c762e27e2a96df2ffb6e8e929a6526268a15fad109e9b6b273c0f107209e12e6",
+        "eval_elapsed_seconds": 194.827,
+        "requested_timeout_seconds": 1500.0,
+        "effective_capacity": 1,
+        "admission_wait_seconds": 3582.321,
+        "transport_status": "completed",
+        "worker_status": "ok",
+        "semantic_source_status": "succeeded",
+        "exit_status": 0,
+        "source_completed": true,
+        "claims_complete": true,
+        "completion_marker_valid": true,
+        "included_file_error_observed": false,
+        "broker_child_quiescent": true,
+        "broker_seat_reusable": true,
+        "binding_counts": {
+          "failed": 0,
+          "missing": 0,
+          "printed_unprobed": 0,
+          "proved": 2,
+          "unknown": 0
+        },
+        "termination_kind": "child_exited",
+        "timeout_kind": null,
+        "source_dependency_resolved_literal_closure": false,
+        "source_dependency_semantic_identity_complete": false,
+        "bindings": [
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+            "status": "proved",
+            "evidence": "nonce_probe_kernel_conclusion",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+            "status": "proved",
+            "evidence": "nonce_probe_kernel_conclusion",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          }
+        ],
+        "target_source_quotation_hashes": [
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR",
+            "statement_quote_sha256": "603a0d10b8e9c3e0295e58eb0e89c7cf8f5cf4178f58c69560fcb2626716d323",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          },
+          {
+            "name": "MLKEM_NTT_CLEAN_LAYER123_LOOP_ALL_FOUR_MEMORY_COMPLETE",
+            "statement_quote_sha256": "5395c2ab30c1bfec8d5cbc08505aeca5795a8fdc32996654fda024da10029d5e",
+            "verification_kind": "kernel_conclusion_and_empty_hypotheses"
+          }
+        ],
+        "foundation_delta": {
+          "status": "observed",
+          "new_axiom_count": 0,
+          "deltas": {
+            "axioms": 0,
+            "constants": 27,
+            "definitions": 27,
+            "types": 0
+          }
+        },
+        "profile_snapshot": {
+          "manifest_sha256": "98f9cae009e582ecd348f0b3d55cd76870a247282f4a98b6638a3bba8e286fa9",
+          "loaded_closure_sha256": "5740737531e7c9f2d3fac73125fc6711aac53ed20986b148227e3e16cc72797f",
+          "snapshot_environment_sha256": "8b56203538341c9106305742c703f3f72c7bdb5bed388385b4bd7b56f620dd90"
+        },
+        "exact_objects": [
+          {
+            "name": "mlkem_ntt_clean_manual_st4_mc",
+            "loader": "define_assert_from_elf",
+            "sha256": "871c7347821c8fe3119df79d6612b10439320784f8812494393a7099d5d48dba",
+            "size_bytes": 1296
+          }
+        ],
+        "receipt_client_identity": {
+          "revision": "unknown",
+          "clean": false,
+          "authoritative": false
+        },
+        "diagnostic_activity": {
+          "schema": "hol-hearth.proof-activity.v2",
+          "status": "recorded",
+          "authority": "diagnostic_only",
+          "entered_call_count": 84
+        }
+      }
+    ],
+    "timing_scope": "admission_wait_seconds is the receipt-reported admission wait, not total waiting time. It can omit earlier project-basis lock admission waiting, so evaluation plus this field does not establish end-to-end wall time. A queued attempt has no recorded evaluation result until its receipt completes. Evaluation measurements overlap other work and are not a controlled runtime speed comparison.",
+    "target_evidence_boundary": "All six original preparation/leaf targets use literal source quotations. Accepted probes check kernel conclusions and empty hypotheses. Quotation hashes preserve layout-sensitive source provenance, not semantic theorem equivalence. Proof activity is diagnostic only.",
+    "foundation_boundary": "Observed registry deltas are relative to the restored warm or retained project basis; zero observed new axioms does not inventory pre-existing basis axioms."
+  }
+}

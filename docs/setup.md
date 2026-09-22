@@ -108,7 +108,7 @@ export HOL_WORKBENCH_RUNTIME_CONFIG=/ABS/hearth/runtime.toml
   --criu-shelf-root /ABS/warm-shelves \
   --criu-bin /ABS/criu \
   --criu-mode sudo
-./hearth doctor --profile light
+./hearth doctor --profile s2n-arm
 ```
 
 Without an override, configuration is stored in `~/.config/hol-hearth/runtime.toml`.

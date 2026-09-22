@@ -6,7 +6,7 @@ import secrets
 from typing import Any
 
 from hol_workbench.proof_diagnostics import (
-    ACTIVITY_PREFIX, ACTIVITY_PROTOCOL, MAX_ACTIVITY_CALLS, account_proof_activity,
+    ACTIVITY_PREFIX, ACTIVITY_PROTOCOL, MAX_ACTIVITY_DEPTH, account_proof_activity,
     account_proof_diagnostics, diagnostic_prelude, identify_failed_binding, identify_running_binding,
 )
 
@@ -47,7 +47,8 @@ def instrumented_source_bytes(
             "packaged_entrypoint": diagnostic_source_path,
             "source_line_offset": prefix_bytes.count(b"\n") + 1,
             "activity_protocol": ACTIVITY_PROTOCOL,
-            "max_activity_calls": MAX_ACTIVITY_CALLS,
+            "max_active_calls": MAX_ACTIVITY_DEPTH,
+            "activity_history_retention": "active_calls_only",
         }
     return payload, contract
 
