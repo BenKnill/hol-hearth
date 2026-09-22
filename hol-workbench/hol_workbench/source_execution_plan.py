@@ -15,6 +15,7 @@ from hol_workbench.profile_satisfied_dependencies import (
     profile_satisfied_needs_prelude,
 )
 from hol_workbench.runtime_config import RuntimeConfigError, load_runtime_config
+from hol_workbench.source_analysis_cache import source_analysis_cache_root
 from hol_workbench.source_dependency_closure import build_source_dependency_closure
 from hol_workbench.source_dependency_package import (
     dependency_transport_status,
@@ -75,6 +76,9 @@ def capture_source_dependency_closure(
         logical_source_root_declarations=logical_source_root_declarations,
         logical_source_roots=logical_source_roots,
         logical_project_roots=logical_project_roots,
+        # Reuse only content-keyed lexical facts. Source bytes, path resolution,
+        # object identities and profile satisfaction are checked on every capture.
+        analysis_cache_root=source_analysis_cache_root(),
     )
     return closure, holdir_root
 
