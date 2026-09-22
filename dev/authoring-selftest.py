@@ -21,7 +21,8 @@ from hol_workbench.proofs.theorem_scan import extract_hol_theorems_bytes
 from hol_workbench.runtime_config import write_runtime_config
 from hol_workbench.source_execution_plan import capture_source_dependency_closure
 from hol_workbench.vanilla_claims import (
-    build_claim_probe, first_error, account_claims, target_pack_status, diagnostic_claim_output,
+    ClaimProbeContractError, build_claim_probe, first_error, account_claims,
+    target_pack_status, diagnostic_claim_output,
 )
 
 
@@ -29,6 +30,62 @@ class AuthoringRegression(unittest.TestCase):
     def inspect(self, path, *args):
         return subprocess.run([str(ROOT / "hearth"), "inspect", str(path), *args],
                               cwd="/tmp", capture_output=True, text=True, timeout=10)
+
+    def test_claim_inventory_uses_global_phrase_scope(self):
+        source = '''(* Unicode λ keeps byte offsets distinct from characters. *)
+let FIRST =
+  let lemma = prove (`T`, REWRITE_TAC[]) in lemma;;
+let SECOND =
+  let lemma = prove (`T`, REWRITE_TAC[]) in lemma;;
+module Hidden = struct
+  let lemma = prove (`T`, REWRITE_TAC[]);;
+end;;
+let lemma = prove (`T`, REWRITE_TAC[]) in ignore lemma;;
+let text = {|let FAKE = prove (`F`, ALL_TAC);;|};;
+let VISIBLE = time prove
+ (`!x:bool. x = x`,
+  let lemma = prove (`T`, REWRITE_TAC[]) in REWRITE_TAC[]);;
+let COMPUTED = prove (derived_goal, REWRITE_TAC[]);;
+let DIRECT = ARITH_RULE `2 + 3 = 5`;;
+'''.encode()
+        claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source)
+        self.assertEqual([claim["name"] for claim in claims], ["VISIBLE", "COMPUTED", "DIRECT"])
+        self.assertEqual(claims[0]["source_line"], 11)
+        self.assertEqual(claims[0]["statement_quote"], "`!x:bool. x = x`")
+        self.assertFalse(claims[1]["statement_extractable"])
+        self.assertEqual(claims[1]["prove_argument_preview"], "derived_goal")
+        self.assertEqual(claims[2]["proof_constructor"], "ARITH_RULE")
+        payload, contract = build_claim_probe(source, claims, nonce="3" * 32)
+        self.assertEqual([row["verification_kind"] for row in contract["claims"]], [
+            "kernel_conclusion_and_empty_hypotheses",
+            "binding_and_thm_type_only_nonliteral_statement",
+            "kernel_conclusion_and_empty_hypotheses",
+        ])
+        self.assertTrue(payload.startswith(source))
+        self.assertNotIn(b"= lemma in", payload[len(source):])
+
+    def test_duplicate_global_claims_are_still_rejected(self):
+        source = (b"let DUP = prove (`T`, REWRITE_TAC[]);;\n"
+                  b"let helper = let DUP = prove (`F`, ALL_TAC) in DUP;;\n"
+                  b"let DUP = prove (`T`, REWRITE_TAC[]);;\n")
+        claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source)
+        self.assertEqual([claim["source_line"] for claim in claims], [1, 3])
+        with self.assertRaisesRegex(ClaimProbeContractError, "duplicate static theorem names: DUP"):
+            build_claim_probe(source, claims)
+
+    def test_claim_scope_refuses_malformed_input_and_omits_unsupported_forms(self):
+        source = b"let GLOBAL = prove (`T`, REWRITE_TAC[]);;\n"
+        for suffix in (b"(* unfinished", b"(", b"module M = struct", b"end;;"):
+            with self.subTest(suffix=suffix), self.assertRaises(ValueError):
+                extract_hol_theorems_bytes(Path("/work/proof.ml"), source + suffix)
+        for body in (
+            b"let LOCAL = prove (`T`, REWRITE_TAC[]) in LOCAL;;",
+            b"let A = prove (`T`, REWRITE_TAC[]) and B = prove (`T`, REWRITE_TAC[]);;",
+            b"module M = struct let HIDDEN = prove (`T`, REWRITE_TAC[]);; end;;",
+        ):
+            with self.subTest(body=body):
+                claims = extract_hol_theorems_bytes(Path("/work/proof.ml"), source + body)
+                self.assertEqual([claim["name"] for claim in claims], ["GLOBAL"])
 
     def test_transitive_bytes_and_missing_dependency(self):
         with tempfile.TemporaryDirectory() as temporary:

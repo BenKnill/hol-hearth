@@ -1285,6 +1285,18 @@ def build_source_dependency_closure(
                     if resolution in {"source_overlay", "source_overlay_conflict"} and source_overlay is not None
                     else root
                 )
+                if (
+                    resolution == "external_resolved"
+                    and edge["loader"] == "needs"
+                    and cold_holdir is not None
+                    and not symlinked
+                    and edge["declared_path"] == str(resolved)
+                    and _path_within(resolved, cold_holdir)
+                ):
+                    # Capture exact absolute HOL bytes for shelf comparison.
+                    # The edge remains external and untraversed: only an
+                    # admitted shelf inventory can satisfy it for execution.
+                    record_root = cold_holdir
                 record["trusted_root_path"] = str(record_root)
                 try:
                     secure = read_regular_file_beneath(record_root, resolved)
