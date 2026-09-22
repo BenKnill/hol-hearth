@@ -16,6 +16,7 @@ HOL Hearth — warm HOL Light proof checks on Linux
   hearth inspect DIR                   Read a recorded result
   hearth reopen DIR --binding NAME --out FILE.ml  Prepare a diagnostic scratch
   hearth prove FILE.ml --loop           Record checks after project edits
+  hearth leaf-needs FILE.ml --profile P  Compare a leaf's needs with a profile recipe
   hearth profiles                      List proof profiles
   hearth doctor                        Inspect the configured runtime
   hearth configure OPTIONS             Set local HOL and CRIU paths
@@ -26,7 +27,7 @@ One checked replay path serves single runs and project watching.
 HELP
     ;;
   --version) echo 'HOL Hearth 0.2.0' ;;
-  prove|inspect|reopen|smoke|configure)
+  prove|inspect|reopen|leaf-needs|smoke|configure)
     exec "$root/hol-workbench/bin/workbench-python" "$operation" "$@" ;;
   profiles|doctor|status)
     exec "$root/hol-workbench/bin/workbench-python" prove "$operation" "$@" ;;

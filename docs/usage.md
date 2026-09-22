@@ -161,6 +161,28 @@ relocate them. Existing scratch files and companion directories are never
 overwritten. A refused command leaves no generated files. Choose a new output
 name for another attempt.
 
+## Compare a leaf's needs with a profile recipe
+
+Before writing a leaf on a large warm profile, see which of its literal loads
+the profile's checked-in recipe already names:
+
+```sh
+./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm
+./hearth leaf-needs /ABS/project/leaf.ml --profile s2n-arm --receipt /ABS/runs
+```
+
+The report scans the leaf and `profiles/PROFILE.ml` with the existing strict
+loader scanner and compares literal `needs` paths as exact text. It lists needs
+the recipe names, needs it does not name, other source loads (`loadt`, `loads`,
+`#use`, `load`, which run regardless), ELF artifact loads and dynamic loads.
+It does not follow the recipe's transitive loads or the leaf's local imports.
+
+This is recipe text, not live shelf admission, not a proof, and not evidence
+that the warm image loaded those bytes. It starts no HOL process.
+`--receipt` optionally attaches an existing prove receipt's identities as
+`warm_exploration`. It refuses a receipt whose profile, source SHA-256 or
+recipe SHA-256 differs from the selected profile and current leaf bytes.
+
 ## Runtime and evidence
 
 `./hearth profiles` lists recipes, not installed environments.
