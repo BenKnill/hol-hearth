@@ -109,12 +109,13 @@ spaces in filenames are supported. Dynamic or ambiguous loaders are refused
 when exact input capture cannot be established.
 
 Known file-loading routes around ordinary loaders are refused before execution,
-including `Toploop.use_file`, `Topdirs` and `Dynlink` loading, and directory
+including HOL's `use_file`, `file_loader` and `load_on_path` entrypoints,
+`Toploop.use_file`, `Topdirs` and `Dynlink` loading, and directory
 changes such as `Sys.chdir` or `Unix.chdir`.
 This applies to the entrypoint and its captured imports. Module-qualified loaders
 such as `Hol.needs` and loaders under local module opens are also refused;
 use ordinary literal `needs`, `loadt` or `loads` instead. Bare references to the
-known execution modules (`Toploop`, `Topdirs`, `Dynlink`, `Sys`, `Unix`) are
+known execution modules (`Hol_loader`, `Toploop`, `Topdirs`, `Dynlink`, `Sys`, `Unix`) are
 refused too: aliases, opens, includes and module expressions can expose a file
 loader or directory change in another source. Ordinary qualified members such
 as `Sys.time` and `Toploop.parse_toplevel_phrase` remain supported. Refusals name
