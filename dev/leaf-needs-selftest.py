@@ -2,6 +2,8 @@
 """Leaf-versus-recipe needs report regressions; original fixtures, no HOL or CRIU."""
 from __future__ import annotations
 
+from contextlib import redirect_stderr
+import io
 import json
 import os
 from pathlib import Path
@@ -15,10 +17,11 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "hol-workbench"))
-from hol_workbench.cli.leaf_needs import LeafNeedsError, build_report
+from hol_workbench.cli.leaf_needs import LeafNeedsError, build_report, main
 from hol_workbench.hashing import sha256_bytes
 from hol_workbench.profile_satisfied_dependencies import ProfileSatisfactionError
 from hol_workbench.source_dependency_closure import SourceDependencyInferenceError
+from hol_workbench.source_execution_plan import capture_source_dependency_closure
 
 LEAF = (
     '(* original fixture leaf *)\n'
@@ -185,7 +188,8 @@ class DeepLeafNeeds(unittest.TestCase):
 
     def test_valid_disk_capture_does_not_hide_failed_warm_inventory_validation(self):
         with mock.patch("hol_workbench.cli.leaf_needs.resolve_published_warm_profile",
-                        return_value=SimpleNamespace(root=self.root, cwd=self.root)), \
+                        return_value=SimpleNamespace(root=self.root, cwd=self.root,
+                                                     legacy_holdir_roots=(), logical_source_roots=())), \
              mock.patch("hol_workbench.cli.leaf_needs.decide_profile_satisfaction",
                         side_effect=ProfileSatisfactionError("refused_profile_satisfaction_dependency_changed",
                                                              "source differs from the shelf inventory")):
@@ -194,6 +198,39 @@ class DeepLeafNeeds(unittest.TestCase):
         self.assertEqual(report["status"], "incomplete")
         self.assertEqual(report["warm_inventory"]["status"], "refused")
         self.assertIn("differs from the shelf", report["transport_reason"])
+
+    def test_capture_uses_published_context_with_explicit_recipe_fallback(self):
+        (self.root / ".git").mkdir()
+        self.leaf.write_text('needs "fixture_src/helper.ml";;\n')
+        declarations = ({"alias": "fixture_src", "source_role": "entrypoint_repository",
+                         "source_subdir": ".", "project_subdir": ".", "execution_role": "none"},)
+        published = SimpleNamespace(root=self.root, cwd=self.root / "profile-cwd",
+                                    logical_source_roots=declarations,
+                                    legacy_holdir_roots=(self.root / "old-holdir",))
+        with mock.patch("hol_workbench.cli.leaf_needs.resolve_published_warm_profile", return_value=published), \
+             mock.patch("hol_workbench.cli.leaf_needs.capture_source_dependency_closure",
+                        wraps=capture_source_dependency_closure) as capture, \
+             mock.patch("hol_workbench.cli.leaf_needs.decide_profile_satisfaction",
+                        return_value=(None, "packaged", "all fixture inputs captured")):
+            report = build_report(self.leaf, "light", deep=True)["preflight"]
+        self.assertEqual(capture.call_args.kwargs["profile_cwd"], published.cwd)
+        self.assertEqual(capture.call_args.kwargs["legacy_holdir_roots"], published.legacy_holdir_roots)
+        self.assertEqual(report["closure"]["records"][0]["resolution"], "mounted_source")
+        self.assertEqual(report["closure"]["records"][0]["sha256"],
+                         sha256_bytes((self.root / "helper.ml").read_bytes()))
+        self.assertEqual(report["disk_closure_status"], "complete")
+        fallback = self.report()["preflight"]
+        self.assertEqual(fallback["disk_closure_status"], "incomplete")
+        self.assertEqual(fallback["warm_inventory"]["status"], "unavailable")
+        self.assertIn("no local shelf", fallback["warm_inventory"]["reason"])
+
+    def test_capture_runtime_refusal_has_no_traceback(self):
+        stderr = io.StringIO()
+        with mock.patch("hol_workbench.cli.leaf_needs.capture_source_dependency_closure",
+                        side_effect=RuntimeError("captured source context changed")), redirect_stderr(stderr):
+            status = main([str(self.leaf), "--profile", "light", "--deep"])
+        self.assertEqual(status, 2)
+        self.assertEqual(stderr.getvalue(), "leaf-needs: refused: captured source context changed\n")
 
     def test_transitive_missing_and_dynamic_inputs_are_visible(self):
         (self.root / "code.o").unlink()

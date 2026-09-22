@@ -155,24 +155,27 @@ def build_report(source: Path, profile: str, *, receipt: str | None = None, deep
         report["receipt"] = _receipt_identity(
             receipt, profile=profile, source_sha256=report["leaf_sha256"], recipe_sha256=report["recipe_sha256"])
     if deep:
+        inventory: dict[str, Any] = {"status": "unavailable"}
+        published = None
+        try:
+            published = resolve_published_warm_profile(repo_root / "hol-workbench" / "bin", profile)
+        except (OSError, RuntimeError, ValueError, SystemExit) as exc:
+            inventory["reason"] = str(exc)
         closure, holdir = capture_source_dependency_closure(
             source,
-            profile_cwd=None,
-            legacy_holdir_roots=tuple(Path(value) for value in entry.get("legacy_holdir_roots", [])),
-            logical_source_root_declarations=logical_source_root_declarations(
-                entry.get("logical_source_roots"), profile=profile),
+            profile_cwd=published.cwd if published is not None else None,
+            legacy_holdir_roots=(published.legacy_holdir_roots if published is not None else
+                                tuple(Path(value) for value in entry.get("legacy_holdir_roots", []))),
+            logical_source_root_declarations=(published.logical_source_roots if published is not None else
+                                              logical_source_root_declarations(
+                                                  entry.get("logical_source_roots"), profile=profile)),
             use_analysis_cache=False,
         )
         if closure["entrypoint"]["sha256"] != report["leaf_sha256"]:
             raise LeafNeedsError("leaf bytes changed during the dependency scan; run the report again")
         status, reason = dependency_transport_status(closure)
         satisfaction = None
-        inventory: dict[str, Any] = {"status": "unavailable"}
-        try:
-            published = resolve_published_warm_profile(repo_root / "hol-workbench" / "bin", profile)
-        except (OSError, RuntimeError, ValueError, SystemExit) as exc:
-            inventory["reason"] = str(exc)
-        else:
+        if published is not None:
             try:
                 satisfaction, status, reason = decide_profile_satisfaction(
                     closure, profile_root=published.root, logical_profile=profile,
@@ -275,7 +278,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         report = build_report(Path(args.source).expanduser().absolute(), args.profile, receipt=args.receipt,
                               deep=args.deep)
-    except (ValueError, OSError) as exc:
+    except (ValueError, OSError, RuntimeError) as exc:
         print(f"leaf-needs: refused: {exc}", file=sys.stderr)
         return 2
     if args.json:
