@@ -113,7 +113,7 @@ class BasisReplay(unittest.TestCase):
                 self.assertIn("project_basis_handle", options)
                 self.assertNotIn("preparation_postlude", options)
                 self.assertEqual(options["transcript_output"], self.transcript)
-        self.assertIn("PROJECT BASIS: reusing", self.output.getvalue())
+        self.assertIn("BASIS: reusing", self.output.getvalue())
 
     def test_failed_preparation_keeps_receipt_and_does_not_run_leaf(self):
         self.preparation_status = 124

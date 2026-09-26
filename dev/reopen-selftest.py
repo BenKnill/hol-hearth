@@ -232,7 +232,7 @@ class Reopening(_ReopenFixture):
         self.assertIn("--basis", result.stdout)
         self.assertIn("ordinary prove checks compatibility", result.stdout)
         self.assertEqual(origin["timeout_seconds"], 3600.0)
-        self.assertIn("--timeout 3600.0", result.stdout)
+        self.assertIn("--timeout 3600", result.stdout)
 
     def test_captured_library_import_is_verified_without_relocation(self):
         holdir = self.root / "hol"

@@ -21,6 +21,7 @@ def run_published_warm_replay(
     basis_source: Path | None = None,
     run_root: Path | None = None,
     basis_cache_root: Path | None = None,
+    verbose: bool = True,
 ) -> int:
     """Evaluate once in a fresh child; persist only when a transcript is requested."""
 
@@ -44,6 +45,7 @@ def run_published_warm_replay(
             logical_source_root_declarations=profile.logical_source_roots,
             evidence_role=evidence_role,
             display_transcript=display_transcript,
+            verbose=verbose,
             expected_source_sha256=expected_source_sha256,
             on_phase=on_phase,
         )
@@ -58,7 +60,7 @@ def run_published_warm_replay(
             return run_project_basis_replay(
                 profile, source, basis_source=basis_source, run_root=run_root,
                 replay=replay, timeout=timeout, on_phase=on_phase, transcript=transcript,
-                cache_root=basis_cache_root, expected_source_sha256=expected_source_sha256,
+                cache_root=basis_cache_root, expected_source_sha256=expected_source_sha256, verbose=verbose,
             )
         return replay(source)
     finally:

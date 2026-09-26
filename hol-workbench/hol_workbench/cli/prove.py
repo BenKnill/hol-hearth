@@ -51,19 +51,13 @@ def main(
     scripts = str(Path(script_dir).resolve() if script_dir is not None else Path(__file__).resolve().parents[2] / "bin")
     working_directory = str(Path(cwd).resolve()) if cwd is not None else os.getcwd()
 
-    if args and args[0] == "profiles":
-        from hol_workbench.cli import prove_profiles
+    if args and args[0] in PUBLIC_VERBS:
+        # Verbs own their options (--source, --all, --json); none of them starts a proof.
+        return PUBLIC_VERBS[args[0]](args[1:], scripts, working_directory)
+    if args and args[0] == "watch":
+        from hol_workbench.cli import prove_loop
 
-        return prove_profiles.main(["profiles", scripts, *args[1:]])
-    # These take their own options (--source, --all) and never start a proof.
-    if args and args[0] == "cancel":
-        from hol_workbench.cli import prove_cancel
-
-        return prove_cancel.main(args[1:], script_dir=scripts, cwd=working_directory)
-    if args and args[0] == "basis":
-        from hol_workbench.cli import prove_basis
-
-        return prove_basis.main(args[1:], script_dir=scripts, cwd=working_directory)
+        return prove_loop.main([*args[1:], "--loop"], script_dir=scripts, cwd=working_directory)
 
     if args and args[0] in DEVELOPER_ONLY_COMMANDS:
         print(
@@ -99,21 +93,51 @@ def main(
         from hol_workbench.cli import prove_replay
 
         return prove_replay.main(args, script_dir=scripts, cwd=working_directory)
-    if args[0] == "status":
-        from hol_workbench.cli import prove_runtime_status
-
-        return prove_runtime_status.main(args[1:], script_dir=scripts)
-    if args[0] == "doctor":
-        from hol_workbench.cli import prove_doctor
-
-        return prove_doctor.main(args[1:], script_dir=scripts)
-
     print(
-        "prove: expected SOURCE.ml [--run-root], SOURCE.ml --loop, profiles, status, doctor, cancel, or basis; "
-        "maintenance and publication replay use developer tools",
+        "prove: expected SOURCE.ml [--run-root], SOURCE.ml --loop, or one of "
+        + ", ".join(sorted([*PUBLIC_VERBS, "watch"])),
         file=sys.stderr,
     )
     return 2
+
+
+def _verb_profiles(args: list[str], scripts: str, cwd: str) -> int:
+    from hol_workbench.cli import prove_profiles
+
+    return prove_profiles.main(["profiles", scripts, *args])
+
+
+def _verb_status(args: list[str], scripts: str, cwd: str) -> int:
+    from hol_workbench.cli import prove_runtime_status
+
+    return prove_runtime_status.main(args, script_dir=scripts)
+
+
+def _verb_doctor(args: list[str], scripts: str, cwd: str) -> int:
+    from hol_workbench.cli import prove_doctor
+
+    return prove_doctor.main(args, script_dir=scripts)
+
+
+def _verb_cancel(args: list[str], scripts: str, cwd: str) -> int:
+    from hol_workbench.cli import prove_cancel
+
+    return prove_cancel.main(args, script_dir=scripts, cwd=cwd)
+
+
+def _verb_basis(args: list[str], scripts: str, cwd: str) -> int:
+    from hol_workbench.cli import prove_basis
+
+    return prove_basis.main(args, script_dir=scripts, cwd=cwd)
+
+
+PUBLIC_VERBS = {
+    "profiles": _verb_profiles,
+    "status": _verb_status,
+    "doctor": _verb_doctor,
+    "cancel": _verb_cancel,
+    "basis": _verb_basis,
+}
 
 
 if __name__ == "__main__":

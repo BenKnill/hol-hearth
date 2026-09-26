@@ -296,7 +296,7 @@ def _profile_satisfaction_refusal(
         else "HOL evaluation and profile restore not started"
     )
     print(
-        f"warm vanilla HOL: dependency_transport_status={exc.status}; {exc}; {suffix}",
+        f"prove: dependency_transport_status={exc.status}; {exc}; {suffix}",
         file=sys.stderr,
     )
     return 2
@@ -314,7 +314,7 @@ def _pinned_source_refusal(expected: str | None, actual: str) -> str | None:
     if normalized_sha256(expected) == actual:
         return None
     return (
-        f"warm vanilla HOL: source_pin=refused; expected sha={short_sha256(expected) or 'malformed'} "
+        f"prove: source_pin=refused; expected sha={short_sha256(expected) or 'malformed'} "
         f"actual sha={short_sha256(actual)}; HOL evaluation and profile restore not started"
     )
 
@@ -334,6 +334,7 @@ def run(
     logical_source_root_declarations: tuple[dict[str, str], ...] = (),
     evidence_role: str = "warm_development_only",
     display_transcript: bool = True,
+    verbose: bool = True,
     expected_source_sha256: str | None = None,
     on_phase: Callable[[str], None] | None = None,
     preparation_prefix: bytes = b"",
@@ -344,12 +345,12 @@ def run(
     report_phase = on_phase or (lambda phase: None)
     source = source.expanduser().resolve()
     if not source.is_file():
-        print(f"warm vanilla HOL: source not found: {source}", file=sys.stderr)
+        print(f"prove: source not found: {source}", file=sys.stderr)
         return 2
     if transcript_output is not None:
         transcript_output = transcript_output.expanduser().resolve()
         if source in {transcript_output, metadata_path(transcript_output), raw_transcript_path(transcript_output)}:
-            print("warm vanilla HOL: --transcript and its metadata must not overwrite --source", file=sys.stderr)
+            print("prove: --transcript and its metadata must not overwrite --source", file=sys.stderr)
             return 2
     logical_profile = logical_profile or profile_root.name
     source_bytes = source.read_bytes()
@@ -395,7 +396,7 @@ def run(
     except (UnicodeDecodeError, ValueError) as exc:
         record_source_refusal("claim_probe_contract_refused", str(exc))
         print(
-            f"warm vanilla HOL: claim_probe_contract=refused; {exc}; HOL evaluation and profile restore not started",
+            f"prove: claim_probe_contract=refused; {exc}; HOL evaluation and profile restore not started",
             file=sys.stderr,
         )
         return 2
@@ -403,7 +404,7 @@ def run(
     if syntax_problem:
         record_source_refusal("syntax_preflight_failed", syntax_problem)
         print(
-            f"warm vanilla HOL: syntax_preflight=failed; {syntax_problem}; "
+            f"prove: syntax_preflight=failed; {syntax_problem}; "
             "HOL evaluation and profile restore not started",
             file=sys.stderr,
         )
@@ -440,7 +441,7 @@ def run(
             evidence_role=evidence_role,
         )
         print(
-            f"warm vanilla HOL: dependency_transport_status={exc.status}; {exc}; "
+            f"prove: dependency_transport_status={exc.status}; {exc}; "
             "HOL evaluation and profile restore not started",
             file=sys.stderr,
         )
@@ -500,7 +501,7 @@ def run(
             evidence_role=evidence_role,
         )
         print(
-            f"warm vanilla HOL: dependency_transport_status={transport_status}; {transport_reason}; "
+            f"prove: dependency_transport_status={transport_status}; {transport_reason}; "
             "HOL evaluation and profile restore not started",
             file=sys.stderr,
         )
@@ -560,7 +561,7 @@ def run(
             evidence_role=evidence_role,
         )
         print(
-            f"warm vanilla HOL: dependency_transport_status={package['dependency_transport_status']}; "
+            f"prove: dependency_transport_status={package['dependency_transport_status']}; "
             f"{exc}; HOL evaluation and profile restore not started",
             file=sys.stderr,
         )
@@ -590,7 +591,7 @@ def run(
     if executed_source_sha256 != probe_contract["executed_payload_sha256"]:
         temporary.cleanup()
         print(
-            "warm vanilla HOL: packaged entrypoint changed after exact-byte claim instrumentation; "
+            "prove: packaged entrypoint changed after exact-byte claim instrumentation; "
             "HOL evaluation and profile restore not started",
             file=sys.stderr,
         )
@@ -605,7 +606,7 @@ def run(
             ensure_profile_logical_capacity(profile_root, logical_capacity)
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             print(
-                f"warm vanilla HOL: failed to prepare {logical_capacity} logical seat(s): {exc}",
+                f"prove: failed to prepare {logical_capacity} logical seat(s): {exc}",
                 file=sys.stderr,
             )
             return 1
@@ -624,18 +625,17 @@ def run(
             for active in active_owners:
                 progress = shelf_owner_progress(profile_root, active)
                 print(
-                    f"warm vanilla HOL: waiting for physical shelf {profile_root.name}; "
-                    f"seat={active.get('admission_slot') or '-'} owner={active.get('attempt_id')} "
-                    f"source={active.get('source')} elapsed={active.get('elapsed_seconds')}s "
-                    f"progress={progress_summary(progress)}",
+                    f"prove: waiting for the {profile_root.name} seat; held by {active.get('attempt_id')} "
+                    f"evaluating {active.get('source')} for {active.get('elapsed_seconds')}s "
+                    f"({progress_summary(progress)})",
                     file=sys.stderr,
                     flush=True,
                 )
-                print(f"warm vanilla HOL: scoped cancel: {owner_cancel_command(active)}", file=sys.stderr, flush=True)
+                print(f"prove: to stop it: {owner_cancel_command(active)}", file=sys.stderr, flush=True)
             return
         print(
-            f"warm vanilla HOL: waiting for the physical shelf {profile_root.name}; "
-            f"all {effective_capacity} seats are owned",
+            f"prove: waiting for the {profile_root.name} seat; "
+            f"all {effective_capacity} seats are taken",
             file=sys.stderr,
             flush=True,
         )
@@ -813,23 +813,25 @@ def run(
                         dependency_package=package,
                         evidence_role=evidence_role,
                     )
-                    _print_artifact_locations(transcript_output, metadata)
+                    if verbose:
+                        _print_artifact_locations(transcript_output, metadata)
             assert response is not None
             exit_status = int(response.get("exit_status") or 0)
             transport = "completed" if response.get("status") == "ok" else str(response.get("status") or "unknown")
-            _print_semantic_summary(
-                profile=profile_root.name,
-                transport=transport,
-                semantic=semantic,
-                response=response,
-                seat=getattr(admission, "slot", 1),
-                capacity=getattr(admission, "capacity", effective_capacity),
-                wait=admission.wait_seconds,
-                evidence_role=evidence_role,
-            )
+            if verbose:
+                _print_semantic_summary(
+                    profile=profile_root.name,
+                    transport=transport,
+                    semantic=semantic,
+                    response=response,
+                    seat=getattr(admission, "slot", 1),
+                    capacity=getattr(admission, "capacity", effective_capacity),
+                    wait=admission.wait_seconds,
+                    evidence_role=evidence_role,
+                )
             return int(semantic.get("effective_exit_status") or exit_status)
     except ShelfAdmissionInterrupted:
-        print("warm vanilla HOL: interrupted while waiting for the physical shelf", file=sys.stderr)
+        print("prove: interrupted while waiting for the seat", file=sys.stderr)
         return 130
     except KeyboardInterrupt:
         cleanup = cleanup_receipt or {
@@ -838,13 +840,13 @@ def run(
             "seat_reusable": False,
         }
         print(
-            "warm vanilla HOL: interrupted; disposable child cancellation requested; "
+            "prove: interrupted; the proof child is being cancelled; "
             f"cleanup={cleanup.get('status')}; seat_reusable={str(cleanup.get('seat_reusable')).lower()}",
             file=sys.stderr,
         )
         return 130
     except (OSError, RuntimeError, ValueError) as exc:
-        print(f"warm vanilla HOL: {exc}", file=sys.stderr)
+        print(f"prove: {exc}", file=sys.stderr)
         return 1
     finally:
         temporary.cleanup()

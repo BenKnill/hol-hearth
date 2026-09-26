@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import math
 import os
 import sys
@@ -16,13 +17,14 @@ from hol_workbench.authoring_source_path import (
 )
 from hol_workbench.cli.orbstack_criu_vanilla_artifacts import default_transcript_path
 from hol_workbench.cli.prove_profiles import public_authoring_profile_names
-from hol_workbench.cli.public_commands import public_command, replay_handoff
+from hol_workbench.cli.public_commands import public_command
 from hol_workbench.cli.published_profile import resolve_published_warm_profile
 from hol_workbench.cli.published_profile_replay import run_published_warm_replay
 from hol_workbench.cli.replay_progress import ReplayProgress, add_progress_argument
 from hol_workbench.hashing import sha256_file, short_sha256
 from hol_workbench.jsonio import read_json
 from hol_workbench.proofs.profile_inference import infer_public_profile_for_source
+from hol_workbench.receipt_summary import next_command, summarize
 
 
 def _parse(args: list[str]) -> argparse.Namespace:
@@ -40,7 +42,11 @@ def _parse(args: list[str]) -> argparse.Namespace:
                         help="keep prepared bases under DIR/.project-bases instead of the shared "
                              "~/.cache/hol-hearth/project-bases")
     parser.add_argument("--run-root", default=None)
-    parser.add_argument("--timeout", type=float, default=120.0)
+    parser.add_argument("--timeout", type=float, default=900.0,
+                        help="proof budget in seconds for this attempt (default 900); queue wait is separate")
+    parser.add_argument("--json", action="store_true", help="print the receipt summary as JSON instead of the verdict lines")
+    parser.add_argument("--verbose", action="store_true",
+                        help="also print the runtime's tagged progress lines (REPLAY, WARM VANILLA, FOUNDATION DELTA, ...)")
     add_progress_argument(parser)
     parsed = parser.parse_args(args)
     source = parsed.source or parsed.positional_source
@@ -131,10 +137,11 @@ def main(
     if expected_sha256 is None or short is None:
         print(f"prove: source digest unavailable: {source}", file=sys.stderr)
         return 2
-    if settle_seconds > 0.15:
+    if settle_seconds > 0.15 and not options.json:
         print(f"SOURCE: waited {settle_seconds:.1f}s for the file to stop changing before pinning its digest",
               flush=True)
-    print(f"REPLAY: profile={name} source={source} sha={short}", flush=True)
+    if options.verbose:
+        print(f"REPLAY: profile={name} source={source} sha={short}", flush=True)
     with ReplayProgress(timeout=options.timeout, interval=options.progress_interval) as progress:
         status = run_published_warm_replay(
             profile,
@@ -147,16 +154,32 @@ def main(
             basis_source=basis,
             run_root=run_root,
             basis_cache_root=basis_cache_root,
+            verbose=options.verbose,
         )
     receipt = Path(f"{transcript}.json")
     if receipt.is_file():
+        recorded = read_json(receipt)
+        summary = summarize(recorded, receipt_path=receipt)
+        summary = replace(summary, next=next_command(summary, run_root=run_root, public_command=public_command))
+        if options.json:
+            print(summary.json(), flush=True)
+            return status
+        print(summary.line, flush=True)
         print(f"RECEIPT: {receipt}", flush=True)
+        if summary.verdict == "failed" and summary.failing_step:
+            step = summary.failing_step
+            where = f" (line {step['source_line']})" if step.get("source_line") else ""
+            print(f"GOAL before the failing step{where}: |- {step['conclusion']}", flush=True)
+        if summary.next:
+            print(f"NEXT: {summary.next}", flush=True)
+        if not options.verbose:
+            return status
+        # Legacy tagged lines for scripts that still grep them; the verdict above is the contract.
         if status == 0:
             print(
                 "SOURCE CHECK: passed; complete source evaluated and discovered named theorem bindings checked",
                 flush=True,
             )
-        recorded = read_json(receipt)
         if recorded.get("source_preflight_status") in {"source_changed_during_capture", "source_pin_refused"}:
             current = short_sha256(sha256_file(source))
             print("SOURCE CHANGED: the file was rewritten between the pinned digest and the read for evaluation "
@@ -170,9 +193,6 @@ def main(
             print("NEXT: inspect this attempt's diagnostics, isolate the slow proof in a small "
                   "leaf, then rerun with an explicit budget.", flush=True)
             print(f"DETAILS: {public_command('inspect', receipt.parent, '--tail', '40')}", flush=True)
-        else:
-            for line in replay_handoff(run_root, succeeded=status == 0):
-                print(line, flush=True)
     elif status == 0:
         print("prove: replay succeeded without its required receipt", file=sys.stderr)
         return 1

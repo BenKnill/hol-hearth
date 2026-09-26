@@ -6,10 +6,13 @@ Choose the smallest source that contains the obligation you are changing.
 Its dependencies should state the reusable mathematics explicitly. After an edit:
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --profile light --run-root /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
 ```
+
+The default budget is 900 seconds. `prove` prints one verdict line
+(`PASSED`, `FAILED`, `INCOMPLETE` or `REFUSED`), the receipt path and the next
+command; see [Read the result you need](#read-the-result-you-need).
 
 Use the project's complete entrypoint and a larger explicit budget for a
 milestone. The acoustic interface acceptance case uses 1500 seconds. This
@@ -22,8 +25,8 @@ newest receipt. Pass an individual attempt directory to inspect an older result.
 ## Watch the project
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --loop --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --loop --profile light --run-root /ABS/project/runs
+./hearth watch /ABS/project/proofs/leaf.ml --profile light --run-root /ABS/project/runs   # same
 ```
 
 The watcher uses the same recorded replay as the command above. It tracks
@@ -154,11 +157,46 @@ selected named probes; inspection describes this scope.
 ## Read the result you need
 
 ```sh
+./hearth inspect /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
-./hearth inspect /ABS/project/runs --verbose
 ./hearth inspect /ABS/project/runs --json
+./hearth inspect /ABS/project/runs --verbose
 ./hearth inspect /ABS/project/runs --tail 40
 ```
+
+The default card starts with the verdict and holds only what changes what you
+do next:
+
+```
+FAILED leaf.ml at STEP_LEMMA (line 41): Exception: Failure "ARITH_RULE `...`: linear_ineqs: no contradiction".
+source: /ABS/project/proofs/leaf.ml sha=3b6610801338
+  STEP_LEMMA: failed source_line=41
+  LATER_LEMMA: not reached (after the failure) source_line=58
+  EARLY_LEMMA: proved source_line=12
+binding_counts: proved=1 failed=0 printed_unprobed=0 missing=2 unknown=0
+successful_probe_counts: conclusion_checked=1 thm_type_only=0 unknown=0
+failing_binding: STEP_LEMMA source=/ABS/project/proofs/leaf.ml:41
+first_failure: transcript_line=446 Exception: Failure "ARITH_RULE `...`".
+inputs: 3 files; closure_sha=26ff7009099a
+receipt: /ABS/project/runs/.../transcript.log.json
+NEXT: ./hearth reopen /ABS/project/runs/... --binding STEP_LEMMA
+proof_diagnostics: 1 event(s), diagnostic only
+  ...
+  failing tactic steps: 2/2 recorded, outermost first; ...
+    step 1 at leaf.ml:44:
+      |- x + y = y + x
+```
+
+`PASSED` cards are five or six lines. Binding states are the receipt's own
+probe results (`proved`, `failed`, `printed_unprobed`, `missing`) plus two
+derived ones: the attributed failing binding shows `failed`, and bindings whose
+source line follows it show `not reached`. `--json` prints the same summary as
+data (`verdict`, `line`, `bindings`, `binding_counts`, `new_axioms`,
+`eval_seconds`, `failing_binding`, `first_failure`, `failing_step`, `reason`,
+`basis`, `inputs`, `receipt`, `next`, ...); the verdict block is also written
+into the receipt file itself as `verdict`. `--json --verbose` prints the
+complete receipt, and `--verbose` alone prints every recorded field the way
+older versions did.
 
 The exact binding view includes its recorded status, probe strength, and original
 source span. A literal statement's probe checks that the theorem's conclusion
@@ -171,9 +209,9 @@ including those hidden by the compact display limit. `--binding` and `--verbose`
 also show the exact `verification_kind`; older receipts without it have unknown
 probe strength.
 Verbose lists all discovered entrypoint bindings and captured input identities.
-JSON exposes the complete, unchanged receipt, including each binding's recorded
-`verification_kind`, for agents. An unrecorded binding is reported
-as unrecorded; it is not inferred absent from the mathematical basis.
+`--json --verbose` exposes the complete, unchanged receipt, including each
+binding's recorded `verification_kind`, for agents. An unrecorded binding is
+reported as unrecorded; it is not inferred absent from the mathematical basis.
 
 Failure inspection includes a bounded exception block. Compiler locations in
 generated evaluation files are diagnostic coordinates, not editable source

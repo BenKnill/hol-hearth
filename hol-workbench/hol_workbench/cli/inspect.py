@@ -10,8 +10,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from dataclasses import replace
+
+from hol_workbench.cli.public_commands import public_command
 from hol_workbench.hashing import short_sha256
 from hol_workbench.proof_diagnostics import print_proof_diagnostics
+from hol_workbench.receipt_summary import next_command, render_card, summarize
 
 REPLAY_SCHEMA = "hol-workbench.warm-vanilla-artifact.v1"
 
@@ -23,9 +27,11 @@ def _parser() -> argparse.ArgumentParser:
         allow_abbrev=False,
     )
     parser.add_argument("run_dir", nargs="+")
-    parser.add_argument("--json", action="store_true", help="print the complete recorded receipt")
+    parser.add_argument("--json", action="store_true",
+                        help="print the receipt summary as JSON; with --verbose, the complete recorded receipt")
     parser.add_argument("--binding", action="append", default=[], help="show an exact theorem binding (repeatable)")
-    parser.add_argument("--verbose", action="store_true", help="show the full card-first inspect report")
+    parser.add_argument("--verbose", action="store_true",
+                        help="show every recorded field (the full legacy card) instead of the verdict card")
     parser.add_argument("--tail", type=int, help="print the last N raw-log lines after the compact summary")
     parser.add_argument("--grep", help="regex filter for a bounded raw-log peek after the compact summary")
     parser.add_argument("--limit", type=int, default=40, help="maximum grep matches when --tail is absent")
@@ -182,6 +188,33 @@ def _input_details(receipt: dict[str, Any], *, verbose: bool) -> None:
 
 def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
     receipt = _read_json(receipt_path)
+    if not args.verbose:
+        return _inspect_card(args, receipt, receipt_path)
+    return _inspect_legacy(args, receipt, receipt_path)
+
+
+def _inspect_card(args: argparse.Namespace, receipt: dict[str, Any], receipt_path: Path) -> int:
+    """Verdict first; then only what changes what the reader does next."""
+    run_root = receipt_path.parent.parent if receipt_path.parent.name != "" else None
+    summary = summarize(receipt, receipt_path=receipt_path)
+    summary = replace(summary, next=next_command(summary, run_root=run_root, public_command=public_command))
+    selected = set(args.binding)
+    rows = {row.name: row for row in summary.bindings}
+    selection_ok = not selected or all(name in rows and rows[name].status == "proved" for name in selected)
+    exit_code = 0 if summary.verdict == "passed" and selection_ok else 1
+    if args.json:
+        print(summary.json())
+        return exit_code
+    for line in render_card(summary, receipt, selected=selected):
+        print(line)
+    if summary.verdict != "passed":
+        _failure_details(receipt)
+        print_proof_diagnostics(receipt, verbose=False)
+    _bounded_transcript(args, receipt)
+    return exit_code
+
+
+def _inspect_legacy(args: argparse.Namespace, receipt: dict[str, Any], receipt_path: Path) -> int:
     bindings = receipt.get("bindings")
     binding_rows = bindings if isinstance(bindings, list) else []
     semantic_succeeded = bool(

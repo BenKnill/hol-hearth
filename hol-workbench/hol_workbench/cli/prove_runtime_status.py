@@ -84,6 +84,7 @@ def collect_status(script_dir: Path, *, profile: str | None = None) -> dict[str,
     return {
         "schema": "hol-workbench.public-runtime-status.v1",
         "status": "degraded" if unavailable == len(rows) else "ready",
+        "memory": memory_report(),
         "profiles": rows,
         "summary": {
             "profiles": len(rows),
@@ -102,13 +103,30 @@ def _duration(seconds: object) -> str:
     return f"{value:.1f}s" if value < 60 else f"{value / 60:.1f}m"
 
 
+def memory_report() -> dict[str, Any] | None:
+    """Available and total memory from /proc/meminfo; None where that file is absent."""
+    try:
+        fields = dict(
+            line.split(":", 1) for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines() if ":" in line
+        )
+        available_kb = int(fields["MemAvailable"].split()[0])
+        total_kb = int(fields["MemTotal"].split()[0])
+    except (OSError, KeyError, ValueError, IndexError):
+        return None
+    return {"available_gb": round(available_kb / 1048576, 1), "total_gb": round(total_kb / 1048576, 1)}
+
+
 def render_status(report: dict[str, Any]) -> list[str]:
     summary = report["summary"]
     lines = [
         f"HEARTH: {report['status']} processes={summary.get('workers', 0)} "
         f"active={summary['active']} queued={summary['queued']}",
-        "PROFILE             STATE        PROCESSES ACTIVE/CAP  QUEUED  OLDEST",
     ]
+    memory = report.get("memory")
+    if isinstance(memory, dict):
+        lines.append(f"MEMORY: {memory['available_gb']} GB available of {memory['total_gb']} GB; "
+                     "a proof child needs about 1 GB, a retained basis about 1 GB more")
+    lines.append("PROFILE             STATE        PROCESSES ACTIVE/CAP  QUEUED  OLDEST")
     for row in report["profiles"]:
         active = f"{row['active']}/{row['capacity']}"
         lines.append(

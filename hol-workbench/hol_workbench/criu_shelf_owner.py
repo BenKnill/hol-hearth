@@ -40,7 +40,7 @@ def new_shelf_owner(
     pid = os.getpid()
     return {
         "schema": SHELF_OWNER_SCHEMA,
-        "attempt_id": f"route-{pid}-{secrets.token_hex(4)}",
+        "attempt_id": f"attempt-{pid}-{secrets.token_hex(4)}",
         "logical_profile": logical_profile,
         "physical_profile": profile_root.name,
         "owner_kind": owner_kind,
@@ -164,7 +164,9 @@ def progress_summary(progress: dict[str, Any]) -> str:
 
 
 def owner_cancel_command(owner: dict[str, Any]) -> str:
-    return f"hol-workbench/bin/orbstack-criu cancel {owner.get('logical_profile')} --attempt {owner.get('attempt_id')}"
+    from hol_workbench.cli.public_commands import public_command
+
+    return public_command("cancel", str(owner.get("attempt_id") or ""))
 
 
 def _owner_for_attempt(profile_root: Path, attempt_id: str) -> dict[str, Any]:

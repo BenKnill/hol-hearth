@@ -89,8 +89,8 @@ def _changed_during_capture_card(directory: Path, source: Path) -> None:
     receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
     card, status = _card(run)
     assert status != 0
-    assert f"source_changed_during_capture: the file changed between the pinned digest (sha={sha256_bytes(ACCEPTED)[:12]})" in card, card
-    assert f"evaluation read (sha={sha256_bytes(EDITED)[:12]})" in card
+    assert card.startswith("REFUSED proof.ml: source changed during capture"), card
+    assert f"pinned sha={sha256_bytes(ACCEPTED)[:12]}" in card and f"read sha={sha256_bytes(EDITED)[:12]}" in card, card
     assert "Not a proof failure" in card and "NEXT: rerun the same prove command once the file is stable" in card
 
 
@@ -280,8 +280,8 @@ def main() -> int:
         assert _source_line(changed_card) == f"source: {source} sha={accepted_sha[:12]}"
         assert changed_status == status
         assert _advisory_lines(changed_card) == []
-        assert "status: succeeded" in changed_card
-        assert "source_acceptance: accepted" in changed_card
+        assert changed_card.startswith("PASSED "), changed_card
+        assert "bindings proved" in changed_card or "no named bindings" in changed_card, changed_card
         source.unlink()
         assert _card(run)[0] == changed_card
 

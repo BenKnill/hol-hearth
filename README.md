@@ -18,10 +18,21 @@ Use [setup](docs/setup.md#create-the-first-profile) when provisioning a new host
 Then run the project on its intended basis:
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --profile light --run-root /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
 ```
+
+`prove` answers with one verdict line, the receipt path and the next command:
+
+```
+PASSED leaf.ml: 3/3 bindings proved, 0 new axioms, eval 4.2s (light)
+RECEIPT: /ABS/project/runs/20260926T140000Z-4242-leaf-1a2b3c/transcript.log.json
+NEXT: ./hearth inspect /ABS/project/runs/20260926T140000Z-4242-leaf-1a2b3c
+```
+
+A failure names the binding and line, quotes HOL's error, and shows the goal
+the failing tactic step received; `--json` gives the same summary as data and
+`--verbose` adds the runtime's tagged lines. The default budget is 900 seconds.
 
 Use `s2n-arm` for ARM assembly, `s2n-arm-mlkem` for the larger NTT basis, or
 `s2n-x86` for x86 assembly. `hearth profiles` lists recipes; installed shelves

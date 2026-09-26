@@ -363,6 +363,23 @@ def reopen(run: Path, *, binding_name: str, out: Path) -> dict[str, Any]:
     return metadata
 
 
+def _default_out(run: Path, binding_name: str) -> Path:
+    """A fresh scratch name beside the recorded source, which works for every source layout."""
+    receipt_path = _replay_receipt(run.expanduser())
+    if receipt_path is None:
+        raise ReopenError("no recorded replay receipt found; pass a receipt, attempt directory or run root")
+    receipt = json.loads(receipt_path.read_bytes())
+    source = Path(str((receipt if isinstance(receipt, dict) else {}).get("source") or ""))
+    if not source.is_absolute():
+        raise ReopenError("receipt has no absolute entrypoint source; pass --out")
+    stem = f"{source.stem}_{binding_name.lower()}_reopen"
+    for index in range(1, 100):
+        candidate = source.with_name(f"{stem}{'' if index == 1 else f'-{index}'}.ml")
+        if not os.path.lexists(candidate) and not os.path.lexists(str(candidate) + ".reopen"):
+            return candidate
+    raise ReopenError("no free default scratch name beside the source; pass --out")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="hearth reopen",
@@ -371,10 +388,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("run", type=Path, help="receipt, attempt directory, or root (newest receipt)")
     parser.add_argument("--binding", required=True, help="exact unproved entrypoint binding")
-    parser.add_argument("--out", required=True, type=Path, help="new .ml file; existing parent directory")
+    parser.add_argument("--out", type=Path,
+                        help="new .ml file in an existing directory; default: SOURCE_BINDING_reopen.ml beside the source")
     args = parser.parse_args(argv)
     try:
-        result = reopen(args.run, binding_name=args.binding, out=args.out)
+        out = args.out if args.out is not None else _default_out(args.run, args.binding)
+        result = reopen(args.run, binding_name=args.binding, out=out)
     except (OSError, ValueError, KeyError, TypeError, DependencyPackageError) as exc:
         print(f"reopen: refused: {exc}", file=sys.stderr)
         return 2
@@ -397,7 +416,7 @@ def main(argv: list[str] | None = None) -> int:
         command.extend(["--basis", result["basis"]])
         print("BASIS: recorded preparation requested; ordinary prove checks compatibility before reuse")
     if result.get("timeout_seconds"):
-        command.extend(["--timeout", str(result["timeout_seconds"])])
+        command.extend(["--timeout", f"{result['timeout_seconds']:g}"])
     run_root = result.get("run_root") or result["scratch"] + ".runs"
     command.extend(["--run-root", run_root])
     print("NEXT: " + public_command("prove", *command))

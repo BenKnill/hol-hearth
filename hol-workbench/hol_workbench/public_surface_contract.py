@@ -184,7 +184,7 @@ def main(argv: list[str]) -> int:
         f"cli.main(['--help'],script_dir={str(workbench / 'bin')!r})",
         8,
     )
-    _assert_help_isolated(root, "inspect", "cli._parser().print_help()", 6)
+    _assert_help_isolated(root, "inspect", "cli._parser().print_help()", 8)
     _assert_recorded_first_docs(root)
 
     with tempfile.TemporaryDirectory(prefix="workbench-public-surface-") as temp:
@@ -250,33 +250,45 @@ def main(argv: list[str]) -> int:
 
         completed = _run([str(inspect), str(success)], cwd=fixture)
         assert completed.returncode == 0, completed.stderr
-        assert "status: succeeded" in completed.stdout
-        assert "source_acceptance: accepted" in completed.stdout
-        assert "exit_status_check: unavailable (legacy receipt; semantic fallback)" in completed.stdout
+        assert completed.stdout.startswith("PASSED "), completed.stdout
+        assert "axiom delta not recorded" in completed.stdout
         assert "DEMO: proved" in completed.stdout
-        assert "foundation_advisory: unavailable (not recorded)" in completed.stdout
-        assert "cleanup: not recorded (published warm seat may remain)" in completed.stdout
+        assert "NEXT: " in completed.stdout
+        assert "status: succeeded" not in completed.stdout, "the verdict card must not repeat the legacy fields"
+        completed_verbose = _run([str(inspect), str(success), "--verbose"], cwd=fixture)
+        assert completed_verbose.returncode == 0, completed_verbose.stderr
+        assert "status: succeeded" in completed_verbose.stdout
+        assert "source_acceptance: accepted" in completed_verbose.stdout
+        assert "exit_status_check: unavailable (legacy receipt; semantic fallback)" in completed_verbose.stdout
+        assert "foundation_advisory: unavailable (not recorded)" in completed_verbose.stdout
+        assert "cleanup: not recorded (published warm seat may remain)" in completed_verbose.stdout
         advisory_completed = _run([str(inspect), str(advisory)], cwd=fixture)
         assert advisory_completed.returncode == 0, advisory_completed.stderr
-        assert "status: succeeded" in advisory_completed.stdout
-        assert "exit_status_check: passed" in advisory_completed.stdout
+        assert advisory_completed.stdout.startswith("PASSED "), advisory_completed.stdout
+        assert "1 NEW AXIOM" in advisory_completed.stdout
+        advisory_verbose = _run([str(inspect), str(advisory), "--verbose"], cwd=fixture)
+        assert "exit_status_check: passed" in advisory_verbose.stdout
         assert (
-            "foundation_delta: status=observed axioms=1 definitions=0 types=0 constants=0" in advisory_completed.stdout
+            "foundation_delta: status=observed axioms=1 definitions=0 types=0 constants=0" in advisory_verbose.stdout
         )
-        assert "foundation_advisory: block (not publication authority)" in advisory_completed.stdout
-        assert "advisory_reason: recorded replay payload introduced 1 runtime axiom(s)" in advisory_completed.stdout
+        assert "foundation_advisory: block (not publication authority)" in advisory_verbose.stdout
+        assert "advisory_reason: recorded replay payload introduced 1 runtime axiom(s)" in advisory_verbose.stdout
         worker_failed = _run([str(inspect), str(worker_failure)], cwd=fixture)
         assert worker_failed.returncode == 1, worker_failed.stderr
-        assert "status: failed" in worker_failed.stdout
-        assert "source_acceptance: accepted" in worker_failed.stdout
-        assert "exit_status_check: failed" in worker_failed.stdout
-        assert "exit_status: 42" in worker_failed.stdout
-        assert "worker_exit_status: 42" in worker_failed.stdout
-        assert "process_exit_status: 42" in worker_failed.stdout
+        assert worker_failed.stdout.startswith("FAILED "), worker_failed.stdout
+        assert "worker exited with status 42" in worker_failed.stdout
+        worker_verbose = _run([str(inspect), str(worker_failure), "--verbose"], cwd=fixture)
+        assert "status: failed" in worker_verbose.stdout
+        assert "source_acceptance: accepted" in worker_verbose.stdout
+        assert "exit_status_check: failed" in worker_verbose.stdout
+        assert "exit_status: 42" in worker_verbose.stdout
+        assert "worker_exit_status: 42" in worker_verbose.stdout
+        assert "process_exit_status: 42" in worker_verbose.stdout
         failed = _run([str(inspect), str(failure)], cwd=fixture)
         assert failed.returncode == 1, failed.stderr
-        assert "status: not_started" in failed.stdout
+        assert failed.stdout.startswith("FAILED "), failed.stdout
         assert "first_failure: dependency input missing" in failed.stdout
+        assert "status: not_started" in _run([str(inspect), str(failure), "--verbose"], cwd=fixture).stdout
         residual_card = _run([str(inspect), str(residual)], cwd=fixture)
         assert residual_card.returncode == 1, residual_card.stderr
         assert "U2_GOOD: missing (unverified binding-like text observed)" in residual_card.stdout

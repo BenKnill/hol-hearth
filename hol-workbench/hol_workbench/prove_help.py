@@ -1,7 +1,8 @@
 """Help for the public HOL Hearth proof command."""
 PUBLIC_HELP = """usage:
-  hearth prove SOURCE.ml [--run-root DIR] [--profile PROFILE] [--timeout SECONDS]
+  hearth prove SOURCE.ml [--run-root DIR] [--profile PROFILE] [--timeout SECONDS] [--json|--verbose]
   hearth prove SOURCE.ml --loop [--run-root DIR] [--profile PROFILE] [--timeout SECONDS]
+  hearth watch SOURCE.ml ...          same as prove --loop
   hearth profiles [--all | PROFILE [--verbose]]
   hearth status [--profile PROFILE] [--watch|--json]
   hearth doctor [--profile PROFILE|--all-profiles] [--json]
@@ -12,7 +13,15 @@ Recorded replay:
   Evaluate the complete project in a fresh child of a warm HOL profile.
   Keep exact source/dependency hashes, completion and named theorem checks.
   Existing run roots retain each attempt in a new timestamped directory.
-  --timeout defaults to 120 seconds; set an explicit budget for long proofs.
+  The result is one verdict line, the receipt path and the next command:
+    PASSED leaf.ml: 3/3 bindings proved, 0 new axioms, eval 4.2s (s2n-arm)
+    FAILED leaf.ml at STEP_LEMMA (line 41): Exception: Failure "ARITH_RULE ..."
+    INCOMPLETE leaf.ml: timeout after 900s; not a disproof (s2n-arm)
+    REFUSED leaf.ml: source changed during capture (...); no HOL ran
+  --json prints the same summary as JSON (about 25 fields, documented in
+  docs/usage.md); --verbose adds the runtime's tagged lines. The receipt file
+  keeps every observation under its verdict block.
+  --timeout defaults to 900 seconds; set an explicit budget for long proofs.
   Queue wait is separate from proof time. A controller response deadline
   includes a 15-second allowance (minimum 30 seconds).
   Progress goes to stderr every 15 seconds during a replay; set
@@ -45,11 +54,12 @@ Authoring loop:
   Ctrl-C cancels the owned replay. The shared warm seat stays; do not kill it.
 
 Inspection:
+  hearth inspect DIR                  verdict card: bindings, failure, goal at the failing step, next command
   hearth inspect DIR --binding THEOREM
-  hearth inspect DIR --verbose
-  hearth inspect DIR --json
-  Failure details include a bounded exception block. Transcript/goal text is
-  diagnostic; successful OCaml execution alone does not finish interactive goals.
+  hearth inspect DIR --json           the receipt summary; add --verbose for the complete receipt
+  hearth inspect DIR --verbose        every recorded field
+  Transcript/goal text is diagnostic; successful OCaml execution alone does
+  not finish interactive goals.
 
 Runtime:
   Linux and an existing compatible HOL/CRIU profile. Source and run-root paths

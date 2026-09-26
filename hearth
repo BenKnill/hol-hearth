@@ -19,6 +19,7 @@ HOL Hearth — warm HOL Light proof checks on Linux
   hearth reopen DIR --binding NAME --out FILE.ml  Prepare a diagnostic scratch
   hearth export-replay DIR [--out FILE.sh]  Write the plain HOL Light replay command for a receipt
   hearth prove FILE.ml --loop           Record checks after project edits
+  hearth watch FILE.ml                  Same as prove --loop
   hearth leaf-needs FILE.ml --profile P  Compare a leaf's needs with a profile recipe
   hearth profiles                      List proof profiles
   hearth doctor [--profile PROFILE]     Optional snapshot and queue check
@@ -34,7 +35,7 @@ HELP
   --version) echo 'HOL Hearth 0.2.0' ;;
   prove|inspect|reopen|export-replay|leaf-needs|smoke|configure)
     exec "$root/hol-workbench/bin/workbench-python" "$operation" "$@" ;;
-  profiles|doctor|status|cancel|basis)
+  profiles|doctor|status|cancel|basis|watch)
     exec "$root/hol-workbench/bin/workbench-python" prove "$operation" "$@" ;;
   check|setup)
     python=${HOL_WORKBENCH_PYTHON:-$(command -v python3)}

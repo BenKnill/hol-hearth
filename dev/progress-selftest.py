@@ -181,7 +181,8 @@ class ProgressRegression(unittest.TestCase):
                     script_dir=ROOT / "hol-workbench/bin", cwd=root,
                 )
             self.assertEqual(status, 124)
-            self.assertIn("INCOMPLETE: timeout", out.getvalue())
+            self.assertTrue(out.getvalue().startswith("INCOMPLETE "), out.getvalue())
+            self.assertIn("not a disproof", out.getvalue())
             self.assertIn(f"inspect {attempt}", out.getvalue())
             self.assertNotIn("SOURCE CHECK: passed", out.getvalue())
             self.assertNotIn("PROGRESS:", out.getvalue())
