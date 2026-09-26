@@ -401,7 +401,11 @@ Select the existing runtime as described in [setup](setup.md#existing-hol-and-cr
 Use `s2n-arm` for the ARM proof base, `s2n-arm-mlkem` for the shared NTT
 development, and `s2n-x86` for the x86 proof base. `s2n-arm-light` is a separate
 optional recipe adding arithmetic and ring theory; its absence does not prevent
-using an installed `s2n-arm` shelf.
+using an installed `s2n-arm` shelf. It is not a stand-in for `s2n-arm`: the
+s2n-bignum base ends with `prioritize_num()`, while the light recipe ends with
+`prioritize_real()`, so an unannotated `i <= N` in a proof written for
+`s2n-arm` parses as a real inequality there and `ARITH_RULE` steps fail. Check
+`s2n-arm` sources on `s2n-arm`, or annotate every numeral type.
 
 `doctor` checks whether a shelf is compatible with the selected runtime. Its
 loaded-source inventory determines which project imports are already present.

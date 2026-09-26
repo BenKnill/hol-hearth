@@ -100,6 +100,8 @@ def build_script(receipt_path: Path, receipt: dict[str, Any], *, holdir_override
         f"HOLDIR={shlex.quote(holdir)}",
         f"cd {shlex.quote(str(profile_cwd))}",
         f"export HOLLIGHT_LOAD_PATH={shlex.quote(':'.join(entries))}",
+        "# hol.sh wraps the toplevel in ledit, which garbles piped input; env just execs it.",
+        "export LINE_EDITOR=env",
         'exec "$HOLDIR/hol.sh" <<\'HOL\'',
         "let hearth_export_axioms_before = List.length (axioms());;",
     ]
