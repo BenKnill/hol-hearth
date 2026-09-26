@@ -17,8 +17,13 @@ MAX_ACTIVITY_DEPTH = 64
 MAX_ACTIVITY_SEQUENCE = (1 << 62) - 1  # Positive OCaml int limit on the 64-bit runtime.
 MAX_GOALS = 8
 MAX_ASSUMPTIONS = 16
-MAX_TEXT_BYTES = 2048
+MAX_TEXT_BYTES = 2048  # labels, names and file paths
+MAX_TERM_BYTES = 16384  # rendered goal conclusions and assumptions
+MAX_EXCEPTION_BYTES = 65536  # complete Printexc text; INT_ARITH quotes its whole goal
+MAX_STEPS = 12  # recorded failing tactic steps, outermost first
+MAX_STEP_LOCATIONS = 8
 MAX_EXCEPTION_GAP_LINES = 8
+TOPLEVEL_TRUNCATION = re.compile(r'^(Failure|Invalid_argument) "(.*)"\.\.\. \(\* string length (\d+); truncated \*\)$', re.S)
 
 
 def attach_dependency_diagnostic_sources(
@@ -122,18 +127,22 @@ def diagnostic_prelude(nonce: str) -> bytes:
     # byte-for-byte present; only this disposable child's later prove calls see it.
     source = r'''
 Clflags.debug := true;;
+let hol_hearth_steps_@NONCE@ = ref ([] : (goal * exn * Printexc.backtrace_slot list) list);;
 let prove =
   let original_prove = prove in
   let original_print = Printf.printf in
   let original_concl = concl in
   let original_term_printer = pp_print_term in
+  let steps = hol_hearth_steps_@NONCE@ in
   let events = ref 0 in
   let calls = ref 0 in
   let depth = ref 0 in
   let activity_enabled = ref true in
-  let bound = 2048 in
-  let bounded s = if String.length s <= bound then s else
-    String.sub s 0 bound ^ "... [truncated]" in
+  let bound = @MAX_TERM_BYTES@ in
+  let bounded_to limit s = if String.length s <= limit then s else
+    String.sub s 0 limit ^ "... [truncated]" in
+  let bounded = bounded_to 2048 in
+  let bounded_exn = bounded_to @MAX_EXCEPTION_BYTES@ in
   let hex s =
     let b = Buffer.create (2 * String.length s) in
     String.iter (fun c -> Buffer.add_string b (Printf.sprintf "%02x" (Char.code c))) s;
@@ -179,14 +188,14 @@ let prove =
             original_print "\n__HOL_PROOF_ACTIVITY__:@NONCE@:%d:RESUME:%d\n%!" call !calls
         with _ -> ());
        decr depth) in
-  let emit kind tm error goals locations =
+  let emit kind tm error goals locations recorded_steps =
     if !events < 8 then
       (incr events;
        let event = !events in
        let chosen = take 8 goals in
        original_print "\n__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:BEGIN:%s:%d:%d:%s:%s\n"
          event kind (List.length goals) (List.length chosen)
-         (hex (render tm)) (hex (bounded (Printexc.to_string error)));
+         (hex (render tm)) (hex (bounded_exn (Printexc.to_string error)));
        List.iteri (fun index (assumptions, conclusion) ->
          original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:GOAL:%d:%d:%s\n"
            event index (List.length assumptions) (hex (render conclusion));
@@ -200,6 +209,25 @@ let prove =
            original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:LOCATION:%s:%s:%d\n"
              event (hex (bounded loc.Printexc.filename)) (hex (bounded name)) loc.Printexc.line_number)
          locations;
+       (match recorded_steps with [] -> () | _ ->
+         original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:STEPS:%d:%d\n"
+           event (List.length recorded_steps) (List.length (take @MAX_STEPS@ recorded_steps));
+         List.iteri (fun index ((assumptions,conclusion),step_error,step_locations) ->
+           original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:STEP:%d:%d:%s:%s\n"
+             event index (List.length assumptions) (hex (render conclusion))
+             (hex (bounded_exn (Printexc.to_string step_error)));
+           List.iter (fun (label,th) ->
+             original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:STEPASSUMPTION:%d:%s:%s\n"
+               event index (hex (bounded label)) (hex (render (original_concl th))))
+             (take 16 assumptions);
+           List.iter (fun slot -> match Printexc.Slot.location slot with
+             None -> () | Some loc ->
+               let name = match Printexc.Slot.name slot with None -> "" | Some n -> n in
+               original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:STEPLOCATION:%d:%s:%s:%d\n"
+                 event index (hex (bounded loc.Printexc.filename)) (hex (bounded name))
+                 loc.Printexc.line_number)
+             (take @MAX_STEP_LOCATIONS@ step_locations))
+           (take @MAX_STEPS@ recorded_steps));
        original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:%d:END\n%!" event)
     else if !events = 8 then
       (incr events; original_print "__HOL_PROOF_DIAGNOSTIC__:@NONCE@:9:TRUNCATED\n%!") in
@@ -208,28 +236,102 @@ let prove =
       None -> [] | Some slots -> Array.to_list slots with _ -> [] in
     let call = enter locations in
     let returned_goals = ref None in
+    steps := [];
     let observe goal =
       let ((_,goals,_) as result) = tac goal in
       returned_goals := Some goals;
+      steps := [];
       result in
     try let theorem = original_prove (tm,observe) in leave call; theorem with error ->
       leave call;
+      let recorded_steps = !steps in
+      steps := [];
       (try
          (match !returned_goals with
-            Some (_::_ as goals) -> emit "residual_goals" tm error goals locations
-          | _ -> emit "tactic_input" tm error [([],tm)] locations)
+            Some (_::_ as goals) -> emit "residual_goals" tm error goals locations recorded_steps
+          | _ -> emit "tactic_input" tm error [([],tm)] locations recorded_steps)
        with _ -> ());
       raise error;;
+let (THEN),(THENL) =
+  (* Record the goal each THEN/THENL continuation received when it raised. The
+     wrapped tacticals return the original results and re-raise the original
+     exceptions; a continuation that later succeeds drops what its callees
+     recorded, so only the propagating failure path reaches the prove frame. *)
+  let original_then tac1 tac2 = tac1 THEN tac2
+  and original_thenl tac1 tacl = tac1 THENL tacl in
+  let steps = hol_hearth_steps_@NONCE@ in
+  let slots () =
+    try match Printexc.backtrace_slots (Printexc.get_callstack 24) with
+      None -> [] | Some found ->
+        List.filter (fun slot -> Printexc.Slot.location slot <> None) (Array.to_list found)
+    with _ -> [] in
+  let rec drop n l = if n <= 0 then l else match l with [] -> [] | _::t -> drop (n-1) t in
+  let guard locations (tac:tactic) : tactic = fun g ->
+    try tac g with error -> steps := (g,error,locations) :: !steps; raise error in
+  let settle (tac:tactic) : tactic = fun g ->
+    let mark = List.length !steps in
+    let result = tac g in
+    steps := drop (List.length !steps - mark) !steps;
+    result in
+  let then_ tac1 tac2 =
+    let locations = slots () in
+    settle (original_then tac1 (guard locations tac2))
+  and thenl_ tac1 tacl =
+    let locations = slots () in
+    settle (original_thenl tac1 (List.map (guard locations) tacl)) in
+  then_,thenl_;;
 '''
     return (source.replace("@NONCE@", nonce)
             .replace("@MAX_ACTIVITY_DEPTH@", str(MAX_ACTIVITY_DEPTH))
-            .replace("@MAX_ACTIVITY_SEQUENCE@", str(MAX_ACTIVITY_SEQUENCE)).encode("utf-8"))
+            .replace("@MAX_ACTIVITY_SEQUENCE@", str(MAX_ACTIVITY_SEQUENCE))
+            .replace("@MAX_TERM_BYTES@", str(MAX_TERM_BYTES))
+            .replace("@MAX_EXCEPTION_BYTES@", str(MAX_EXCEPTION_BYTES))
+            .replace("@MAX_STEPS@", str(MAX_STEPS))
+            .replace("@MAX_STEP_LOCATIONS@", str(MAX_STEP_LOCATIONS)).encode("utf-8"))
 
 
-def _text(value: str) -> str:
-    if len(value) > (MAX_TEXT_BYTES + 32) * 2:
+def _text(value: str, limit: int = MAX_TEXT_BYTES) -> str:
+    if len(value) > (limit + 32) * 2:
         raise ValueError("oversized diagnostic text")
     return bytes.fromhex(value).decode("utf-8", errors="replace")
+
+
+def _term(value: str) -> str:
+    return _text(value, MAX_TERM_BYTES)
+
+
+def _exception(value: str) -> str:
+    return _text(value, MAX_EXCEPTION_BYTES)
+
+
+def _exception_string_body(error: str) -> tuple[str, str, bool] | None:
+    """Split a Printexc ``Failure("...")`` rendering into constructor, escaped body and completeness."""
+    complete = re.fullmatch(r'(Failure|Invalid_argument)\(("(?:[^"\\\r\n]|\\[^\r\n])*")\)', error)
+    if complete:
+        return complete[1], complete[2][1:-1], True
+    partial = re.fullmatch(r'(Failure|Invalid_argument)\("((?:[^"\\\r\n]|\\[^\r\n])*)\.\.\. \[truncated\]', error, re.S)
+    if partial:
+        return partial[1], partial[2], False
+    return None
+
+
+def _toplevel_exception_block(lines: list[bytes], start: int) -> tuple[int, str] | None:
+    """Join the toplevel's possibly multi-line ``Exception:`` rendering, as first_error does."""
+    text = lines[start].strip().decode("utf-8", errors="replace").removeprefix("# ").strip()
+    if not text.startswith("Exception:"):
+        return None
+    parts = [text]
+    for index in range(start + 1, min(len(lines), start + 14)):
+        raw = lines[index].decode("utf-8", errors="replace")
+        stripped = raw.strip()
+        if not stripped or stripped.startswith(("val ", "# ", "__HOL_", "HOL_WORKBENCH_", "Error in included file")):
+            break
+        if not raw[:1].isspace() and not re.match(r"^(Failure|Invalid_argument|[A-Z][A-Za-z0-9_'.]*)\b", stripped):
+            break
+        parts.append(stripped)
+        if stripped.endswith("."):
+            break
+    return start + 1, " ".join(parts)
 
 
 def _following_exception_line(lines: list[bytes], event: dict[str, Any]) -> int | None:
@@ -241,19 +343,22 @@ def _following_exception_line(lines: list[bytes], event: dict[str, Any]) -> int 
     Unknown, wrapped or truncated exception renderings remain unattributed.
     """
     error = event["exception"]
+    string_body = None
     if error == "Stack overflow":
         expected = "Stack overflow during evaluation (looping recursion?)."
     else:
         # Printexc.to_string and the toplevel differ for these common exceptions.
         # Match their already-escaped string verbatim; do not decode OCaml text.
-        string_error = re.fullmatch(r'(Failure|Invalid_argument)\(("(?:[^"\\\r\n]|\\[^\r\n])*")\)', error)
-        if string_error:
-            rendered = f"{string_error[1]} {string_error[2]}"
+        string_body = _exception_string_body(error)
+        if string_body and string_body[2]:
+            rendered = f'{string_body[0]} "{string_body[1]}"'
+        elif string_body:
+            rendered = None
         elif re.fullmatch(r"[A-Z][A-Za-z0-9_']*(?:\.[A-Z][A-Za-z0-9_']*)*", error):
             rendered = error
         else:
             return None
-        expected = f"Exception: {rendered}."
+        expected = f"Exception: {rendered}." if rendered is not None else None
     start = event["end_transcript_line"]
     timing_report_seen = False
     for index in range(start, min(len(lines), start + MAX_EXCEPTION_GAP_LINES + 1)):
@@ -261,8 +366,26 @@ def _following_exception_line(lines: list[bytes], event: dict[str, Any]) -> int 
         if not line:
             continue
         text = line.decode("utf-8", errors="replace")
-        if text.removeprefix("# ").strip() == expected:
+        if expected is not None and text.removeprefix("# ").strip() == expected:
             return index + 1
+        block = _toplevel_exception_block(lines, index)
+        if block is not None:
+            lineno, joined = block
+            if expected is not None and joined == expected:
+                return lineno
+            if string_body is not None:
+                # The toplevel truncates long strings itself ("..." plus a length note)
+                # and may break the rendering across lines. Accept only a rendering
+                # whose shown escaped prefix is exactly a prefix of the recorded text.
+                shown = TOPLEVEL_TRUNCATION.fullmatch(joined.removeprefix("Exception:").strip().removesuffix("."))
+                if shown and shown[1] == string_body[0]:
+                    prefix = shown[2]
+                    body = string_body[1]
+                    limit = min(len(prefix), len(body))
+                    if limit and prefix[:limit] == body[:limit] and (string_body[2] or len(prefix) >= limit):
+                        if not string_body[2] or len(prefix) <= len(body):
+                            return lineno
+            return None
         # HOL lib.ml's time function prints the exact Printexc.to_string error
         # after a nonnegative string_of_float CPU duration, then re-raises it.
         timing = re.fullmatch(
@@ -307,7 +430,9 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
     active: dict[str, Any] | None = None
     try:
         # Bound framing as well as goal text, including adversarial source output.
-        if len(lines) > MAX_EVENTS * (34 + MAX_GOALS * (1 + MAX_ASSUMPTIONS)) + 1:
+        if len(lines) > MAX_EVENTS * (
+            35 + MAX_GOALS * (1 + MAX_ASSUMPTIONS) + MAX_STEPS * (1 + MAX_ASSUMPTIONS + MAX_STEP_LOCATIONS)
+        ) + 1:
             raise ValueError("too many diagnostic records")
         for lineno, raw in lines:
             parts = raw[len(prefix):].decode("ascii").split(":")
@@ -328,8 +453,9 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
                 if not 0 <= count <= MAX_GOALS or total < count:
                     raise ValueError("invalid goal count")
                 active = {"event": ordinal, "kind": parts[2], "goal_count": total,
-                          "shown_goal_count": count, "statement": _text(parts[5]),
-                          "exception": _text(parts[6]), "goals": [], "locations": []}
+                          "shown_goal_count": count, "statement": _term(parts[5]),
+                          "exception": _exception(parts[6]), "goals": [], "locations": [],
+                          "step_count": 0, "shown_step_count": 0, "steps": []}
             elif active is None or active["event"] != ordinal:
                 raise ValueError("record outside event")
             elif op == "GOAL":
@@ -337,7 +463,9 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
                     raise ValueError("invalid goal index")
                 if len(active["goals"]) >= active["shown_goal_count"] or int(parts[3]) < 0:
                     raise ValueError("invalid goal count")
-                active["goals"].append({"conclusion": _text(parts[4]), "assumption_count": int(parts[3]),
+                if active["step_count"]:
+                    raise ValueError("goal after steps")
+                active["goals"].append({"conclusion": _term(parts[4]), "assumption_count": int(parts[3]),
                                          "assumptions": []})
             elif op == "ASSUMPTION":
                 if len(parts) != 5 or int(parts[2]) != len(active["goals"]) - 1 or not active["goals"]:
@@ -345,16 +473,48 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
                 goal = active["goals"][-1]
                 if len(goal["assumptions"]) >= min(MAX_ASSUMPTIONS, goal["assumption_count"]):
                     raise ValueError("too many assumptions")
-                goal["assumptions"].append({"label": _text(parts[3]), "conclusion": _text(parts[4])})
+                if active["step_count"]:
+                    raise ValueError("assumption after steps")
+                goal["assumptions"].append({"label": _text(parts[3]), "conclusion": _term(parts[4])})
             elif op == "LOCATION":
-                if len(parts) != 5 or len(active["locations"]) >= 32 or int(parts[4]) < 1:
+                if len(parts) != 5 or len(active["locations"]) >= 32 or int(parts[4]) < 1 or active["step_count"]:
                     raise ValueError("invalid location")
                 active["locations"].append({"file": _text(parts[2]), "name": _text(parts[3]), "line": int(parts[4])})
+            elif op == "STEPS":
+                total, shown = int(parts[2]), int(parts[3])
+                if len(parts) != 4 or active["step_count"] or total < 1 or not 1 <= shown <= min(MAX_STEPS, total):
+                    raise ValueError("invalid step count")
+                active["step_count"], active["shown_step_count"] = total, shown
+            elif op == "STEP":
+                if len(parts) != 6 or int(parts[2]) != len(active["steps"]) or int(parts[3]) < 0:
+                    raise ValueError("invalid step index")
+                if len(active["steps"]) >= active["shown_step_count"]:
+                    raise ValueError("invalid step count")
+                active["steps"].append({"conclusion": _term(parts[4]), "assumption_count": int(parts[3]),
+                                        "assumptions": [], "exception": _exception(parts[5]), "locations": []})
+            elif op == "STEPASSUMPTION":
+                if len(parts) != 5 or not active["steps"] or int(parts[2]) != len(active["steps"]) - 1:
+                    raise ValueError("invalid step assumption index")
+                step = active["steps"][-1]
+                if step["locations"] or len(step["assumptions"]) >= min(MAX_ASSUMPTIONS, step["assumption_count"]):
+                    raise ValueError("too many step assumptions")
+                step["assumptions"].append({"label": _text(parts[3]), "conclusion": _term(parts[4])})
+            elif op == "STEPLOCATION":
+                if len(parts) != 6 or not active["steps"] or int(parts[2]) != len(active["steps"]) - 1 or int(parts[5]) < 1:
+                    raise ValueError("invalid step location")
+                step = active["steps"][-1]
+                if len(step["locations"]) >= MAX_STEP_LOCATIONS:
+                    raise ValueError("too many step locations")
+                step["locations"].append({"file": _text(parts[3]), "name": _text(parts[4]), "line": int(parts[5])})
             elif op == "END":
                 if len(parts) != 2 or len(active["goals"]) != active["shown_goal_count"]:
                     raise ValueError("incomplete event")
                 if any(len(g["assumptions"]) != min(MAX_ASSUMPTIONS, g["assumption_count"]) for g in active["goals"]):
                     raise ValueError("incomplete assumptions")
+                if len(active["steps"]) != active["shown_step_count"] or any(
+                    len(s["assumptions"]) != min(MAX_ASSUMPTIONS, s["assumption_count"]) for s in active["steps"]
+                ):
+                    raise ValueError("incomplete steps")
                 active["end_transcript_line"] = lineno
                 events.append(active)
                 active = None
@@ -367,6 +527,47 @@ def account_proof_diagnostics(transcript: bytes, contract: dict[str, Any]) -> di
     for event in events:
         event["following_exception_transcript_line"] = _following_exception_line(transcript_lines, event)
     return {**empty, "status": "recorded", "events": events, "capture_truncated": truncated}
+
+
+def attach_step_source_lines(diagnostics: dict[str, Any], contract: dict[str, Any]) -> None:
+    """Map each recorded step's first call site in the packaged entrypoint back to source lines.
+
+    The diagnostic prelude is prepended to the packaged entrypoint, so its own
+    wrapper frames sit at lines up to the recorded offset and are skipped. A
+    frame in another packaged file keeps its coordinates; nothing is inferred.
+    """
+    descriptor = contract.get("proof_diagnostics")
+    if not isinstance(descriptor, dict) or diagnostics.get("status") != "recorded":
+        return
+    packaged = descriptor.get("packaged_entrypoint")
+    offset = descriptor.get("source_line_offset")
+    if not isinstance(packaged, str) or type(offset) is not int:
+        return
+    try:
+        packaged_path = Path(packaged).resolve(strict=False)
+    except (OSError, RuntimeError, ValueError):
+        return
+    for event in diagnostics.get("events") or []:
+        for step in event.get("steps") or []:
+            for location in step.get("locations") or []:
+                file = location.get("file")
+                line = location.get("line")
+                if not isinstance(file, str) or type(line) is not int:
+                    continue
+                try:
+                    same_file = Path(file).resolve(strict=False) == packaged_path
+                except (OSError, RuntimeError, ValueError):
+                    continue
+                if same_file and line <= offset:
+                    continue  # the prelude's own wrapper frames
+                if same_file:
+                    step["source_line"] = line - offset
+                    step["source_location_kind"] = "entrypoint"
+                else:
+                    step["source_location_kind"] = "packaged_dependency"
+                    step["packaged_file"] = file
+                    step["packaged_line"] = line
+                break
 
 
 def _line_ranges(transcript: bytes) -> Iterator[tuple[int, int, int]]:
@@ -524,18 +725,57 @@ def print_proof_diagnostics(receipt: dict[str, Any], *, verbose: bool) -> None:
         if not current:
             print("  earlier/caught proof context; not attributed to the current source failure")
         kind = event["kind"]
-        label = "residual goals" if kind == "residual_goals" else "original tactic input (intermediate goals unavailable)"
+        steps = event.get("steps") or []
+        label = "residual goals" if kind == "residual_goals" else (
+            "original tactic input" + ("" if steps else " (intermediate goals unavailable)"))
         print(f"  {label}: {event['shown_goal_count']}/{event['goal_count']}")
         goals = event["goals"] if verbose else event["goals"][:3]
         for goal in goals:
-            assumptions = goal["assumptions"] if verbose else goal["assumptions"][:4]
-            for assumption in assumptions:
-                print(f"    assumption {assumption['label']}: {assumption['conclusion']}")
-            if goal["assumption_count"] > len(assumptions):
-                print(f"    ... {goal['assumption_count'] - len(assumptions)} more assumptions")
-            print(f"    |- {goal['conclusion']}")
+            _print_goal(goal, verbose=verbose, indent="    ")
         if len(event["goals"]) > len(goals):
             print(f"    ... {len(event['goals']) - len(goals)} more recorded goals; use --verbose")
+        _print_bounded_text("  exception", event.get("exception"), verbose=verbose)
+        if steps:
+            print(f"  failing tactic steps: {event.get('shown_step_count', len(steps))}/{event.get('step_count', len(steps))}"
+                  " recorded, outermost first; each goal is what that THEN/THENL continuation received before it raised")
+            shown_steps = steps if verbose else steps[:1]
+            for index, step in enumerate(shown_steps, 1):
+                where = _step_location(step, receipt.get("source"))
+                print(f"    step {index}{' at ' + where if where else ''}:")
+                _print_bounded_text("      raised", step.get("exception"), verbose=verbose, limit=240)
+                _print_goal(step, verbose=verbose, indent="      ")
+            if len(steps) > len(shown_steps):
+                print(f"    ... {len(steps) - len(shown_steps)} more nested steps; use --verbose")
+
+
+def _print_goal(goal: dict[str, Any], *, verbose: bool, indent: str) -> None:
+    assumptions = goal["assumptions"] if verbose else goal["assumptions"][:4]
+    for assumption in assumptions:
+        print(f"{indent}assumption {assumption['label']}: {assumption['conclusion']}")
+    if goal["assumption_count"] > len(assumptions):
+        print(f"{indent}... {goal['assumption_count'] - len(assumptions)} more assumptions")
+    print(f"{indent}|- {goal['conclusion']}")
+
+
+def _print_bounded_text(label: str, text: Any, *, verbose: bool, limit: int = 1200) -> None:
+    if not isinstance(text, str) or not text:
+        return
+    if verbose or len(text) <= limit:
+        print(f"{label}: {text}")
+        return
+    print(f"{label}: {text[:limit]}... ({len(text) - limit} more characters; use --verbose)")
+
+
+def _step_location(step: dict[str, Any], source: Any = None) -> str:
+    if type(step.get("source_line")) is int:
+        name = Path(str(source)).name if isinstance(source, str) and source else "source"
+        return f"{name}:{step['source_line']}"
+    if step.get("source_location_kind") == "packaged_dependency":
+        file = str(step.get("packaged_file") or "")
+        marker = "/source-package/"
+        shown = file.split(marker, 1)[1] if marker in file else Path(file).name
+        return f"{shown}:{step.get('packaged_line')} (packaged dependency coordinates)"
+    return ""
 
 
 def _binding_at_locations(

@@ -7,7 +7,8 @@ from typing import Any
 
 from hol_workbench.proof_diagnostics import (
     ACTIVITY_PREFIX, ACTIVITY_PROTOCOL, MAX_ACTIVITY_DEPTH, account_proof_activity,
-    account_proof_diagnostics, diagnostic_prelude, identify_failed_binding, identify_running_binding,
+    account_proof_diagnostics, attach_step_source_lines, diagnostic_prelude, identify_failed_binding,
+    identify_running_binding,
 )
 
 from hol_workbench.foundation_delta import account_foundation_delta, foundation_probe_contract
@@ -168,6 +169,7 @@ def analyze_vanilla_transcript(
     }
     if foundation_enabled:
         result["proof_diagnostics"] = account_proof_diagnostics(transcript, contract)
+        attach_step_source_lines(result["proof_diagnostics"], contract)
         result["proof_activity"] = account_proof_activity(transcript, contract)
         if not source_completed and transport in {"timeout", "interrupted", "cancelled"}:
             result["running_binding"] = identify_running_binding(result["proof_activity"], contract, claims)

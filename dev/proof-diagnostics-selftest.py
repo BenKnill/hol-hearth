@@ -32,7 +32,8 @@ assert account_proof_diagnostics(raw + raw, contract)["status"] == "malformed"
 assert account_proof_diagnostics(raw.rsplit(prefix.encode(), 1)[0], contract)["status"] == "incomplete"
 assert account_proof_diagnostics(raw.replace(b"GOAL:0:1", b"GOAL:3:1"), contract)["status"] == "malformed"
 assert account_proof_diagnostics(raw.replace(b"residual_goals:1:1", b"residual_goals:9:9"), contract)["status"] == "malformed"
-assert account_proof_diagnostics(raw.replace(hx("x = &0").encode(), b"00" * 10000), contract)["status"] == "malformed"
+assert account_proof_diagnostics(raw.replace(hx("x = &0").encode(), b"00" * 10000), contract)["status"] == "recorded"
+assert account_proof_diagnostics(raw.replace(hx("x = &0").encode(), b"00" * 20000), contract)["status"] == "malformed"
 source = b"let VALUE = 42;;\r\n"
 payload, probe = instrumented_source_bytes(source, [], nonce=nonce, include_foundation_delta=True)
 assert source in payload and diagnostic_prelude(nonce) in payload
@@ -570,3 +571,76 @@ with tempfile.TemporaryDirectory(prefix="hearth-imported-diagnostics-") as tempo
     attach_dependency_diagnostic_sources(imported_contract, closure, package)
     assert imported_result()["running_binding"]["name"] == "IMPORTED"
 print("proof activity: exact imported source, normalized frames, edits and ambiguity boundaries passed")
+
+
+# Failing tactic steps: the goal each THEN/THENL continuation received before it
+# raised, outermost first. They ride inside the prove frame and stay diagnostic.
+long_body = "INT_ARITH `" + "q" * 5000 + "`: no contradiction"
+step_exception = f'Failure("{long_body}")'
+step_records = [
+    f"1:BEGIN:tactic_input:1:1:{hx('!x y. x + y = y + x')}:{hx(step_exception)}",
+    f"1:GOAL:0:0:{hx('!x y. x + y = y + x')}",
+    f"1:LOCATION:{hx('/package/stack.ml')}:{hx('STUCK')}:{callsite_line}",
+    "1:STEPS:2:2",
+    f"1:STEP:0:1:{hx('x + y = y + x')}:{hx(step_exception)}",
+    f"1:STEPASSUMPTION:0:{hx('')}:{hx('y + x = x + y')}",
+    f"1:STEPLOCATION:0:{hx('/package/stack.ml')}:{hx('')}:7",
+    f"1:STEP:1:0:{hx('x + y = y + x')}:{hx(step_exception)}",
+    "1:END",
+]
+step_frame = ("\n".join(prefix + line for line in step_records) + "\n").encode()
+stepped = account_proof_diagnostics(step_frame, contract)
+assert stepped["status"] == "recorded", stepped
+step_event = stepped["events"][0]
+assert step_event["exception"] == step_exception and len(step_event["exception"]) > 5000
+assert step_event["step_count"] == 2 and step_event["shown_step_count"] == 2
+assert step_event["steps"][0]["assumptions"] == [{"label": "", "conclusion": "y + x = x + y"}]
+assert step_event["steps"][0]["locations"] == [{"file": "/package/stack.ml", "name": "", "line": 7}]
+assert step_event["steps"][1]["assumption_count"] == 0
+for broken in (
+    step_frame.replace(b"1:STEPS:2:2", b"1:STEPS:2:3"),
+    step_frame.replace(b"1:STEP:1:0", b"1:STEP:2:0"),
+    step_frame.replace(prefix.encode() + b"1:STEP:1:0", prefix.encode() + b"1:GOAL:1:0"),
+):
+    assert account_proof_diagnostics(broken, contract)["status"] == "malformed", broken[-120:]
+from hol_workbench.proof_diagnostics import attach_step_source_lines
+attach_step_source_lines(stepped, {"proof_diagnostics": {"packaged_entrypoint": "/package/stack.ml", "source_line_offset": 5}})
+assert step_event["steps"][0]["source_line"] == 2 and step_event["steps"][0]["source_location_kind"] == "entrypoint"
+assert "source_line" not in step_event["steps"][1]
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics({"proof_diagnostics": stepped, "source_completed": False, "source": "/project/stack.ml",
+                             "first_failure_transcript_line": 10}, verbose=False)
+shown = view.getvalue()
+assert "failing tactic steps: 2/2 recorded, outermost first" in shown
+assert "step 1 at stack.ml:2:" in shown and "assumption : y + x = x + y" in shown, shown
+assert "1 more nested steps; use --verbose" in shown
+assert "more characters; use --verbose" in shown and "intermediate goals unavailable" not in shown
+view = StringIO()
+with redirect_stdout(view):
+    print_proof_diagnostics({"proof_diagnostics": stepped, "source_completed": False,
+                             "first_failure_transcript_line": 10}, verbose=True)
+assert "step 2:" in view.getvalue() and long_body in view.getvalue()
+
+# The OCaml toplevel truncates long exception strings itself and breaks the
+# rendering across lines. Attribution must still link the frame to it, and only
+# when the shown escaped prefix is exactly a prefix of the recorded text.
+toplevel_truncated = (
+    b"Exception:\nFailure\n \"INT_ARITH `" + b"q" * 300
+    + b"\"... (* string length 5029; truncated *).\nError in included file /package/stack.ml\n"
+)
+result = analyze_overflow(step_frame + toplevel_truncated)
+assert result["first_failure_transcript_line"] == len(step_records) + 1, result["first_failure_transcript_line"]
+assert result["proof_diagnostics"]["events"][0]["following_exception_transcript_line"] == len(step_records) + 1
+assert result["failing_binding"]["name"] == "STUCK", result["failing_binding"]
+mismatched = analyze_overflow(step_frame + toplevel_truncated.replace(b"q" * 300, b"q" * 299 + b"z"))
+assert mismatched["failing_binding"]["status"] == "unknown"
+# A frame whose own text was bounded still attributes on the common prefix.
+partial_exception = 'Failure("INT_ARITH `' + "q" * 200 + "... [truncated]"
+partial_frame = step_frame.replace(hx(step_exception).encode(), hx(partial_exception).encode())
+partial = analyze_overflow(partial_frame + toplevel_truncated)
+assert partial["failing_binding"]["name"] == "STUCK", partial["failing_binding"]
+# The single-line complete rendering still matches exactly, across a line break.
+complete_lines = b"Exception:\nFailure\n \"" + long_body.encode() + b"\".\n"
+assert analyze_overflow(step_frame + complete_lines)["failing_binding"]["name"] == "STUCK"
+print("proof-diagnostics steps: failing-step goals, long exceptions and truncated toplevel renderings passed")

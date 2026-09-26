@@ -190,9 +190,22 @@ goals are solved.
 Recorded replay captures bounded residual goals (assumptions and conclusion)
 when a tactic returns unsolved subgoals to the existing `prove`. Read them with
 `hearth inspect RUN --verbose` or the structured `proof_diagnostics` field in
-`--json`. If a tactic raises before returning, the diagnostic instead labels
-its original input; intermediate subgoals are unavailable. These are diagnostic
-snapshots, never theorem probes. They do not change source acceptance.
+`--json`. These are diagnostic snapshots, never theorem probes. They do not
+change source acceptance.
+
+When a tactic raises instead of returning, inspect also shows the goal state
+at the failing step. The disposable child wraps `THEN` and `THENL` so that each
+continuation records the goal it received when it raised; a continuation that
+later succeeds, for example inside `TRY` or `ORELSE`, discards what its callees
+recorded. The receipt keeps the propagating chain, outermost first, under
+`proof_diagnostics.events[].steps`, with the source line where the `THEN` or
+`THENL` expression whose continuation failed begins, and the complete exception text (bounded at 64 KiB, so an
+`INT_ARITH` or `ARITH_RULE` failure quotes its whole goal even though the HOL
+toplevel prints a truncated string). `inspect` shows the outermost step and its
+first assumptions; `--verbose` shows every recorded step, all assumptions and
+the full exception. This replaces splitting a tactic at top-level `THEN` into
+`g`/`e` steps by hand. The wrappers return the original results and re-raise
+the original exceptions; they run only in the diagnostic child.
 
 The disposable child compiles source with location information. A unique compiler
 call site can identify an entrypoint's failing literal `let NAME = prove (...)`
