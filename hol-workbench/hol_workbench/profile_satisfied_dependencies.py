@@ -1008,7 +1008,8 @@ def profile_satisfied_needs_prelude(document: dict[str, Any] | None) -> list[str
     ]
 
 
-def _revalidate_live_edge_files(document: dict[str, Any]) -> None:
+def revalidate_live_edge_files(document: dict[str, Any]) -> None:
+    """Require every recorded shelf edge and captured warm source to hold its recorded bytes."""
     for edge in [*(document.get("edges") or []), *(document.get("captured_warm_sources") or [])]:
         host_path = Path(str(edge.get("host_path") or ""))
         try:
@@ -1048,7 +1049,7 @@ def revalidate_profile_satisfaction(
             "refused_profile_satisfaction_identity_invalid",
             "profile-satisfaction decision identity is invalid",
         )
-    _revalidate_live_edge_files(document)
+    revalidate_live_edge_files(document)
     rebuilt = build_profile_satisfaction(
         closure,
         profile_root=profile_root,

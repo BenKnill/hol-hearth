@@ -283,6 +283,18 @@ files and companion directories are never overwritten. A refused command
 leaves no generated files. Choose a new output
 name for another attempt.
 
+A literal `needs` that the receipt records as satisfied by the warm profile,
+such as `needs "arm/proofs/base.ml";;` in a project outside the s2n-bignum
+tree under `s2n-arm`, is not an unresolved import. Reopen accepts it when the
+receipt's profile-satisfaction decision matches the recorded closure and names
+the receipt's profile. Before publishing, it rereads each recorded shelf file
+and refuses if its bytes changed. Those files are never copied: the prefix
+keeps the exact `needs`, `origin.json` lists them under
+`profile_satisfied_dependencies` with their host path and hash, and the
+printed `prove` command carries the same `--profile`, so the scratch resolves
+the import the way the original run did. Such imports do not force `--out`
+beside the original source; ELF objects and project-root imports still do.
+
 ## Compare a leaf's needs with a profile recipe
 
 Before writing a leaf on a large warm profile, see which of its literal loads
