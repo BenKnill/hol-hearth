@@ -326,10 +326,38 @@ printed `prove` command carries the same `--profile`, so the scratch resolves
 the import the way the original run did. Such imports do not force `--out`
 beside the original source; ELF objects and project-root imports still do.
 
+## What an accepted receipt establishes
+
+`SOURCE CHECK: passed` with `FOUNDATION DELTA: axioms=0` means: the same HOL
+Light kernel, started from pinned sources, evaluated the exact source bytes in
+a fresh child forked from the published profile; the child began from exactly
+the profile recipe in `profiles/NAME.ml` (for `s2n-arm`, `arm/proofs/base.ml`
+and one warm-up theorem) whose loaded-file inventory is hash-verified at
+admission; every discovered `let NAME = prove (...)` was probed in the kernel
+with empty hypotheses; and the number of axioms did not grow. Nothing about
+the theorem is provisional in that result.
+
+A from-scratch HOL Light run of the same recipe and source reproduces the same
+environment, so it establishes the same theorem. It adds one thing: it does
+not depend on the CRIU image being a faithful checkpoint of that recipe, which
+Hearth already records by hash. It costs minutes for `light` and tens of
+minutes for `s2n-arm`, occupies about a gigabyte alongside the warm seats, and
+cannot see anything the warm child could not. Run one with `export-replay`
+when the image is in question or an outside reader wants a run without Hearth.
+Do not use it as a per-milestone gate; the older `prove audit --final`
+acceptance step that some project notes still mention was retired with the
+developer-only lane and had no stronger kernel evidence than a recorded warm
+receipt.
+
+The one environment difference to keep in mind is the recipe itself: a profile
+that ends differently from the source's expectations (`s2n-arm-light` ends
+with `prioritize_real()`) changes how unannotated terms parse, warm or cold.
+Read the recipe, not the temperature.
+
 ## Write the plain HOL Light replay for a receipt
 
-Before publication, replay the exact source in a cold HOL Light with no Hearth,
-CRIU or warm broker involved:
+To replay the exact source in a cold HOL Light with no Hearth, CRIU or warm
+broker involved:
 
 ```sh
 ./hearth export-replay /ABS/project/runs --out /ABS/project/replay.sh
@@ -341,8 +369,9 @@ the directories that made every captured relative load resolve, starts
 `hol.sh` from the recorded HOL directory, loads the profile recipe and then the
 exact source, prints each theorem the receipt marked proved, and prints the
 axiom count before and after. Without `--out` it prints the script. It writes
-a new file only, never runs HOL, and does not read the receipt's evidence: a
-passing cold replay is the independent check, not the receipt.
+a new file only, never runs HOL, and does not read the receipt's evidence; a
+passing cold replay confirms the receipt's environment independently of the
+profile image.
 
 ## Compare a leaf's needs with a profile recipe
 
@@ -479,9 +508,9 @@ The timeout is an explicit attempt budget. Queue wait is reported separately.
 The broker response deadline has a 15-second allowance with a 30-second minimum;
 a controller timeout does not establish an exact evaluator cutoff.
 
-A complete-source result and named kernel probes are warm authoring evidence.
-They are distinct from process transport, diagnostic text, native execution,
-and independent publication replay. Review the actual theorem assumptions.
+A complete-source result and named kernel probes are the theorem check. They
+are distinct from process transport, diagnostic text and native execution.
+Review the actual theorem assumptions.
 
 HOL source is executable OCaml. Run source you trust; a fresh child isolates
 proof state and is not an operating-system security sandbox.

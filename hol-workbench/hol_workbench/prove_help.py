@@ -54,9 +54,19 @@ Inspection:
 Runtime:
   Linux and an existing compatible HOL/CRIU profile. Source and run-root paths
   may be absolute or relative to the calling directory. No cold-load fallback.
+
+What an accepted receipt establishes:
+  The same HOL Light kernel evaluated the exact source bytes in a fresh child
+  forked from the published profile; the profile recipe (profiles/NAME.ml)
+  and its loaded-file inventory are hash-verified; every discovered named
+  binding was probed in the kernel; the axiom count did not grow. That is a
+  complete check of the theorem. A from-scratch replay of the same recipe
+  reproduces the same environment and adds only independence from the CRIU
+  image; run one with hearth export-replay when the image itself is in
+  question or an outside reader needs it, not as a milestone gate.
   light, heavy, probability, s2n-arm, s2n-arm-light, s2n-arm-mlkem, s2n-x86.
   Prefer an explicit profile for project work. Optional recipes are not installed
-  merely because they are listed. Independent publication replay is a later step.
+  merely because they are listed. Recipes are the exact basis a warm child sees.
 
 Theorem exploration:
   Use ordinary HOL source, e.g. search [name "ITER"];; or print_thm ITER;;

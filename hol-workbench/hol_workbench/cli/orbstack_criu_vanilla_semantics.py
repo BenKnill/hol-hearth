@@ -22,7 +22,9 @@ from hol_workbench.vanilla_claims import (
 
 RECORDED_REPLAY_EVIDENCE_BOUNDARY = (
     f"{EVIDENCE_BOUNDARY}; advisory runtime logical-foundation registry cardinality deltas; "
-    "warm development evidence only, not final audit or promotion authority"
+    "kernel-checked in a fresh child of the published warm profile, whose recipe and loaded-file "
+    "inventory are hash-verified; a cold replay of the same recipe adds independence from the "
+    "profile image, not a stronger theorem"
 )
 
 
