@@ -157,7 +157,7 @@ def main(
                 flush=True,
             )
         recorded = read_json(receipt)
-        if recorded.get("source_preflight_status") == "source_pin_refused":
+        if recorded.get("source_preflight_status") in {"source_changed_during_capture", "source_pin_refused"}:
             current = short_sha256(sha256_file(source))
             print("SOURCE CHANGED: the file was rewritten between the pinned digest and the read for evaluation "
                   f"(pinned sha={short}, now sha={current or 'unavailable'}); no HOL ran and no profile was "

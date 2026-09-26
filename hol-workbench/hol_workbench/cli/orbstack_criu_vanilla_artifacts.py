@@ -76,6 +76,7 @@ def write_vanilla_artifacts(
             "dependency_transport_status": package.get("dependency_transport_status"),
             "dependency_transport_reason": package.get("dependency_transport_reason"),
             "source_preflight_status": package.get("source_preflight_status"),
+            "source_pin": package.get("source_pin"),
         "project_basis": package.get("project_basis"),
         "preparation_package_root": package.get("preparation_package_root"),
             "dependency_package_files": package.get("files") or [],

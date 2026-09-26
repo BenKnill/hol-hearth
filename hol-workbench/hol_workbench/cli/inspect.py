@@ -285,6 +285,13 @@ def _inspect_replay(args: argparse.Namespace, receipt_path: Path) -> int:
         failure_line = receipt.get("first_failure_transcript_line")
         coordinate = f"transcript_line={failure_line} " if type(failure_line) is int else ""
         print(f"first_failure: {coordinate}{receipt['first_failure']}")
+    if receipt.get("source_preflight_status") in {"source_changed_during_capture", "source_pin_refused"}:
+        pin = receipt.get("source_pin") if isinstance(receipt.get("source_pin"), dict) else {}
+        pinned = short_sha256(str(pin.get("pinned_sha256") or "")) or "?"
+        read = short_sha256(str(pin.get("read_sha256") or "")) or "?"
+        print(f"source_changed_during_capture: the file changed between the pinned digest (sha={pinned}) and the "
+              f"evaluation read (sha={read}); no HOL ran and nothing stale was evaluated. Not a proof failure.")
+        print("NEXT: rerun the same prove command once the file is stable; prove now waits for two agreeing reads before pinning")
     if not source_accepted:
         running = receipt.get("running_binding") or (receipt.get("transcript_accounting") or {}).get("running_binding")
         if isinstance(running, dict):

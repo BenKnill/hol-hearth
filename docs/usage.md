@@ -41,8 +41,10 @@ remain idle for reuse. No separate evaluator build is needed.
 for evaluation differ. Before pinning, it waits until two reads a tenth of a
 second apart agree, because editors and the macOS-to-guest sync write in
 stages; a `SOURCE: waited ...` line reports that wait. If the file still
-changes afterwards, the run refuses before HOL, records a refusal receipt, and
-prints `SOURCE CHANGED` with both digests; rerun the same command.
+changes afterwards, the run refuses before HOL, records a refusal receipt with
+`source_preflight_status: source_changed_during_capture` and both digests under
+`source_pin`, and prints `SOURCE CHANGED`; `inspect` shows the same line with a
+`NEXT` hint. It is not a proof failure; rerun the same command.
 
 The leaf's own proof still runs after each save. Use a small leaf and split
 unnecessary imports out of it. Stable, completed imports can be retained with

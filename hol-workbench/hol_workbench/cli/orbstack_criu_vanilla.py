@@ -357,19 +357,28 @@ def run(
     probe_nonce = secrets.token_hex(16)
     foundation_enabled = evidence_role == "recorded_warm_replay"
 
-    def record_source_refusal(stage: str, reason: str) -> None:
+    def record_source_refusal(stage: str, reason: str, **extra: object) -> None:
         _write_pre_eval_dependency_artifact(
             transcript_output=transcript_output, source=source, source_sha256=source_sha256,
             profile_root=profile_root, logical_profile=logical_profile, closure={},
             package={"dependency_transport_status": "not_checked",
                      "dependency_transport_reason": reason,
-                     "source_preflight_status": stage},
+                     "source_preflight_status": stage, **extra},
             evidence_role=evidence_role, refusal_stage=stage,
         )
 
     pin_refusal = _pinned_source_refusal(expected_source_sha256, source_sha256)
     if pin_refusal is not None:
-        record_source_refusal("source_pin_refused", pin_refusal)
+        # The bytes read for evaluation are not the bytes the caller pinned: the
+        # file changed between the two reads (an editor save or a host-to-guest
+        # sync landing mid-capture). Nothing stale runs; the receipt names both.
+        record_source_refusal(
+            "source_changed_during_capture", pin_refusal,
+            source_pin={"status": "refused", "pinned_sha256": expected_source_sha256,
+                        "read_sha256": source_sha256,
+                        "meaning": "the source changed between the pinned digest and the evaluation read; "
+                                   "no HOL ran; rerun the same command once the file is stable"},
+        )
         print(pin_refusal, file=sys.stderr)
         return 2
 
