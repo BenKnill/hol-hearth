@@ -166,7 +166,7 @@ def _banner_pin_receipt_contract(directory: Path, accepted_sha: str) -> None:
         contextlib.redirect_stdout(stdout),
     ):
         status = prove_replay.main(
-            [str(source), "--profile", "light", "--run-root", str(run_root)],
+            [str(source), "--profile", "light", "--run-root", str(run_root), "--verbose"],
             script_dir=directory,
             cwd=directory,
         )
