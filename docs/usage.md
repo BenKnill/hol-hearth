@@ -466,6 +466,12 @@ unrelated shell or the shared broker.
 including when it reports `degraded`; inspect `--json` for individual profiles.
 For a readiness check, use `./hearth doctor --profile light`: it exits 0 when
 healthy, 1 when blocked or degraded, and 2 if diagnosis cannot be completed.
+A client killed outright (a shell `kill`, an OOM kill, a lost terminal) can
+leave its seat leased in the pool record; every later `prove` then refused
+with "no basis-ready warm pool worker available". `doctor` now reports such a
+seat as `LIFECYCLE: stale-lease`, and the next `prove` reclaims a lease whose
+owner pid no longer exists before checking out the seat. A live or unknown
+owner keeps its seat.
 `./hearth smoke` checks the installation's public command contract without
 starting HOL or CRIU; it does not establish runtime readiness or prove a theorem.
 

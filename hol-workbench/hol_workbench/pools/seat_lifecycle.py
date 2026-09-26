@@ -71,6 +71,7 @@ def checkout_pool_seat_locked(
             session_alive=pool_session_alive,
             lease_factory=lease_factory,
             allow_dirty=allow_dirty,
+            released_utc=utc_now(),
         )
     except WarmPoolCheckoutError as exc:
         _persist(pool_dir, pool)

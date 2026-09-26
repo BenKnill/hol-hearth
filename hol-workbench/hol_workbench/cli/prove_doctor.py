@@ -17,6 +17,7 @@ from hol_workbench.cli.published_profile import resolve_published_warm_profile
 from hol_workbench.criu_shelf_demand import read_shelf_demands
 from hol_workbench.criu_shelf_owner import read_shelf_owners, shelf_owner_progress
 from hol_workbench.runtime_config import RuntimeConfigError, load_runtime_config
+from hol_workbench.pools.leases import stale_pool_leases
 
 
 def _attempt_ids(rows: list[dict[str, Any]]) -> set[str]:
@@ -83,11 +84,20 @@ def collect_doctor(script_dir: Path, *, profile: str | None, stalled_after: floa
     )
 
     stale_records: list[str] = []
+    stale_leases: list[dict[str, Any]] = []
     suspected_stalls: list[dict[str, Any]] = []
     for row in status["profiles"]:
         if row["status"] == "unavailable":
             continue
         resolved = resolve_published_warm_profile(script_dir, str(row["profile"]))
+        pool_value = (row.get("runtime") or {}).get("pool")
+        if isinstance(pool_value, str) and pool_value:
+            try:
+                pool_record = json.loads((Path(pool_value) / "pool.json").read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                pool_record = None
+            if isinstance(pool_record, dict):
+                stale_leases.extend({"profile": row["profile"], **lease} for lease in stale_pool_leases(pool_record))
         live_owners = read_shelf_owners(resolved.root)
         all_owners = read_shelf_owners(resolved.root, require_live=False)
         live_demands = read_shelf_demands(resolved.root)
@@ -113,7 +123,7 @@ def collect_doctor(script_dir: Path, *, profile: str | None, stalled_after: floa
                         "progress": progress,
                     }
                 )
-    lifecycle_state = "suspected-stall" if suspected_stalls else "clean"
+    lifecycle_state = "suspected-stall" if suspected_stalls else "stale-lease" if stale_leases else "clean"
     layers.append(
         {
             "layer": "lifecycle",
@@ -121,6 +131,11 @@ def collect_doctor(script_dir: Path, *, profile: str | None, stalled_after: floa
             "detail": (
                 ", ".join(str(item["profile"]) for item in suspected_stalls)
                 if suspected_stalls
+                else ", ".join(
+                    f"{item['profile']} seat leased by dead pid {item['owner_pid']}; the next prove reclaims it"
+                    for item in stale_leases
+                )
+                if stale_leases
                 else "no live stall"
             ),
         }
@@ -136,6 +151,7 @@ def collect_doctor(script_dir: Path, *, profile: str | None, stalled_after: floa
         "runtime": status,
         "suspected_stalls": suspected_stalls,
         "stale_records": stale_records,
+        "stale_leases": stale_leases,
     }
 
 
