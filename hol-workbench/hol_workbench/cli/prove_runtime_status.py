@@ -116,6 +116,22 @@ def render_status(report: dict[str, Any]) -> list[str]:
             f"{active:<11} {row['queued']:<7} "
             f"{_duration(row.get('oldest_wait_seconds'))}"
         )
+    attempts = 0
+    for row in report["profiles"]:
+        for owner in row.get("owners") or []:
+            attempts += 1
+            lines.append(
+                f"ACTIVE: {owner.get('attempt_id')} {row['profile']} {_duration(owner.get('elapsed_seconds'))} "
+                f"{owner.get('progress') or '-'} {owner.get('source') or '-'}"
+            )
+        for demand in row.get("queue") or []:
+            attempts += 1
+            lines.append(
+                f"QUEUED: {demand.get('attempt_id')} {row['profile']} position={demand.get('position')} "
+                f"waited={_duration(demand.get('wait_seconds'))} {demand.get('source') or '-'}"
+            )
+    if attempts:
+        lines.append(f"CANCEL: {public_command('cancel', 'ATTEMPT_ID')} interrupts one attempt like Ctrl-C")
     lines.extend(
         [
             f"NEXT: {public_command('prove', 'status', '--watch')}",

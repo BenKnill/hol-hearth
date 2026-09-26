@@ -41,6 +41,7 @@ def main() -> int:
         [sys.executable, "-I", "-B", str(ROOT / "dev/setup-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/authoring-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/reopen-selftest.py")],
+        [sys.executable, "-I", "-B", str(ROOT / "dev/export-replay-selftest.py")],
         [sys.executable, "-I", "-B", str(ROOT / "dev/leaf-needs-selftest.py")],
         [sys.executable, "-I", "-B", str(WB / "dev/python_syntax_selftest.py"), str(WB)],
         [sys.executable, "-I", "-B", str(WB / "dev/python_import_selftest.py"), str(WB)],

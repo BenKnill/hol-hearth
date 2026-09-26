@@ -37,6 +37,13 @@ directory; inspect that directory to select the latest attempt.
 Ctrl-C cancels the owned replay and preserves receipts. The shared broker may
 remain idle for reuse. No separate evaluator build is needed.
 
+`prove` pins the source digest it prints and refuses if the bytes it later reads
+for evaluation differ. Before pinning, it waits until two reads a tenth of a
+second apart agree, because editors and the macOS-to-guest sync write in
+stages; a `SOURCE: waited ...` line reports that wait. If the file still
+changes afterwards, the run refuses before HOL, records a refusal receipt, and
+prints `SOURCE CHANGED` with both digests; rerun the same command.
+
 The leaf's own proof still runs after each save. Use a small leaf and split
 unnecessary imports out of it. Stable, completed imports can be retained with
 the explicit project basis below.
@@ -55,7 +62,10 @@ On the first run, Hearth checks the dependency through ordinary recorded replay
 on the existing profile. Only a complete source check with all discovered
 bindings checked and an observed zero new axioms admits its retained HOL state.
 It then checks the entire leaf in a fresh child of that state. Later invocations
-with the same run root reuse it; `--loop` accepts the same option.
+with identical inputs reuse it from any run root; `--loop` accepts the same
+option. Prepared bases live in `~/.cache/hol-hearth/project-bases`, keyed by
+the content identity below, so a new `--run-root` does not pay the preparation
+again. `--basis-cache-root DIR` keeps them under `DIR/.project-bases` instead.
 
 The requested timeout applies separately to preparation and leaf evaluation.
 Both phases print and preserve their receipts. A failed preparation stops the
@@ -66,9 +76,15 @@ claim that every transitive imported declaration had a separate named probe.
 The cache identity includes the basis source, transitive source and ELF bytes,
 selected shelf and current transport implementation. Changes require another
 preparation. An unrelated file or a forced `loadt` cannot serve as the basis.
-Ordinary admission capacity still applies to cached replays. At most two live
-project bases are retained per run root; replacement retires only owned project
+Ordinary admission capacity still applies to cached replays. At most three live
+project bases are retained in one cache; replacement retires only owned project
 processes. Ctrl-C cancels the active child and preserves reusable warm state.
+
+Each live basis is a resident HOL process of roughly the profile's size.
+`./hearth basis` lists them with their source, profile, preparation time and
+last use; `./hearth basis retire KEY` or `--all` stops them. Bases prepared
+before the shared cache existed sit under each run root; list or retire those
+with `./hearth basis --cache-root /ABS/project/runs`.
 
 This reuses completed dependencies. It does not resume inside an unfinished
 tactic or automatically find and splice a prefix of a changing source. The
@@ -308,6 +324,24 @@ printed `prove` command carries the same `--profile`, so the scratch resolves
 the import the way the original run did. Such imports do not force `--out`
 beside the original source; ELF objects and project-root imports still do.
 
+## Write the plain HOL Light replay for a receipt
+
+Before publication, replay the exact source in a cold HOL Light with no Hearth,
+CRIU or warm broker involved:
+
+```sh
+./hearth export-replay /ABS/project/runs --out /ABS/project/replay.sh
+bash /ABS/project/replay.sh 2>&1 | tee /ABS/project/replay.sh.log
+```
+
+The script changes to the recorded profile cwd, sets `HOLLIGHT_LOAD_PATH` to
+the directories that made every captured relative load resolve, starts
+`hol.sh` from the recorded HOL directory, loads the profile recipe and then the
+exact source, prints each theorem the receipt marked proved, and prints the
+axiom count before and after. Without `--out` it prints the script. It writes
+a new file only, never runs HOL, and does not read the receipt's evidence: a
+passing cold replay is the independent check, not the receipt.
+
 ## Compare a leaf's needs with a profile recipe
 
 Before writing a leaf on a large warm profile, see which of its literal loads
@@ -412,6 +446,15 @@ project inputs exist or that their contents match.
 Use an explicit known profile for project work and
 `./hearth status --profile light` to inspect queueing. Effective capacity
 reflects the physical broker; its processes and sockets are not proof slots.
+`status` also prints every active and queued attempt with its attempt id.
+
+To stop one attempt without touching the warm seat, use
+`./hearth cancel ATTEMPT_ID` or `./hearth cancel --source /ABS/leaf.ml`. It
+checks the recorded process identity and sends that `prove` the same SIGINT as
+Ctrl-C, then waits (default thirty seconds) for the seat or queue slot to be
+released; an interrupted child can take a few seconds to record its receipt. Receipts stay, and the attempt's receipt records the cancellation.
+It never matches processes by command-line pattern, so it cannot signal an
+unrelated shell or the shared broker.
 
 `status` is an informational snapshot: exit 0 means the report was collected,
 including when it reports `degraded`; inspect `--json` for individual profiles.

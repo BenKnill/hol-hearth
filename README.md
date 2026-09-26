@@ -32,6 +32,11 @@ configured shelf and queue without running a proof. See the
 For a read-only view of a large leaf's transitive source and ELF inputs, use
 `./hearth leaf-needs /ABS/project/proofs/leaf.ml --profile s2n-arm --deep`.
 It reports captured hashes and warm inventory separately, without starting HOL.
+`./hearth status` lists active and queued attempts; `./hearth cancel ATTEMPT_ID`
+interrupts one of them like Ctrl-C without touching the shared warm seat.
+`./hearth export-replay /ABS/project/runs --out replay.sh` writes the plain
+cold HOL Light command that reproduces a receipt's load environment for the
+independent check before publication.
 
 `--profile` selects the published warm environment. For a stable, expensive
 project import, `--basis` checks and retains that completed dependency:

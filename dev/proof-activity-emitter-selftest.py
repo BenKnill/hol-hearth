@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "hol-workbench"))
 
 from hol_workbench.proof_diagnostics import (  # noqa: E402
     ACTIVITY_PROTOCOL, MAX_ACTIVITY_CALLS, MAX_ACTIVITY_DEPTH,
-    account_proof_activity, diagnostic_prelude,
+    account_proof_activity, account_proof_diagnostics, diagnostic_prelude,
 )
 
 
@@ -54,6 +54,22 @@ ignore (prove ("outer",nested {MAX_ACTIVITY_DEPTH + 3}));;
 assert (try ignore (prove ("caught",fun _ -> failwith "expected fixture")); false
         with Failure message -> message = "expected fixture");;
 assert (prove ("repaired",solve) = "repaired");;
+(* Fixture tacticals: THEN applies tac2 to every goal tac1 returned; THENL pairs them. *)
+let fixture_then (tac1:tactic) (tac2:tactic) : tactic = fun g ->
+  let (_,goals,_) = tac1 g in
+  ((),List.concat (List.map (fun goal -> let (_,rest,_) = tac2 goal in rest) goals),());;
+let fixture_thenl (tac1:tactic) (tacs:tactic list) : tactic = fun g ->
+  let (_,goals,_) = tac1 g in
+  ((),List.concat (List.map2 (fun tac goal -> let (_,rest,_) = tac goal in rest) tacs goals),());;
+let (then_,thenl_) = hol_hearth_wrap_tacticals_{nonce} fixture_then fixture_thenl;;
+let split : tactic = fun (asl,w) -> ((),[(asl,w ^ "/left");(("h","hyp")::asl,w ^ "/right")],());;
+let keep : tactic = fun g -> ((),[g],());;
+let boom : tactic = fun _ -> failwith "step failure";;
+let try_ (tac:tactic) : tactic = fun g -> try tac g with Failure _ -> keep g;;
+(* Inner failure caught by try_ must be dropped; the outer failing step must remain. *)
+assert (try ignore (prove ("stepped", then_ (then_ (try_ (then_ keep boom)) split) (thenl_ split [keep; boom]))); false
+        with Failure message -> message = "step failure");;
+assert (prove ("settled", then_ (try_ (then_ keep boom)) solve) = "settled");;
 if Array.length Sys.argv > 1 then
   ignore (prove ("still active",fun _ -> exit 0));;
 '''.encode()
@@ -79,7 +95,21 @@ if Array.length Sys.argv > 1 then
             assert len(activity["active_calls"]) == int(stopped)
             if stopped:
                 assert activity["active_calls"][0]["locations"]
-    print("proof activity emitter: real OCaml long-call, overflow/recovery and exception checks passed (no HOL)")
+            diagnostics = account_proof_diagnostics(executed.stdout, contract)
+            assert diagnostics["status"] == "recorded", diagnostics
+            stepped = [event for event in diagnostics["events"] if event["statement"] == "stepped"]
+            assert len(stepped) == 1, [event["statement"] for event in diagnostics["events"]]
+            steps = stepped[0]["steps"]
+            # Outermost first: the top-level THEN's continuation failed on the first goal split
+            # returned; inside it, THENL's second branch failed on that goal's right split.
+            assert [step["conclusion"] for step in steps] == ["stepped/left", "stepped/left/right"], steps
+            assert steps[0]["assumption_count"] == 0
+            assert steps[1]["assumption_count"] == 1 and steps[1]["assumptions"][0]["label"] == "h"
+            assert all(step["exception"] == 'Failure("step failure")' for step in steps)
+            assert all(step["locations"] for step in steps)
+            settled = [event for event in diagnostics["events"] if event["statement"] == "settled"]
+            assert settled == [], "a caught inner step failure must not leave a frame"
+    print("proof activity emitter: real OCaml long-call, overflow/recovery, exception and failing-step checks passed (no HOL)")
     return 0
 
 

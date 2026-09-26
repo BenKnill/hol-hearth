@@ -6,6 +6,7 @@ import argparse
 import math
 import os
 import sys
+import time
 from pathlib import Path
 
 from hol_workbench.authoring_source_path import (
@@ -33,10 +34,11 @@ def _parse(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--source")
     parser.add_argument("--profile")
     parser.add_argument("--basis", metavar="FILE.ml",
-                        help="reuse a checked project basis imported by literal needs; stored under --run-root")
-    # Watch attempts live below session directories but share the caller's
-    # selected cache root. This internal argument keeps --run-root public.
-    parser.add_argument("--basis-cache-root", help=argparse.SUPPRESS)
+                        help="reuse a checked project basis imported by literal needs; prepared once per identical "
+                             "inputs in the shared per-user cache")
+    parser.add_argument("--basis-cache-root", metavar="DIR",
+                        help="keep prepared bases under DIR/.project-bases instead of the shared "
+                             "~/.cache/hol-hearth/project-bases")
     parser.add_argument("--run-root", default=None)
     parser.add_argument("--timeout", type=float, default=120.0)
     add_progress_argument(parser)
@@ -52,6 +54,25 @@ def _parse(args: list[str]) -> argparse.Namespace:
         parser.error("--timeout must be finite and positive")
     parsed.source = source
     return parsed
+
+
+def _settled_source_sha256(source: Path, *, attempts: int = 20, interval: float = 0.1) -> tuple[str | None, float]:
+    """Digest the source once two consecutive reads agree.
+
+    Editors and the macOS-to-guest file sync write in stages. A digest taken
+    mid-write is refused later as a source pin mismatch; waiting for the bytes
+    to settle removes that race without weakening the pin.
+    """
+    previous = sha256_file(source)
+    waited = 0.0
+    for _ in range(attempts):
+        time.sleep(interval)
+        waited += interval
+        current = sha256_file(source)
+        if current == previous:
+            return current, waited
+        previous = current
+    return previous, waited
 
 
 def _profile(source: Path, explicit: str | None, script_dir: Path) -> str:
@@ -94,7 +115,7 @@ def main(
     )
     basis_cache_root = resolve_authoring_run_root(
         options.basis_cache_root, legacy_cwd=command_cwd, source_resolution=resolution,
-    ) if options.basis_cache_root else run_root
+    ) if options.basis_cache_root else None
     scripts = Path(script_dir).expanduser().resolve()
     try:
         name = _profile(source, options.profile, scripts)
@@ -105,11 +126,14 @@ def main(
     transcript = default_transcript_path(run_root, source)
     # Pin the banner digest privately: the replay refuses before HOL if the bytes it
     # reads are not these, so a printed sha always names the bytes that were checked.
-    expected_sha256 = sha256_file(source)
+    expected_sha256, settle_seconds = _settled_source_sha256(source)
     short = short_sha256(expected_sha256)
     if expected_sha256 is None or short is None:
         print(f"prove: source digest unavailable: {source}", file=sys.stderr)
         return 2
+    if settle_seconds > 0.15:
+        print(f"SOURCE: waited {settle_seconds:.1f}s for the file to stop changing before pinning its digest",
+              flush=True)
     print(f"REPLAY: profile={name} source={source} sha={short}", flush=True)
     with ReplayProgress(timeout=options.timeout, interval=options.progress_interval) as progress:
         status = run_published_warm_replay(
@@ -133,7 +157,13 @@ def main(
                 flush=True,
             )
         recorded = read_json(receipt)
-        if recorded.get("transport_status") in {"timeout", "interrupted", "cancelled"}:
+        if recorded.get("source_preflight_status") == "source_pin_refused":
+            current = short_sha256(sha256_file(source))
+            print("SOURCE CHANGED: the file was rewritten between the pinned digest and the read for evaluation "
+                  f"(pinned sha={short}, now sha={current or 'unavailable'}); no HOL ran and no profile was "
+                  "restored. An editor save or the macOS-to-guest sync landed mid-capture.", flush=True)
+            print("NEXT: rerun the same prove command; the receipt above records only the refusal.", flush=True)
+        elif recorded.get("transport_status") in {"timeout", "interrupted", "cancelled"}:
             reason = "timeout" if recorded.get("transport_status") == "timeout" else "cancelled"
             print(f"INCOMPLETE: {reason}; this attempt did not complete the source check. "
                   "This is no conclusion about whether the theorem is true or false.", flush=True)

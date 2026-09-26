@@ -55,6 +55,15 @@ def main(
         from hol_workbench.cli import prove_profiles
 
         return prove_profiles.main(["profiles", scripts, *args[1:]])
+    # These take their own options (--source, --all) and never start a proof.
+    if args and args[0] == "cancel":
+        from hol_workbench.cli import prove_cancel
+
+        return prove_cancel.main(args[1:], script_dir=scripts, cwd=working_directory)
+    if args and args[0] == "basis":
+        from hol_workbench.cli import prove_basis
+
+        return prove_basis.main(args[1:], script_dir=scripts, cwd=working_directory)
 
     if args and args[0] in DEVELOPER_ONLY_COMMANDS:
         print(
@@ -100,7 +109,7 @@ def main(
         return prove_doctor.main(args[1:], script_dir=scripts)
 
     print(
-        "prove: expected SOURCE.ml [--run-root], SOURCE.ml --loop, profiles, status, or doctor; "
+        "prove: expected SOURCE.ml [--run-root], SOURCE.ml --loop, profiles, status, doctor, cancel, or basis; "
         "maintenance and publication replay use developer tools",
         file=sys.stderr,
     )

@@ -10,7 +10,7 @@ from hol_workbench.cli.orbstack_criu_vanilla_artifacts import default_transcript
 from hol_workbench.cli.published_profile import PublishedWarmProfile
 from hol_workbench.hashing import sha256_file
 from hol_workbench.project_basis import (
-    abort_basis, adopt_basis, bootstrap_postlude, bootstrap_prelude, lookup_basis,
+    abort_basis, adopt_basis, basis_cache_dir, bootstrap_postlude, bootstrap_prelude, lookup_basis,
     plan_basis, project_basis_lock,
 )
 from hol_workbench.source_execution_plan import capture_source_dependency_closure, decide_profile_satisfaction
@@ -30,7 +30,8 @@ def run_project_basis_replay(
     trusted bootstrap transport bytes. Neither phase edits project sources.
     """
     phase = on_phase or (lambda _phase: None)
-    cache_root = run_root if cache_root is None else cache_root
+    # ``cache_root`` None selects the shared per-user cache, so a basis prepared
+    # under one run root serves every later run root with identical inputs.
     leaf_closure = {}
 
     def record_refusal(reason: str) -> None:
@@ -95,6 +96,8 @@ def run_project_basis_replay(
                 receipt = Path(f"{preparation}.json")
                 print(f"PROJECT BASIS: preparing {basis_source}; budget={timeout:g}s for this phase"
                       if timeout is not None else f"PROJECT BASIS: preparing {basis_source}", flush=True)
+                print(f"BASIS CACHE: {basis_cache_dir(cache_root)}; later runs with identical inputs reuse it "
+                      "from any run root", flush=True)
                 print(f"PREPARATION RECEIPT: {receipt}", flush=True)
                 adopted = False
                 try:

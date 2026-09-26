@@ -252,13 +252,11 @@ let prove =
           | _ -> emit "tactic_input" tm error [([],tm)] locations recorded_steps)
        with _ -> ());
       raise error;;
-let (THEN),(THENL) =
+let hol_hearth_wrap_tacticals_@NONCE@ =
   (* Record the goal each THEN/THENL continuation received when it raised. The
      wrapped tacticals return the original results and re-raise the original
      exceptions; a continuation that later succeeds drops what its callees
      recorded, so only the propagating failure path reaches the prove frame. *)
-  let original_then tac1 tac2 = tac1 THEN tac2
-  and original_thenl tac1 tacl = tac1 THENL tacl in
   let steps = hol_hearth_steps_@NONCE@ in
   let slots () =
     try match Printexc.backtrace_slots (Printexc.get_callstack 24) with
@@ -273,13 +271,14 @@ let (THEN),(THENL) =
     let result = tac g in
     steps := drop (List.length !steps - mark) !steps;
     result in
-  let then_ tac1 tac2 =
-    let locations = slots () in
-    settle (original_then tac1 (guard locations tac2))
-  and thenl_ tac1 tacl =
-    let locations = slots () in
-    settle (original_thenl tac1 (List.map (guard locations) tacl)) in
-  then_,thenl_;;
+  fun (original_then : tactic -> tactic -> tactic) (original_thenl : tactic -> tactic list -> tactic) ->
+    let then_ tac1 tac2 =
+      let locations = slots () in
+      settle (original_then tac1 (guard locations tac2))
+    and thenl_ tac1 tacl =
+      let locations = slots () in
+      settle (original_thenl tac1 (List.map (guard locations) tacl)) in
+    then_,thenl_;;
 '''
     return (source.replace("@NONCE@", nonce)
             .replace("@MAX_ACTIVITY_DEPTH@", str(MAX_ACTIVITY_DEPTH))
@@ -288,6 +287,21 @@ let (THEN),(THENL) =
             .replace("@MAX_EXCEPTION_BYTES@", str(MAX_EXCEPTION_BYTES))
             .replace("@MAX_STEPS@", str(MAX_STEPS))
             .replace("@MAX_STEP_LOCATIONS@", str(MAX_STEP_LOCATIONS)).encode("utf-8"))
+
+
+def tactical_step_prelude(nonce: str) -> bytes:
+    """Bind HOL's THEN and THENL to the recording wrappers; HOL toplevel syntax only.
+
+    Kept apart from ``diagnostic_prelude`` because plain OCaml cannot spell
+    HOL's uppercase tactical identifiers; the emitter selftest compiles the
+    plain part and exercises the same wrapper factory with fixture tacticals.
+    """
+    if not NONCE.fullmatch(nonce):
+        raise ValueError("invalid proof diagnostic nonce")
+    return (
+        "let (THEN),(THENL) =\n"
+        f"  hol_hearth_wrap_tacticals_{nonce} (fun tac1 tac2 -> tac1 THEN tac2) (fun tac1 tacl -> tac1 THENL tacl);;\n"
+    ).encode("utf-8")
 
 
 def _text(value: str, limit: int = MAX_TEXT_BYTES) -> str:

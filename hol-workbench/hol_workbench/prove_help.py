@@ -5,6 +5,8 @@ PUBLIC_HELP = """usage:
   hearth profiles [--all | PROFILE [--verbose]]
   hearth status [--profile PROFILE] [--watch|--json]
   hearth doctor [--profile PROFILE|--all-profiles] [--json]
+  hearth cancel ATTEMPT_ID | --source FILE.ml [--profile PROFILE] [--wait SECONDS]
+  hearth basis [list|retire KEY...|retire --all] [--cache-root DIR]
 
 Recorded replay:
   Evaluate the complete project in a fresh child of a warm HOL profile.
@@ -25,7 +27,14 @@ Project dependency reuse:
   selected warm profile. Reuse requires identical source, dependency and ELF
   bytes. Preparation and full leaf replay each retain a receipt and use the
   explicit timeout separately. Each leaf runs in a fresh child; --loop uses
-  this same route. Keep the same --run-root to reuse a prepared basis.
+  this same route. Prepared bases live in ~/.cache/hol-hearth/project-bases,
+  keyed by input identity, so any run root reuses them; hearth basis lists
+  or retires them (each live basis is a resident HOL process).
+
+Cancelling:
+  hearth status prints each active or queued attempt id. hearth cancel sends
+  that attempt the same SIGINT as Ctrl-C after checking its process identity,
+  so a shell pattern never signals the wrong process. Receipts are retained.
 
 Authoring loop:
   --loop watches source and transitive dependencies and runs the same recorded
