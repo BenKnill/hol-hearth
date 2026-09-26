@@ -6,10 +6,13 @@ Choose the smallest source that contains the obligation you are changing.
 Its dependencies should state the reusable mathematics explicitly. After an edit:
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --profile light --run-root /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
 ```
+
+The default budget is 900 seconds. `prove` prints one verdict line
+(`PASSED`, `FAILED`, `INCOMPLETE` or `REFUSED`), the receipt path and the next
+command; see [Read the result you need](#read-the-result-you-need).
 
 Use the project's complete entrypoint and a larger explicit budget for a
 milestone. The acoustic interface acceptance case uses 1500 seconds. This
@@ -22,8 +25,8 @@ newest receipt. Pass an individual attempt directory to inspect an older result.
 ## Watch the project
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --loop --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --loop --profile light --run-root /ABS/project/runs
+./hearth watch /ABS/project/proofs/leaf.ml --profile light --run-root /ABS/project/runs   # same
 ```
 
 The watcher uses the same recorded replay as the command above. It tracks
@@ -36,6 +39,15 @@ Each evaluation gets a durable receipt. The watcher prints its session run
 directory; inspect that directory to select the latest attempt.
 Ctrl-C cancels the owned replay and preserves receipts. The shared broker may
 remain idle for reuse. No separate evaluator build is needed.
+
+`prove` pins the source digest it prints and refuses if the bytes it later reads
+for evaluation differ. Before pinning, it waits until two reads a tenth of a
+second apart agree, because editors and the macOS-to-guest sync write in
+stages; a `SOURCE: waited ...` line reports that wait. If the file still
+changes afterwards, the run refuses before HOL, records a refusal receipt with
+`source_preflight_status: source_changed_during_capture` and both digests under
+`source_pin`, and prints `SOURCE CHANGED`; `inspect` shows the same line with a
+`NEXT` hint. It is not a proof failure; rerun the same command.
 
 The leaf's own proof still runs after each save. Use a small leaf and split
 unnecessary imports out of it. Stable, completed imports can be retained with
@@ -55,7 +67,10 @@ On the first run, Hearth checks the dependency through ordinary recorded replay
 on the existing profile. Only a complete source check with all discovered
 bindings checked and an observed zero new axioms admits its retained HOL state.
 It then checks the entire leaf in a fresh child of that state. Later invocations
-with the same run root reuse it; `--loop` accepts the same option.
+with identical inputs reuse it from any run root; `--loop` accepts the same
+option. Prepared bases live in `~/.cache/hol-hearth/project-bases`, keyed by
+the content identity below, so a new `--run-root` does not pay the preparation
+again. `--basis-cache-root DIR` keeps them under `DIR/.project-bases` instead.
 
 The requested timeout applies separately to preparation and leaf evaluation.
 Both phases print and preserve their receipts. A failed preparation stops the
@@ -66,9 +81,15 @@ claim that every transitive imported declaration had a separate named probe.
 The cache identity includes the basis source, transitive source and ELF bytes,
 selected shelf and current transport implementation. Changes require another
 preparation. An unrelated file or a forced `loadt` cannot serve as the basis.
-Ordinary admission capacity still applies to cached replays. At most two live
-project bases are retained per run root; replacement retires only owned project
+Ordinary admission capacity still applies to cached replays. At most three live
+project bases are retained in one cache; replacement retires only owned project
 processes. Ctrl-C cancels the active child and preserves reusable warm state.
+
+Each live basis is a resident HOL process of roughly the profile's size.
+`./hearth basis` lists them with their source, profile, preparation time and
+last use; `./hearth basis retire KEY` or `--all` stops them. Bases prepared
+before the shared cache existed sit under each run root; list or retire those
+with `./hearth basis --cache-root /ABS/project/runs`.
 
 This reuses completed dependencies. It does not resume inside an unfinished
 tactic or automatically find and splice a prefix of a changing source. The
@@ -136,11 +157,46 @@ selected named probes; inspection describes this scope.
 ## Read the result you need
 
 ```sh
+./hearth inspect /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
-./hearth inspect /ABS/project/runs --verbose
 ./hearth inspect /ABS/project/runs --json
+./hearth inspect /ABS/project/runs --verbose
 ./hearth inspect /ABS/project/runs --tail 40
 ```
+
+The default card starts with the verdict and holds only what changes what you
+do next:
+
+```
+FAILED leaf.ml at STEP_LEMMA (line 41): Exception: Failure "ARITH_RULE `...`: linear_ineqs: no contradiction".
+source: /ABS/project/proofs/leaf.ml sha=3b6610801338
+  STEP_LEMMA: failed source_line=41
+  LATER_LEMMA: not reached (after the failure) source_line=58
+  EARLY_LEMMA: proved source_line=12
+binding_counts: proved=1 failed=0 printed_unprobed=0 missing=2 unknown=0
+successful_probe_counts: conclusion_checked=1 thm_type_only=0 unknown=0
+failing_binding: STEP_LEMMA source=/ABS/project/proofs/leaf.ml:41
+first_failure: transcript_line=446 Exception: Failure "ARITH_RULE `...`".
+inputs: 3 files; closure_sha=26ff7009099a
+receipt: /ABS/project/runs/.../transcript.log.json
+NEXT: ./hearth reopen /ABS/project/runs/... --binding STEP_LEMMA
+proof_diagnostics: 1 event(s), diagnostic only
+  ...
+  failing tactic steps: 2/2 recorded, outermost first; ...
+    step 1 at leaf.ml:44:
+      |- x + y = y + x
+```
+
+`PASSED` cards are five or six lines. Binding states are the receipt's own
+probe results (`proved`, `failed`, `printed_unprobed`, `missing`) plus two
+derived ones: the attributed failing binding shows `failed`, and bindings whose
+source line follows it show `not reached`. `--json` prints the same summary as
+data (`verdict`, `line`, `bindings`, `binding_counts`, `new_axioms`,
+`eval_seconds`, `failing_binding`, `first_failure`, `failing_step`, `reason`,
+`basis`, `inputs`, `receipt`, `next`, ...); the verdict block is also written
+into the receipt file itself as `verdict`. `--json --verbose` prints the
+complete receipt, and `--verbose` alone prints every recorded field the way
+older versions did.
 
 The exact binding view includes its recorded status, probe strength, and original
 source span. A literal statement's probe checks that the theorem's conclusion
@@ -153,9 +209,9 @@ including those hidden by the compact display limit. `--binding` and `--verbose`
 also show the exact `verification_kind`; older receipts without it have unknown
 probe strength.
 Verbose lists all discovered entrypoint bindings and captured input identities.
-JSON exposes the complete, unchanged receipt, including each binding's recorded
-`verification_kind`, for agents. An unrecorded binding is reported
-as unrecorded; it is not inferred absent from the mathematical basis.
+`--json --verbose` exposes the complete, unchanged receipt, including each
+binding's recorded `verification_kind`, for agents. An unrecorded binding is
+reported as unrecorded; it is not inferred absent from the mathematical basis.
 
 Failure inspection includes a bounded exception block. Compiler locations in
 generated evaluation files are diagnostic coordinates, not editable source
@@ -190,9 +246,22 @@ goals are solved.
 Recorded replay captures bounded residual goals (assumptions and conclusion)
 when a tactic returns unsolved subgoals to the existing `prove`. Read them with
 `hearth inspect RUN --verbose` or the structured `proof_diagnostics` field in
-`--json`. If a tactic raises before returning, the diagnostic instead labels
-its original input; intermediate subgoals are unavailable. These are diagnostic
-snapshots, never theorem probes. They do not change source acceptance.
+`--json`. These are diagnostic snapshots, never theorem probes. They do not
+change source acceptance.
+
+When a tactic raises instead of returning, inspect also shows the goal state
+at the failing step. The disposable child wraps `THEN` and `THENL` so that each
+continuation records the goal it received when it raised; a continuation that
+later succeeds, for example inside `TRY` or `ORELSE`, discards what its callees
+recorded. The receipt keeps the propagating chain, outermost first, under
+`proof_diagnostics.events[].steps`, with the source line where the `THEN` or
+`THENL` expression whose continuation failed begins, and the complete exception text (bounded at 64 KiB, so an
+`INT_ARITH` or `ARITH_RULE` failure quotes its whole goal even though the HOL
+toplevel prints a truncated string). `inspect` shows the outermost step and its
+first assumptions; `--verbose` shows every recorded step, all assumptions and
+the full exception. This replaces splitting a tactic at top-level `THEN` into
+`g`/`e` steps by hand. The wrappers return the original results and re-raise
+the original exceptions; they run only in the diagnostic child.
 
 The disposable child compiles source with location information. A unique compiler
 call site can identify an entrypoint's failing literal `let NAME = prove (...)`
@@ -283,6 +352,65 @@ files and companion directories are never overwritten. A refused command
 leaves no generated files. Choose a new output
 name for another attempt.
 
+A literal `needs` that the receipt records as satisfied by the warm profile,
+such as `needs "arm/proofs/base.ml";;` in a project outside the s2n-bignum
+tree under `s2n-arm`, is not an unresolved import. Reopen accepts it when the
+receipt's profile-satisfaction decision matches the recorded closure and names
+the receipt's profile. Before publishing, it rereads each recorded shelf file
+and refuses if its bytes changed. Those files are never copied: the prefix
+keeps the exact `needs`, `origin.json` lists them under
+`profile_satisfied_dependencies` with their host path and hash, and the
+printed `prove` command carries the same `--profile`, so the scratch resolves
+the import the way the original run did. Such imports do not force `--out`
+beside the original source; ELF objects and project-root imports still do.
+
+## What an accepted receipt establishes
+
+`SOURCE CHECK: passed` with `FOUNDATION DELTA: axioms=0` means: the same HOL
+Light kernel, started from pinned sources, evaluated the exact source bytes in
+a fresh child forked from the published profile; the child began from exactly
+the profile recipe in `profiles/NAME.ml` (for `s2n-arm`, `arm/proofs/base.ml`
+and one warm-up theorem) whose loaded-file inventory is hash-verified at
+admission; every discovered `let NAME = prove (...)` was probed in the kernel
+with empty hypotheses; and the number of axioms did not grow. Nothing about
+the theorem is provisional in that result.
+
+A from-scratch HOL Light run of the same recipe and source reproduces the same
+environment, so it establishes the same theorem. It adds one thing: it does
+not depend on the CRIU image being a faithful checkpoint of that recipe, which
+Hearth already records by hash. It costs minutes for `light` and tens of
+minutes for `s2n-arm`, occupies about a gigabyte alongside the warm seats, and
+cannot see anything the warm child could not. Run one with `export-replay`
+when the image is in question or an outside reader wants a run without Hearth.
+Do not use it as a per-milestone gate; the older `prove audit --final`
+acceptance step that some project notes still mention was retired with the
+developer-only lane and had no stronger kernel evidence than a recorded warm
+receipt.
+
+The one environment difference to keep in mind is the recipe itself: a profile
+that ends differently from the source's expectations (`s2n-arm-light` ends
+with `prioritize_real()`) changes how unannotated terms parse, warm or cold.
+Read the recipe, not the temperature.
+
+## Write the plain HOL Light replay for a receipt
+
+To replay the exact source in a cold HOL Light with no Hearth, CRIU or warm
+broker involved:
+
+```sh
+./hearth export-replay /ABS/project/runs --out /ABS/project/replay.sh
+bash /ABS/project/replay.sh 2>&1 | tee /ABS/project/replay.sh.log
+```
+
+The script changes to the recorded profile cwd, sets `HOLLIGHT_LOAD_PATH` to
+the directories that made every captured relative load resolve, starts
+`hol.sh` from the recorded HOL directory, loads the profile recipe and then the
+exact source, prints each theorem the receipt marked proved, and prints the
+axiom count before and after. Without `--out` it prints the script. It writes
+a new file only, never runs HOL, and does not read the receipt's evidence; a
+passing cold replay confirms the receipt's environment independently of the
+profile image.
+
 ## Compare a leaf's needs with a profile recipe
 
 Before writing a leaf on a large warm profile, see which of its literal loads
@@ -342,7 +470,11 @@ Select the existing runtime as described in [setup](setup.md#existing-hol-and-cr
 Use `s2n-arm` for the ARM proof base, `s2n-arm-mlkem` for the shared NTT
 development, and `s2n-x86` for the x86 proof base. `s2n-arm-light` is a separate
 optional recipe adding arithmetic and ring theory; its absence does not prevent
-using an installed `s2n-arm` shelf.
+using an installed `s2n-arm` shelf. It is not a stand-in for `s2n-arm`: the
+s2n-bignum base ends with `prioritize_num()`, while the light recipe ends with
+`prioritize_real()`, so an unannotated `i <= N` in a proof written for
+`s2n-arm` parses as a real inequality there and `ARITH_RULE` steps fail. Check
+`s2n-arm` sources on `s2n-arm`, or annotate every numeral type.
 
 `doctor` checks whether a shelf is compatible with the selected runtime. Its
 loaded-source inventory determines which project imports are already present.
@@ -387,11 +519,26 @@ project inputs exist or that their contents match.
 Use an explicit known profile for project work and
 `./hearth status --profile light` to inspect queueing. Effective capacity
 reflects the physical broker; its processes and sockets are not proof slots.
+`status` also prints every active and queued attempt with its attempt id.
+
+To stop one attempt without touching the warm seat, use
+`./hearth cancel ATTEMPT_ID` or `./hearth cancel --source /ABS/leaf.ml`. It
+checks the recorded process identity and sends that `prove` the same SIGINT as
+Ctrl-C, then waits (default thirty seconds) for the seat or queue slot to be
+released; an interrupted child can take a few seconds to record its receipt. Receipts stay, and the attempt's receipt records the cancellation.
+It never matches processes by command-line pattern, so it cannot signal an
+unrelated shell or the shared broker.
 
 `status` is an informational snapshot: exit 0 means the report was collected,
 including when it reports `degraded`; inspect `--json` for individual profiles.
 For a readiness check, use `./hearth doctor --profile light`: it exits 0 when
 healthy, 1 when blocked or degraded, and 2 if diagnosis cannot be completed.
+A client killed outright (a shell `kill`, an OOM kill, a lost terminal) can
+leave its seat leased in the pool record; every later `prove` then refused
+with "no basis-ready warm pool worker available". `doctor` now reports such a
+seat as `LIFECYCLE: stale-lease`, and the next `prove` reclaims a lease whose
+owner pid no longer exists before checking out the seat. A live or unknown
+owner keeps its seat.
 `./hearth smoke` checks the installation's public command contract without
 starting HOL or CRIU; it does not establish runtime readiness or prove a theorem.
 
@@ -399,9 +546,9 @@ The timeout is an explicit attempt budget. Queue wait is reported separately.
 The broker response deadline has a 15-second allowance with a 30-second minimum;
 a controller timeout does not establish an exact evaluator cutoff.
 
-A complete-source result and named kernel probes are warm authoring evidence.
-They are distinct from process transport, diagnostic text, native execution,
-and independent publication replay. Review the actual theorem assumptions.
+A complete-source result and named kernel probes are the theorem check. They
+are distinct from process transport, diagnostic text and native execution.
+Review the actual theorem assumptions.
 
 HOL source is executable OCaml. Run source you trust; a fresh child isolates
 proof state and is not an operating-system security sandbox.

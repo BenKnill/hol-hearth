@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from hol_workbench.receipt_summary import summarize
 from hol_workbench.hashing import sha256_file
 from hol_workbench.ids import run_id
 from hol_workbench.jsonio import atomic_write_json, read_json
@@ -57,9 +58,7 @@ def write_vanilla_artifacts(
     metadata = metadata_path(transcript)
     closure = source_dependency_closure or {}
     package = dependency_package or {}
-    atomic_write_json(
-        metadata,
-        {
+    payload = {
             "schema": VANILLA_ARTIFACT_SCHEMA,
             "evidence": evidence_role,
             "client": client_identity(),
@@ -76,6 +75,7 @@ def write_vanilla_artifacts(
             "dependency_transport_status": package.get("dependency_transport_status"),
             "dependency_transport_reason": package.get("dependency_transport_reason"),
             "source_preflight_status": package.get("source_preflight_status"),
+            "source_pin": package.get("source_pin"),
         "project_basis": package.get("project_basis"),
         "preparation_package_root": package.get("preparation_package_root"),
             "dependency_package_files": package.get("files") or [],
@@ -139,6 +139,8 @@ def write_vanilla_artifacts(
             "capacity_model": "bounded_multi_seat" if effective_capacity > 1 else "serialized_single_shelf",
             "evidence_boundary": (semantic or {}).get("evidence_boundary")
             or "raw transcript completion and binding accounting; not semantic_probe evidence",
-        },
-    )
+    }
+    # The curated verdict a reader wants first; every observation it is drawn from stays above.
+    payload["verdict"] = summarize(payload, receipt_path=metadata).to_json()
+    atomic_write_json(metadata, payload)
     return metadata

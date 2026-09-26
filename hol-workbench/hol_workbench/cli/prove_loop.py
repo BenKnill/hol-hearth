@@ -128,9 +128,8 @@ def main(args: list[str], *, script_dir: str | os.PathLike[str], cwd: str | os.P
                          "--timeout", str(options.timeout), "--run-root", str(root),
                          "--progress-interval", str(options.progress_interval),
                          # Receipts stay in this watch session; reusable bases
-                         # share the same root as ordinary prove and later watches.
-                         *(["--basis", str(basis), "--basis-cache-root", str(selected_root)]
-                           if basis is not None else [])],
+                         # live in the shared cache with ordinary prove and later watches.
+                         *(["--basis", str(basis)] if basis is not None else [])],
                         cwd=working, start_new_session=True,
                     )
                 else:

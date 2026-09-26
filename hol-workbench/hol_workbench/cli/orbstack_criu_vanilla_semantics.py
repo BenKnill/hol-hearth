@@ -7,7 +7,8 @@ from typing import Any
 
 from hol_workbench.proof_diagnostics import (
     ACTIVITY_PREFIX, ACTIVITY_PROTOCOL, MAX_ACTIVITY_DEPTH, account_proof_activity,
-    account_proof_diagnostics, diagnostic_prelude, identify_failed_binding, identify_running_binding,
+    account_proof_diagnostics, attach_step_source_lines, diagnostic_prelude, identify_failed_binding,
+    identify_running_binding, tactical_step_prelude,
 )
 
 from hol_workbench.foundation_delta import account_foundation_delta, foundation_probe_contract
@@ -21,7 +22,9 @@ from hol_workbench.vanilla_claims import (
 
 RECORDED_REPLAY_EVIDENCE_BOUNDARY = (
     f"{EVIDENCE_BOUNDARY}; advisory runtime logical-foundation registry cardinality deltas; "
-    "warm development evidence only, not final audit or promotion authority"
+    "kernel-checked in a fresh child of the published warm profile, whose recipe and loaded-file "
+    "inventory are hash-verified; a cold replay of the same recipe adds independence from the "
+    "profile image, not a stronger theorem"
 )
 
 
@@ -38,7 +41,7 @@ def instrumented_source_bytes(
 
     if include_foundation_delta:
         nonce = nonce or secrets.token_hex(16)
-        prefix_bytes += b"\n" + diagnostic_prelude(nonce)
+        prefix_bytes += b"\n" + diagnostic_prelude(nonce) + tactical_step_prelude(nonce)
     payload, contract = build_claim_probe(source_bytes, claims, nonce=nonce, prefix_bytes=prefix_bytes)
     if include_foundation_delta:
         contract["foundation_delta"] = foundation_probe_contract(str(contract["nonce"]))
@@ -168,6 +171,7 @@ def analyze_vanilla_transcript(
     }
     if foundation_enabled:
         result["proof_diagnostics"] = account_proof_diagnostics(transcript, contract)
+        attach_step_source_lines(result["proof_diagnostics"], contract)
         result["proof_activity"] = account_proof_activity(transcript, contract)
         if not source_completed and transport in {"timeout", "interrupted", "cancelled"}:
             result["running_binding"] = identify_running_binding(result["proof_activity"], contract, claims)

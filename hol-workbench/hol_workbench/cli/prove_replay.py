@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import math
 import os
 import sys
+import time
 from pathlib import Path
 
 from hol_workbench.authoring_source_path import (
@@ -15,13 +17,14 @@ from hol_workbench.authoring_source_path import (
 )
 from hol_workbench.cli.orbstack_criu_vanilla_artifacts import default_transcript_path
 from hol_workbench.cli.prove_profiles import public_authoring_profile_names
-from hol_workbench.cli.public_commands import public_command, replay_handoff
+from hol_workbench.cli.public_commands import public_command
 from hol_workbench.cli.published_profile import resolve_published_warm_profile
 from hol_workbench.cli.published_profile_replay import run_published_warm_replay
 from hol_workbench.cli.replay_progress import ReplayProgress, add_progress_argument
 from hol_workbench.hashing import sha256_file, short_sha256
 from hol_workbench.jsonio import read_json
 from hol_workbench.proofs.profile_inference import infer_public_profile_for_source
+from hol_workbench.receipt_summary import next_command, summarize
 
 
 def _parse(args: list[str]) -> argparse.Namespace:
@@ -33,12 +36,17 @@ def _parse(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--source")
     parser.add_argument("--profile")
     parser.add_argument("--basis", metavar="FILE.ml",
-                        help="reuse a checked project basis imported by literal needs; stored under --run-root")
-    # Watch attempts live below session directories but share the caller's
-    # selected cache root. This internal argument keeps --run-root public.
-    parser.add_argument("--basis-cache-root", help=argparse.SUPPRESS)
+                        help="reuse a checked project basis imported by literal needs; prepared once per identical "
+                             "inputs in the shared per-user cache")
+    parser.add_argument("--basis-cache-root", metavar="DIR",
+                        help="keep prepared bases under DIR/.project-bases instead of the shared "
+                             "~/.cache/hol-hearth/project-bases")
     parser.add_argument("--run-root", default=None)
-    parser.add_argument("--timeout", type=float, default=120.0)
+    parser.add_argument("--timeout", type=float, default=900.0,
+                        help="proof budget in seconds for this attempt (default 900); queue wait is separate")
+    parser.add_argument("--json", action="store_true", help="print the receipt summary as JSON instead of the verdict lines")
+    parser.add_argument("--verbose", action="store_true",
+                        help="also print the runtime's tagged progress lines (REPLAY, WARM VANILLA, FOUNDATION DELTA, ...)")
     add_progress_argument(parser)
     parsed = parser.parse_args(args)
     source = parsed.source or parsed.positional_source
@@ -52,6 +60,25 @@ def _parse(args: list[str]) -> argparse.Namespace:
         parser.error("--timeout must be finite and positive")
     parsed.source = source
     return parsed
+
+
+def _settled_source_sha256(source: Path, *, attempts: int = 20, interval: float = 0.1) -> tuple[str | None, float]:
+    """Digest the source once two consecutive reads agree.
+
+    Editors and the macOS-to-guest file sync write in stages. A digest taken
+    mid-write is refused later as a source pin mismatch; waiting for the bytes
+    to settle removes that race without weakening the pin.
+    """
+    previous = sha256_file(source)
+    waited = 0.0
+    for _ in range(attempts):
+        time.sleep(interval)
+        waited += interval
+        current = sha256_file(source)
+        if current == previous:
+            return current, waited
+        previous = current
+    return previous, waited
 
 
 def _profile(source: Path, explicit: str | None, script_dir: Path) -> str:
@@ -94,7 +121,7 @@ def main(
     )
     basis_cache_root = resolve_authoring_run_root(
         options.basis_cache_root, legacy_cwd=command_cwd, source_resolution=resolution,
-    ) if options.basis_cache_root else run_root
+    ) if options.basis_cache_root else None
     scripts = Path(script_dir).expanduser().resolve()
     try:
         name = _profile(source, options.profile, scripts)
@@ -105,12 +132,16 @@ def main(
     transcript = default_transcript_path(run_root, source)
     # Pin the banner digest privately: the replay refuses before HOL if the bytes it
     # reads are not these, so a printed sha always names the bytes that were checked.
-    expected_sha256 = sha256_file(source)
+    expected_sha256, settle_seconds = _settled_source_sha256(source)
     short = short_sha256(expected_sha256)
     if expected_sha256 is None or short is None:
         print(f"prove: source digest unavailable: {source}", file=sys.stderr)
         return 2
-    print(f"REPLAY: profile={name} source={source} sha={short}", flush=True)
+    if settle_seconds > 0.15 and not options.json:
+        print(f"SOURCE: waited {settle_seconds:.1f}s for the file to stop changing before pinning its digest",
+              flush=True)
+    if options.verbose:
+        print(f"REPLAY: profile={name} source={source} sha={short}", flush=True)
     with ReplayProgress(timeout=options.timeout, interval=options.progress_interval) as progress:
         status = run_published_warm_replay(
             profile,
@@ -123,26 +154,45 @@ def main(
             basis_source=basis,
             run_root=run_root,
             basis_cache_root=basis_cache_root,
+            verbose=options.verbose,
         )
     receipt = Path(f"{transcript}.json")
     if receipt.is_file():
+        recorded = read_json(receipt)
+        summary = summarize(recorded, receipt_path=receipt)
+        summary = replace(summary, next=next_command(summary, run_root=run_root, public_command=public_command))
+        if options.json:
+            print(summary.json(), flush=True)
+            return status
+        print(summary.line, flush=True)
         print(f"RECEIPT: {receipt}", flush=True)
+        if summary.verdict == "failed" and summary.failing_step:
+            step = summary.failing_step
+            where = f" (line {step['source_line']})" if step.get("source_line") else ""
+            print(f"GOAL before the failing step{where}: |- {step['conclusion']}", flush=True)
+        if summary.next:
+            print(f"NEXT: {summary.next}", flush=True)
+        if not options.verbose:
+            return status
+        # Legacy tagged lines for scripts that still grep them; the verdict above is the contract.
         if status == 0:
             print(
                 "SOURCE CHECK: passed; complete source evaluated and discovered named theorem bindings checked",
                 flush=True,
             )
-        recorded = read_json(receipt)
-        if recorded.get("transport_status") in {"timeout", "interrupted", "cancelled"}:
+        if recorded.get("source_preflight_status") in {"source_changed_during_capture", "source_pin_refused"}:
+            current = short_sha256(sha256_file(source))
+            print("SOURCE CHANGED: the file was rewritten between the pinned digest and the read for evaluation "
+                  f"(pinned sha={short}, now sha={current or 'unavailable'}); no HOL ran and no profile was "
+                  "restored. An editor save or the macOS-to-guest sync landed mid-capture.", flush=True)
+            print("NEXT: rerun the same prove command; the receipt above records only the refusal.", flush=True)
+        elif recorded.get("transport_status") in {"timeout", "interrupted", "cancelled"}:
             reason = "timeout" if recorded.get("transport_status") == "timeout" else "cancelled"
             print(f"INCOMPLETE: {reason}; this attempt did not complete the source check. "
                   "This is no conclusion about whether the theorem is true or false.", flush=True)
             print("NEXT: inspect this attempt's diagnostics, isolate the slow proof in a small "
                   "leaf, then rerun with an explicit budget.", flush=True)
             print(f"DETAILS: {public_command('inspect', receipt.parent, '--tail', '40')}", flush=True)
-        else:
-            for line in replay_handoff(run_root, succeeded=status == 0):
-                print(line, flush=True)
     elif status == 0:
         print("prove: replay succeeded without its required receipt", file=sys.stderr)
         return 1

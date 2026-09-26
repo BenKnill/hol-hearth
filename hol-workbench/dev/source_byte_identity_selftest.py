@@ -74,6 +74,26 @@ def _replay_line(output: str) -> str:
     return next(line for line in output.splitlines() if line.startswith("REPLAY: "))
 
 
+def _changed_during_capture_card(directory: Path, source: Path) -> None:
+    """A pin refusal receipt reads as a settled-file hint, not a proof failure."""
+    run = _receipt(directory / "changed", source, source_sha256=sha256_bytes(ACCEPTED))
+    receipt_path = run / "transcript.log.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt.update({
+        "transport": "not_started", "semantic_source_status": "not_started", "source_completed": False,
+        "completion_marker_valid": False, "claims_complete": False, "semantic_exit_status": 2, "exit_status": 2,
+        "first_failure": "source_changed_during_capture: warm vanilla HOL: source_pin=refused; expected sha=aaaa actual sha=bbbb",
+        "source_preflight_status": "source_changed_during_capture",
+        "source_pin": {"status": "refused", "pinned_sha256": sha256_bytes(ACCEPTED), "read_sha256": sha256_bytes(EDITED)},
+    })
+    receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+    card, status = _card(run)
+    assert status != 0
+    assert card.startswith("REFUSED proof.ml: source changed during capture"), card
+    assert f"pinned sha={sha256_bytes(ACCEPTED)[:12]}" in card and f"read sha={sha256_bytes(EDITED)[:12]}" in card, card
+    assert "Not a proof failure" in card and "NEXT: rerun the same prove command once the file is stable" in card
+
+
 def _pin_contract(accepted_sha: str, edited_sha: str) -> None:
     """The admitted-bytes pin refuses before claim parsing, restore, or HOL."""
 
@@ -146,7 +166,7 @@ def _banner_pin_receipt_contract(directory: Path, accepted_sha: str) -> None:
         contextlib.redirect_stdout(stdout),
     ):
         status = prove_replay.main(
-            [str(source), "--profile", "light", "--run-root", str(run_root)],
+            [str(source), "--profile", "light", "--run-root", str(run_root), "--verbose"],
             script_dir=directory,
             cwd=directory,
         )
@@ -260,8 +280,8 @@ def main() -> int:
         assert _source_line(changed_card) == f"source: {source} sha={accepted_sha[:12]}"
         assert changed_status == status
         assert _advisory_lines(changed_card) == []
-        assert "status: succeeded" in changed_card
-        assert "source_acceptance: accepted" in changed_card
+        assert changed_card.startswith("PASSED "), changed_card
+        assert "bindings proved" in changed_card or "no named bindings" in changed_card, changed_card
         source.unlink()
         assert _card(run)[0] == changed_card
 
@@ -272,6 +292,7 @@ def main() -> int:
             assert _advisory_lines(legacy_card) == []
 
         _pin_contract(accepted_sha, edited_sha)
+        _changed_during_capture_card(directory, source)
         _banner_pin_receipt_contract(directory, accepted_sha)
         _pin_refusal_handoff_contract(directory)
 

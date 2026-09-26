@@ -10,7 +10,7 @@ from hol_workbench.cli.orbstack_criu_vanilla_artifacts import default_transcript
 from hol_workbench.cli.published_profile import PublishedWarmProfile
 from hol_workbench.hashing import sha256_file
 from hol_workbench.project_basis import (
-    abort_basis, adopt_basis, bootstrap_postlude, bootstrap_prelude, lookup_basis,
+    abort_basis, adopt_basis, basis_cache_dir, bootstrap_postlude, bootstrap_prelude, lookup_basis,
     plan_basis, project_basis_lock,
 )
 from hol_workbench.source_execution_plan import capture_source_dependency_closure, decide_profile_satisfaction
@@ -22,6 +22,7 @@ def run_project_basis_replay(
     transcript: Path, cache_root: Path | None = None,
     expected_source_sha256: str | None = None,
     on_phase: Callable[[str], None] | None = None,
+    verbose: bool = True,
 ) -> int:
     """Admit a checked basis, then replay the untouched leaf in a fresh child.
 
@@ -30,7 +31,8 @@ def run_project_basis_replay(
     trusted bootstrap transport bytes. Neither phase edits project sources.
     """
     phase = on_phase or (lambda _phase: None)
-    cache_root = run_root if cache_root is None else cache_root
+    # ``cache_root`` None selects the shared per-user cache, so a basis prepared
+    # under one run root serves every later run root with identical inputs.
     leaf_closure = {}
 
     def record_refusal(reason: str) -> None:
@@ -93,9 +95,11 @@ def run_project_basis_replay(
             if handle is None:
                 preparation = default_transcript_path(run_root, basis_source)
                 receipt = Path(f"{preparation}.json")
-                print(f"PROJECT BASIS: preparing {basis_source}; budget={timeout:g}s for this phase"
-                      if timeout is not None else f"PROJECT BASIS: preparing {basis_source}", flush=True)
-                print(f"PREPARATION RECEIPT: {receipt}", flush=True)
+                print(f"BASIS: preparing {basis_source.name} once (budget {timeout:g}s); identical inputs reuse it "
+                      "from any run root" if timeout is not None else f"BASIS: preparing {basis_source.name}", flush=True)
+                if verbose:
+                    print(f"BASIS CACHE: {basis_cache_dir(cache_root)}", flush=True)
+                    print(f"PREPARATION RECEIPT: {receipt}", flush=True)
                 adopted = False
                 try:
                     prefix = bootstrap_prelude(plan)
@@ -109,9 +113,9 @@ def run_project_basis_replay(
                         preparation_package_root=plan.generation / "source-package",
                     )
                     if status:
-                        print(f"PROJECT BASIS: preparation did not pass (exit {status}); leaf was not evaluated. "
+                        print(f"BASIS: preparation did not pass (exit {status}); leaf was not evaluated. "
                               f"Inspect {receipt}" if receipt.is_file() else
-                              f"PROJECT BASIS: preparation stopped before recording (exit {status}); leaf was not evaluated.",
+                              f"BASIS: preparation stopped before recording (exit {status}); leaf was not evaluated.",
                               file=sys.stderr, flush=True)
                         return status
                     handle = adopt_basis(plan, receipt)
@@ -119,21 +123,23 @@ def run_project_basis_replay(
                 finally:
                     if not adopted:
                         abort_basis(plan)
-                print(f"PROJECT BASIS: prepared {basis_source}; identity={plan.key[:12]}", flush=True)
+                print(f"BASIS: prepared {basis_source.name}; identity {plan.key[:12]}", flush=True)
             else:
-                print(f"PROJECT BASIS: reusing {basis_source}; identity={plan.key[:12]}", flush=True)
-                print(f"PREPARATION RECEIPT: {handle.record['preparation_receipt']}", flush=True)
-            print(f"LEAF REPLAY: {source}; fresh child; budget={timeout:g}s for this phase"
-                  if timeout is not None else f"LEAF REPLAY: {source}; fresh child", flush=True)
+                print(f"BASIS: reusing {basis_source.name}; identity {plan.key[:12]}", flush=True)
+                if verbose:
+                    print(f"PREPARATION RECEIPT: {handle.record['preparation_receipt']}", flush=True)
+            if verbose:
+                print(f"LEAF REPLAY: {source}; fresh child; budget={timeout:g}s for this phase"
+                      if timeout is not None else f"LEAF REPLAY: {source}; fresh child", flush=True)
             phase("project-basis-leaf")
             return replay(source, project_basis_handle=handle)
     except KeyboardInterrupt:
-        print("PROJECT BASIS: cancelled; retained receipts and the shared warm shelf.", file=sys.stderr)
+        print("BASIS: cancelled; receipts and the warm seat are retained.", file=sys.stderr)
         return 130
     except (OSError, RuntimeError, ValueError) as exc:
         try:
             record_refusal(str(exc))
         except (OSError, RuntimeError, ValueError) as recording_error:
             print(f"PROJECT BASIS: refusal receipt could not be written: {recording_error}", file=sys.stderr)
-        print(f"PROJECT BASIS: refused; {exc}", file=sys.stderr)
+        print(f"BASIS: refused; {exc}", file=sys.stderr)
         return 2

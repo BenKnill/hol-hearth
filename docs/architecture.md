@@ -33,6 +33,22 @@ The `cli/orbstack_criu_*` modules implement the Linux CRIU route, including
 execution inside an OrbStack Linux machine; they are part of the public proof
 path, not a native macOS evaluator.
 
+## Layers
+
+The package is one flat namespace for historical reasons; read it as three
+layers with one narrow seam between each pair.
+
+| Layer | Modules | Job |
+| --- | --- | --- |
+| Warm runtime | `criu_*`, `fork_*`, `proof_run_*`, `pools/`, `orbstack_*`, `cli/orbstack_criu_*`, `controller_runtime_bundle`, `machine_client` | Build, restore and admit a CRIU profile; fork one child per attempt; own seats, leases and the broker protocol. Nothing here reads a proof. |
+| Source capture | `source_dependency_closure`, `source_dependency_package`, `profile_satisfied_dependencies`, `logical_source_roots`, `project_basis`, `proofs/loader_scan` | Turn one entrypoint into an exact, hash-bound closure of files and objects, and decide what the profile already supplies. Nothing here starts a process. |
+| Evidence | `vanilla_claims`, `proof_diagnostics`, `foundation_delta`, `receipt_summary`, `cli/inspect`, `cli/reopen`, `cli/export_replay` | Instrument the source, read the transcript, write the receipt and its verdict, and render it. Nothing here knows about CRIU. |
+
+The seam the front door (`cli/prove*`) relies on is: capture a closure, ask
+the runtime for a seat and a transcript, hand the transcript to evidence. A
+future physical split into `hearth.runtime`, `hearth.sources` and
+`hearth.evidence` should keep exactly those three calls.
+
 ## Acceptance and diagnostic boundaries
 
 Review these modules when changing what a receipt can accept. Paths below are

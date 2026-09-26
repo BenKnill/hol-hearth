@@ -195,8 +195,11 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             self.assertNotIn("TARGET_0: proved", result.stdout)
             result = self.inspect(root, "--verbose")
             self.assertIn("TARGET_15: proved", result.stdout)
-            self.assertEqual(json.loads(self.inspect(root, "--json").stdout),
+            self.assertEqual(json.loads(self.inspect(root, "--json", "--verbose").stdout),
                              json.loads(receipt.read_text()))
+            summary = json.loads(self.inspect(root, "--json").stdout)
+            self.assertEqual(summary["verdict"], "passed")
+            self.assertEqual(summary["bindings_proved"], summary["bindings_total"])
             self.assertEqual(self.inspect(root, "--binding", "ABSENT").returncode, 1)
             _receipt(receipt, succeeded=False, recorded_exit_status=1, bindings=bindings)
             self.assertEqual(self.inspect(root, "--binding", "TARGET_15").returncode, 1)
@@ -239,14 +242,14 @@ let DIRECT = ARITH_RULE `2 + 3 = 5`;;
             literal = self.inspect(receipt, "--binding", "LITERAL")
             self.assertIn("LITERAL: proved (source conclusion matched; hypotheses empty)", literal.stdout)
             self.assertNotIn("COMPUTED:", literal.stdout)
-            self.assertEqual(json.loads(self.inspect(receipt, "--json", "--binding", "COMPUTED").stdout),
+            self.assertEqual(json.loads(self.inspect(receipt, "--json", "--verbose", "--binding", "COMPUTED").stdout),
                              json.loads(original))
             self.assertEqual(receipt.read_bytes(), original)
             _receipt(receipt, succeeded=False, recorded_exit_status=1, bindings=result["bindings"])
             rejected = self.inspect(receipt, "--binding", "COMPUTED")
             self.assertEqual(rejected.returncode, 1)
             self.assertIn("COMPUTED: thm bound (conclusion and hypotheses not checked)", rejected.stdout)
-            self.assertIn("source_acceptance: not_accepted", rejected.stdout)
+            self.assertTrue(rejected.stdout.startswith("FAILED "), rejected.stdout)
 
     def test_inspect_does_not_infer_probe_strength_or_claim_failed_checks_passed(self):
         with tempfile.TemporaryDirectory() as temporary:

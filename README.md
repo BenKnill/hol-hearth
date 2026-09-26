@@ -18,10 +18,21 @@ Use [setup](docs/setup.md#create-the-first-profile) when provisioning a new host
 Then run the project on its intended basis:
 
 ```sh
-./hearth prove /ABS/project/proofs/leaf.ml --profile light \
-  --timeout 120 --run-root /ABS/project/runs
+./hearth prove /ABS/project/proofs/leaf.ml --profile light --run-root /ABS/project/runs
 ./hearth inspect /ABS/project/runs --binding TARGET_THEOREM
 ```
+
+`prove` answers with one verdict line, the receipt path and the next command:
+
+```
+PASSED leaf.ml: 3/3 bindings proved, 0 new axioms, eval 4.2s (light)
+RECEIPT: /ABS/project/runs/20260926T140000Z-4242-leaf-1a2b3c/transcript.log.json
+NEXT: ./hearth inspect /ABS/project/runs/20260926T140000Z-4242-leaf-1a2b3c
+```
+
+A failure names the binding and line, quotes HOL's error, and shows the goal
+the failing tactic step received; `--json` gives the same summary as data and
+`--verbose` adds the runtime's tagged lines. The default budget is 900 seconds.
 
 Use `s2n-arm` for ARM assembly, `s2n-arm-mlkem` for the larger NTT basis, or
 `s2n-x86` for x86 assembly. `hearth profiles` lists recipes; installed shelves
@@ -32,6 +43,12 @@ configured shelf and queue without running a proof. See the
 For a read-only view of a large leaf's transitive source and ELF inputs, use
 `./hearth leaf-needs /ABS/project/proofs/leaf.ml --profile s2n-arm --deep`.
 It reports captured hashes and warm inventory separately, without starting HOL.
+`./hearth status` lists active and queued attempts; `./hearth cancel ATTEMPT_ID`
+interrupts one of them like Ctrl-C without touching the shared warm seat.
+`./hearth export-replay /ABS/project/runs --out replay.sh` writes the plain
+cold HOL Light command that reproduces a receipt's load environment, for the
+rare case where the profile image itself is in question or an outside reader
+wants a run without Hearth.
 
 `--profile` selects the published warm environment. For a stable, expensive
 project import, `--basis` checks and retains that completed dependency:
@@ -149,8 +166,13 @@ warm-cache identity bug and its rejection after the fix.
 A recorded result distinguishes source completion, named theorem probes,
 transport, input hashes and foundation changes. An accepted OCaml source can
 contain unfinished interactive goals; inspect the actual target binding.
-Warm authoring checks are real HOL checks. Independent publication replay and
-review of the theorem's assumptions remain separate.
+Warm authoring checks are complete HOL checks: the same kernel evaluates the
+exact source in a fresh child of a profile whose recipe and loaded-file
+inventory are hash-verified, every discovered binding is probed, and the axiom
+count is compared. A cold replay of the same recipe adds independence from the
+profile image, not a stronger theorem; see
+[what a receipt establishes](docs/usage.md#what-an-accepted-receipt-establishes).
+Reviewing the theorem's assumptions remains the reader's job.
 
 [MIT](LICENSE). External libraries retain their licenses. Hearth distributes
 [reviewed recipe sources](docs/source-provenance.md), not third-party proof

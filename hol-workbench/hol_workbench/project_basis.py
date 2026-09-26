@@ -34,13 +34,31 @@ from hol_workbench.process_groups import process_birth_identity, process_start_t
 from hol_workbench.proof_run_fork_basis_safety import admit_single_threaded_basis
 from hol_workbench.proof_run_fork_broker import ForkBasisBroker
 from hol_workbench.proof_run_fork_broker_client import broker_control_request
+from hol_workbench.runtime_cache import xdg_cache_home
 from hol_workbench.source_dependency_closure import source_dependency_closure_identity_matches
 from hol_workbench.source_dependency_package import dependency_transport_status, elf_package_transport
 from hol_workbench.secure_tree_read import read_regular_file_beneath
 
 SCHEMA = "hol-hearth.project-basis.v1"
 ADOPTION_SECONDS = 45.0
-MAX_LIVE_BASES = 2
+MAX_LIVE_BASES = 3
+RETENTION = "shared_cache_bounded_lru"
+
+
+def default_basis_cache_root() -> Path:
+    """One per-user cache shared by every run root; basis identities are content hashes."""
+    return xdg_cache_home() / "hol-hearth" / "project-bases"
+
+
+def basis_cache_dir(cache_root: Path | None) -> Path:
+    """Resolve the directory that indexes prepared bases.
+
+    ``None`` selects the shared per-user cache. An explicit root keeps the
+    historical layout beneath it, so a caller can still isolate its bases.
+    """
+    if cache_root is None:
+        return default_basis_cache_root()
+    return cache_root.expanduser().resolve() / ".project-bases"
 
 
 class ProjectBasisBusy(RuntimeError):
@@ -89,7 +107,7 @@ class BasisHandle:
 
 def plan_basis(
     basis_source: Path, *, profile_root: Path, logical_profile: str,
-    run_root: Path, closure: dict[str, Any],
+    run_root: Path | None, closure: dict[str, Any],
     profile_satisfaction: dict[str, Any] | None = None,
     profile_identity: dict[str, Any] | None = None,
 ) -> BasisPlan:
@@ -135,14 +153,13 @@ def plan_basis(
                                if row.get("loader") in {"define_from_elf", "define_assert_from_elf"}}),
         "elf_transport": elf_package_transport(closure),
     }
-    return BasisPlan(source, profile, logical_profile,
-                     run_root.expanduser().resolve() / ".project-bases", identity, _digest(identity))
+    return BasisPlan(source, profile, logical_profile, basis_cache_dir(run_root), identity, _digest(identity))
 
 
 @contextmanager
-def project_basis_lock(run_root: Path) -> Iterator[None]:
+def project_basis_lock(run_root: Path | None) -> Iterator[None]:
     """Protect lookup, preparation, use and bounded eviction as one operation."""
-    root = run_root.expanduser().resolve() / ".project-bases"
+    root = basis_cache_dir(run_root)
     root.mkdir(parents=True, exist_ok=True, mode=0o700)
     with (root / ".lock").open("a+b") as handle:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
@@ -297,6 +314,37 @@ def retire_basis(handle: BasisHandle, *, reason: str = "owned_basis_lifecycle_fa
     atomic_write_json(handle.record_path, row)
 
 
+def list_bases(cache_dir: Path) -> list[dict[str, Any]]:
+    """Describe every indexed basis under one cache directory; never start or stop one."""
+    rows: list[dict[str, Any]] = []
+    for path in sorted(cache_dir.glob("*/basis.json")):
+        record = read_json(path)
+        if record.get("schema") != SCHEMA:
+            continue
+        identity = record.get("identity") or {}
+        live = _live(record.get("broker")) and _live(record.get("basis"))
+        rows.append({
+            "key": path.parent.name, "record_path": str(path), "status": record.get("status"),
+            "live": live, "source": identity.get("source"), "logical_profile": identity.get("logical_profile"),
+            "basis_pid": (record.get("basis") or {}).get("pid"), "broker_pid": (record.get("broker") or {}).get("pid"),
+            "preparation_receipt": record.get("preparation_receipt"),
+            "preparation_eval_elapsed_seconds": record.get("preparation_eval_elapsed_seconds"),
+            "created_epoch_seconds": record.get("created_epoch_seconds"),
+            "last_used_epoch_seconds": record.get("last_used_epoch_seconds"),
+            "retirement_reason": record.get("retirement_reason"),
+        })
+    return rows
+
+
+def retire_listed_basis(row: dict[str, Any], *, reason: str) -> None:
+    """Retire one indexed basis by its listing row, whether or not its processes are live."""
+    record = read_json(Path(str(row["record_path"])))
+    if record.get("schema") != SCHEMA:
+        raise ValueError("cannot retire a non-project basis")
+    handle = BasisHandle(Path(str(record.get("session") or "")), record, Path(str(row["record_path"])))
+    retire_basis(handle, reason=reason)
+
+
 def bootstrap_prelude(plan: BasisPlan) -> bytes:
     """Save only harness-managed transport functions before packaging wrappers."""
     loaders = ["needs", "loadt", "loads", "prove", *plan.identity["elf_transport"]["wrapped_loaders"]]
@@ -339,7 +387,7 @@ def _make_room(plan: BasisPlan) -> None:
             time.sleep(0.05)
         if _live(row["broker"]):
             raise RuntimeError("owned project basis did not retire within its shutdown budget")
-        row.update(status="retired", retirement_reason="run_root_live_basis_limit")
+        row.update(status="retired", retirement_reason="live_basis_limit")
         atomic_write_json(path, row)
 
 
@@ -571,7 +619,7 @@ def adopt_basis(plan: BasisPlan, receipt_path: Path) -> BasisHandle:
             "preparation_receipt_sha256": sha256_file(receipt_path),
             "preparation_eval_elapsed_seconds": receipt.get("eval_elapsed_seconds"),
             "created_epoch_seconds": time.time(), "last_used_epoch_seconds": time.time(),
-            "retention": "run_root_owned_bounded_lru", "max_live_bases": MAX_LIVE_BASES,
+            "retention": RETENTION, "max_live_bases": MAX_LIVE_BASES,
         }
         atomic_write_json(plan.record_path, record)
         return BasisHandle(session, record, plan.record_path)

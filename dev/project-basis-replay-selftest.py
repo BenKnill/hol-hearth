@@ -84,7 +84,7 @@ class BasisReplay(unittest.TestCase):
         return run_published_warm_replay(
             self.profile, self.leaf, timeout=765, transcript=self.transcript,
             evidence_role="recorded_warm_replay", expected_source_sha256=sha256_file(self.leaf),
-            basis_source=basis or self.basis, run_root=self.run_root,
+            basis_source=basis or self.basis, run_root=self.run_root, basis_cache_root=self.run_root,
         )
 
     def test_prepares_once_reuses_then_reprepares_after_transitive_edit(self):
@@ -113,7 +113,7 @@ class BasisReplay(unittest.TestCase):
                 self.assertIn("project_basis_handle", options)
                 self.assertNotIn("preparation_postlude", options)
                 self.assertEqual(options["transcript_output"], self.transcript)
-        self.assertIn("PROJECT BASIS: reusing", self.output.getvalue())
+        self.assertIn("BASIS: reusing", self.output.getvalue())
 
     def test_failed_preparation_keeps_receipt_and_does_not_run_leaf(self):
         self.preparation_status = 124
@@ -208,7 +208,8 @@ class BasisReplay(unittest.TestCase):
                 script_dir=ROOT / "hol-workbench/bin", cwd=self.root)
         self.assertEqual(status, 130)
         self.assertEqual(launched[0][launched[0].index("--basis") + 1], str(self.basis))
-        self.assertEqual(launched[0][launched[0].index("--basis-cache-root") + 1], str(self.run_root))
+        # The watch shares the per-user basis cache with ordinary prove; no private cache root.
+        self.assertNotIn("--basis-cache-root", launched[0])
         self.assertNotEqual(launched[0][launched[0].index("--run-root") + 1], str(self.run_root))
 
     def test_failed_preparation_receipt_does_not_make_watch_retry_unchanged_leaf(self):

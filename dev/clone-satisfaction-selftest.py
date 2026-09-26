@@ -209,7 +209,7 @@ class CloneSatisfaction(unittest.TestCase):
         with self.assertRaisesRegex(satisfaction.ProfileSatisfactionError, "changed before warm"):
             self.decide(closure)
         with self.assertRaisesRegex(satisfaction.ProfileSatisfactionError, "changed before evaluation"):
-            satisfaction._revalidate_live_edge_files(decision)
+            satisfaction.revalidate_live_edge_files(decision)
 
 
 if __name__ == "__main__":
